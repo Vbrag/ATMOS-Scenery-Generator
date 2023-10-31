@@ -10,7 +10,7 @@ import os , math
 import numpy as  np
 
 
-savePath = "C:\\Users\\abdel\\Documents\\OpenStreetMaps\\"
+savePath = "C:\\Users\\abdelmaw\\Documents\\OpenStreetMaps\\"
 
 terrainDir  = os.path.join(savePath , "terrain")
 
@@ -126,6 +126,26 @@ def gbs_Decimal2Degrees(gps):
     
      
 
+def projection_fromGeographic(lat, lon):
+    
+    # see conversion formulas at
+    # http://en.wikipedia.org/wiki/Transverse_Mercator_projection
+    # and
+    # http://mathworld.wolfram.com/MercatorProjection.html
+    
+    radius = 6378137
+    k = 1
+    
+    self_lon = 0
+    self_lat = 0
+    self_latInRadians = math.radians(self_lat)
+    lat = math.radians(lat)
+    lon = math.radians(lon-self_lon)
+    B = math.sin(lon) * math.cos(lat)
+    x = 0.5 * k * radius * math.log((1+B)/(1-B))
+    y = k * radius * ( math.atan(math.tan(lat)/math.cos(lon)) - self_latInRadians )
+    return (x,y)
+
 
 
 
@@ -137,7 +157,14 @@ if __name__ == '__main__':
     
     W1 = 51.7145
     W2 = 51.7237   
-    
+
+
+    # L1 = 10.75278
+    # L2 = 10.74607
+    #
+    # W1 = 47.55937
+    # W2 = 47.55631 
+        
     minLon = min(L1 , L2)
     maxLon = max(L1 , L2)    
     
@@ -155,6 +182,11 @@ if __name__ == '__main__':
     
     vertices = []
     
+    X = []
+    Y= []
+    Z= []
+    
+    #
     # for latInterval in latIntervals:
     #     for lonInterval in lonIntervals:
     #
@@ -172,42 +204,44 @@ if __name__ == '__main__':
     #             terrainUrl = get_url(lat, lon)     
     #             download_url(url = terrainUrl, save_path =filepath )
     #
-    #         # with gzip.open(filepath, "rb") as f:
-    #         #     print(1)
-    #         #     reslution = 10000.0
-    #         #
-    #         #     for latitude in np.arange( latInterval[0]  , latInterval[1] ,  1.0/reslution ):    
-    #         #
-    #         #         for longitude  in np.arange( lonInterval[0]  ,  lonInterval[1] ,  1.0/reslution    ): 
-    #         #
-    #         #             [latitude_Degrees,latitude_Minute,latitude_Second  ] = gbs_Decimal2Degrees(latitude  )
-    #         #             [longitude_Degrees  , longitude_Minute ,longitude_Second   ] = gbs_Decimal2Degrees(longitude  )
-    #         #             n = latitude_Minute * 60 + latitude_Second
-    #         #             e =  longitude_Minute* 60 + longitude_Second
-    #         #
-    #         #             i = 1201 - int(round(n / 3, 0))
-    #         #             j = int(round(e / 3, 0))
-    #         #             f.seek(((i - 1) * 1201 + (j - 1)) * 2)  # go to the right spot,
-    #         #             buf = f.read(2)  # read two bytes and convert them:
-    #         #
-    #         #             val = struct.unpack('>h', buf)[0]  # ">h" is a signed two byte integer
-    #         #             if not val == -32768:  # the not-a-valid-sample value
-    #         #                 val =  val
-    #         #             else:
-    #         #                 val = None                                
-    #         #
-    #         #             vtrx = (gbs_Degrees2Decimal([latitude_Degrees,latitude_Minute,latitude_Second  ])  , gbs_Degrees2Decimal([longitude_Degrees  , longitude_Minute ,longitude_Second   ] ),  val)
-    #         #
-    #         #             print(vtrx)
-    #         #             vertices.append(vtrx)
+    #         with gzip.open(filepath, "rb") as f:
+    #             print(1)
+    #             reslution = 10000.0
+    #
+    #             for latitude in np.arange( latInterval[0]  , latInterval[1] ,  1.0/reslution ):    
+    #
+    #                 for longitude  in np.arange( lonInterval[0]  ,  lonInterval[1] ,  1.0/reslution    ): 
+    #
+    #                     [latitude_Degrees,latitude_Minute,latitude_Second  ] = gbs_Decimal2Degrees(latitude  )
+    #                     [longitude_Degrees  , longitude_Minute ,longitude_Second   ] = gbs_Decimal2Degrees(longitude  )
+    #                     n = latitude_Minute * 60 + latitude_Second
+    #                     e =  longitude_Minute* 60 + longitude_Second
+    #
+    #                     i = 1201 - int(round(n / 3, 0))
+    #                     j = int(round(e / 3, 0))
+    #                     f.seek(((i - 1) * 1201 + (j - 1)) * 2)  # go to the right spot,
+    #                     buf = f.read(2)  # read two bytes and convert them:
+    #
+    #                     val = struct.unpack('>h', buf)[0]  # ">h" is a signed two byte integer
+    #                     if not val == -32768:  # the not-a-valid-sample value
+    #                         val =  val
+    #                     else:
+    #                         val = None                                
+    #
+    #                     vtrx = (gbs_Degrees2Decimal([latitude_Degrees,latitude_Minute,latitude_Second  ])  , gbs_Degrees2Decimal([longitude_Degrees  , longitude_Minute ,longitude_Second   ] ),  val)
+    #
+    #                     print(vtrx)
+    #                     vertices.append(vtrx)
             
             
     minHeight = 32767
     maxHeight = -32767
     maxLon = 0
     maxLat = 0
-    
+    size = 3600
     vertsCounter = 0
+    voidValue = -32768
+    voidSubstitution = 0
     
     # we have an extra row for the first latitude interval
     firstLatInterval = 1
@@ -221,44 +255,44 @@ if __name__ == '__main__':
         # latitude of the lower-left corner of the SRTM tile
         _lat = math.floor(latInterval[0])
         # vertical indices that limit the active SRTM tile area
-        y1 = math.floor( 3600 * (latInterval[0] - _lat) )
-        y2 = math.ceil( 3600 * (latInterval[1] - _lat) ) + firstLatInterval - 1
-        
+        y1 = math.floor( size * (latInterval[0] - _lat) )
+        y2 = math.ceil( size * (latInterval[1] - _lat) ) + firstLatInterval - 1
+    
         # we have an extra column for the first longitude interval
         firstLonInterval = 1
-        
+    
         for lonIntervalIndex,lonInterval in enumerate(lonIntervals):
             # longitude of the lower-left corner of the SRTM tile
             _lon = math.floor(lonInterval[0])
             # horizontal indices that limit the active SRTM tile area
-            x1 = math.floor( 3600 * (lonInterval[0] - _lon) ) + 1 - firstLonInterval 
-            x2 = math.ceil( 3600 * (lonInterval[1] - _lon) )
+            x1 = math.floor( size * (lonInterval[0] - _lon) ) + 1 - firstLonInterval 
+            x2 = math.ceil( size * (lonInterval[1] - _lon) )
             xSize = x2-x1
-            
-            filename  = getHgtFileName(lat, lon)
+    
+            srtmFileName  = getHgtFileName(_lat, _lon)
     
     
-            filepath  = os.path.join(terrainDir , filename)
+            filepath  = os.path.join(terrainDir , srtmFileName)
     
             if not os.path.exists(filepath) or os.path.getsize(filepath) < 1000:
-                print("downloading -> " + filename)  
-                terrainUrl = get_url(lat, lon)     
+                print("downloading -> " + srtmFileName)  
+                terrainUrl = get_url(_lat, _lon)     
                 download_url(url = terrainUrl, save_path =filepath )
-            
-            with gzip.open(srtmFileName, "rb") as f:
+    
+            with gzip.open(filepath, "rb") as f:
                 for y in range(y2, y1-1, -1):
                     # set the file object position at y, x1
-                    f.seek( 2*((self.size-y)*(self.size+1) + x1) )
+                    f.seek( 2*(( size-y)*( size+1) + x1) )
                     for x in range(x1, x2+1):
-                        lat = _lat + y/self.size
-                        lon = _lon + x/self.size
-                        xy = self.projection.fromGeographic(lat, lon)
+                        lat = _lat + y/size
+                        lon = _lon + x/size
+                        xy = projection_fromGeographic(lat, lon)
                         # read two bytes and convert them
                         buf = f.read(2)
                         # ">h" is a signed two byte integer
                         z = struct.unpack('>h', buf)[0]
-                        if z==self.voidValue:
-                            z = self.voidSubstitution
+                        if z== voidValue:
+                            z = voidSubstitution
                         if z<minHeight:
                             minHeight = z
                         elif z>maxHeight:
@@ -266,43 +300,48 @@ if __name__ == '__main__':
                             maxLon = lat
                             maxLat = lon
                         # add a new vertex to the verts array
-                        verts.append((xy[0], xy[1], z))
-                        if not firstLatInterval and y==y2:
-                            topNeighborIndex = lonIntervalVertsCounterValues[lonIntervalIndex] + x - x1
-                            if x!=x1:
-                                if self.primitiveType == "quad":
-                                    indices.append((vertsCounter, topNeighborIndex, topNeighborIndex-1, vertsCounter-1))
-                                else: # self.primitiveType == "triangle"
-                                    indices.append((vertsCounter-1, topNeighborIndex, topNeighborIndex-1))
-                                    indices.append((vertsCounter, topNeighborIndex, vertsCounter-1))
-                            elif not firstLonInterval:
-                                leftNeighborIndex = prevLonIntervalVertsCounter - (y2-y1)*(prevXsize+1)
-                                leftTopNeighborIndex = topNeighborIndex-prevYsize*(x2-x1+1)-1
-                                if self.primitiveType == "quad":
-                                    indices.append((vertsCounter, topNeighborIndex, leftTopNeighborIndex, leftNeighborIndex))
-                                else: # self.primitiveType == "triangle"
-                                    indices.append((leftNeighborIndex, topNeighborIndex, leftTopNeighborIndex))
-                                    indices.append((vertsCounter, topNeighborIndex, leftNeighborIndex))
-                        elif not firstLonInterval and x==x1:
-                            if y!=y2:
-                                leftNeighborIndex = prevLonIntervalVertsCounter - (y-y1)*(prevXsize+1)
-                                topNeighborIndex = vertsCounter-xSize-1
-                                leftTopNeighborIndex = leftNeighborIndex-prevXsize-1
-                                if self.primitiveType == "quad":
-                                    indices.append((vertsCounter, topNeighborIndex, leftTopNeighborIndex, leftNeighborIndex))
-                                else: # self.primitiveType == "triangle"
-                                    indices.append((leftNeighborIndex, topNeighborIndex, leftTopNeighborIndex))
-                                    indices.append((vertsCounter, topNeighborIndex, leftNeighborIndex))
-                        elif x>x1 and y<y2:
-                            topNeighborIndex = vertsCounter-xSize-1
-                            leftTopNeighborIndex = vertsCounter-xSize-2
-                            if self.primitiveType == "quad":
-                                indices.append((vertsCounter, topNeighborIndex, leftTopNeighborIndex, vertsCounter-1))
-                            else: # self.primitiveType == "triangle"
-                                indices.append((vertsCounter-1, topNeighborIndex, leftTopNeighborIndex))
-                                indices.append((vertsCounter, topNeighborIndex, vertsCounter-1))
-                        vertsCounter += 1
-            
+                        vertices.append((xy[0], xy[1], z))
+                        
+                        X.append(xy[0])
+                        Y.append(xy[1])
+                        Z.append(z)                        
+                        
+                        # if not firstLatInterval and y==y2:
+                        #     topNeighborIndex = lonIntervalVertsCounterValues[lonIntervalIndex] + x - x1
+                        #     if x!=x1:
+                        #         if self.primitiveType == "quad":
+                        #             indices.append((vertsCounter, topNeighborIndex, topNeighborIndex-1, vertsCounter-1))
+                        #         else: # self.primitiveType == "triangle"
+                        #             indices.append((vertsCounter-1, topNeighborIndex, topNeighborIndex-1))
+                        #             indices.append((vertsCounter, topNeighborIndex, vertsCounter-1))
+                        #     elif not firstLonInterval:
+                        #         leftNeighborIndex = prevLonIntervalVertsCounter - (y2-y1)*(prevXsize+1)
+                        #         leftTopNeighborIndex = topNeighborIndex-prevYsize*(x2-x1+1)-1
+                        #         if self.primitiveType == "quad":
+                        #             indices.append((vertsCounter, topNeighborIndex, leftTopNeighborIndex, leftNeighborIndex))
+                        #         else: # self.primitiveType == "triangle"
+                        #             indices.append((leftNeighborIndex, topNeighborIndex, leftTopNeighborIndex))
+                        #             indices.append((vertsCounter, topNeighborIndex, leftNeighborIndex))
+                        # elif not firstLonInterval and x==x1:
+                        #     if y!=y2:
+                        #         leftNeighborIndex = prevLonIntervalVertsCounter - (y-y1)*(prevXsize+1)
+                        #         topNeighborIndex = vertsCounter-xSize-1
+                        #         leftTopNeighborIndex = leftNeighborIndex-prevXsize-1
+                        #         if self.primitiveType == "quad":
+                        #             indices.append((vertsCounter, topNeighborIndex, leftTopNeighborIndex, leftNeighborIndex))
+                        #         else: # self.primitiveType == "triangle"
+                        #             indices.append((leftNeighborIndex, topNeighborIndex, leftTopNeighborIndex))
+                        #             indices.append((vertsCounter, topNeighborIndex, leftNeighborIndex))
+                        # elif x>x1 and y<y2:
+                        #     topNeighborIndex = vertsCounter-xSize-1
+                        #     leftTopNeighborIndex = vertsCounter-xSize-2
+                        #     if self.primitiveType == "quad":
+                        #         indices.append((vertsCounter, topNeighborIndex, leftTopNeighborIndex, vertsCounter-1))
+                        #     else: # self.primitiveType == "triangle"
+                        #         indices.append((vertsCounter-1, topNeighborIndex, leftTopNeighborIndex))
+                        #         indices.append((vertsCounter, topNeighborIndex, vertsCounter-1))
+                        # vertsCounter += 1
+    
             if firstLonInterval:
                 # we don't have an extra column anymore
                 firstLonInterval = 0
@@ -325,15 +364,16 @@ if __name__ == '__main__':
     
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
- 
-    X = []
-    Y= []
-    Z= []
     
-    for vtrx in vertices:
-        X.append(vtrx[0])
-        Y.append(vtrx[1])    
-        Z.append(vtrx[2])    
+    
+    
+    
+
+    
+    # for vtrx in vertices:
+    #     X.append(vtrx[0])
+    #     Y.append(vtrx[1])    
+    #     Z.append(vtrx[2])    
     
     ax.plot_trisurf(np.array(X),  np.array(Y) , np.array(Z))
     
