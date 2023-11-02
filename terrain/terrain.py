@@ -8,7 +8,8 @@ import  gzip
 import struct
 import os , math
 import numpy as  np
-
+from pathlib import Path
+import ctypes, sys
 
 savePath = "C:\\Users\\abdelmaw\\Documents\\OpenStreetMaps\\"
 
@@ -66,6 +67,18 @@ def download_url(url, save_path, chunk_size=128):
 
     print("download : " +  url)
     r = requests.get(url, stream=True)
+    
+    path = Path(save_path)
+    print(path.parent.absolute())
+    
+
+    
+    try:
+        path.parent.absolute().mkdir(parents=True, exist_ok=True)
+    except:
+        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)      
+        path.parent.absolute().mkdir(parents=True, exist_ok=True)  
+        
     with open(save_path, 'wb') as fd:
         for chunk in r.iter_content(chunk_size=chunk_size):
             fd.write(chunk)

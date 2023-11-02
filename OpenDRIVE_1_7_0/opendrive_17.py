@@ -36,10 +36,8 @@ from lxml import etree as etree_
 Validate_simpletypes_ = True
 SaveElementTreeNode = True
 TagNamePrefix = ""
-if sys.version_info.major == 2:
-    BaseStrType_ = basestring
-else:
-    BaseStrType_ = str
+
+BaseStrType_ = str
 
 
 def parsexml_(infile, parser=None, **kwargs):
@@ -107,14 +105,8 @@ def parsexmlstring_(instring, parser=None, **kwargs):
 #     }
 #
 
-try:
-    from generatedsnamespaces import GenerateDSNamespaceDefs as GenerateDSNamespaceDefs_
-except ModulenotfoundExp_ :
-    GenerateDSNamespaceDefs_ = {}
-try:
-    from generatedsnamespaces import GenerateDSNamespaceTypePrefixes as GenerateDSNamespaceTypePrefixes_
-except ModulenotfoundExp_ :
-    GenerateDSNamespaceTypePrefixes_ = {}
+GenerateDSNamespaceDefs_ = {}
+GenerateDSNamespaceTypePrefixes_ = {}
 
 #
 # You can replace the following class definition by defining an
@@ -122,34 +114,34 @@ except ModulenotfoundExp_ :
 # named "GdsCollector".  See the default class definition below for
 # clues about the possible content of that class.
 #
-try:
-    from generatedscollector import GdsCollector as GdsCollector_
-except ModulenotfoundExp_ :
+# try:
+#     from generatedscollector import GdsCollector as GdsCollector_
+# except ModulenotfoundExp_ :
 
-    class GdsCollector_(object):
+class GdsCollector_(object):
 
-        def __init__(self, messages=None):
-            if messages is None:
-                self.messages = []
-            else:
-                self.messages = messages
-
-        def add_message(self, msg):
-            self.messages.append(msg)
-
-        def get_messages(self):
-            return self.messages
-
-        def clear_messages(self):
+    def __init__(self, messages=None):
+        if messages is None:
             self.messages = []
+        else:
+            self.messages = messages
 
-        def print_messages(self):
-            for msg in self.messages:
-                print("Warning: {}".format(msg))
+    def add_message(self, msg):
+        self.messages.append(msg)
 
-        def write_messages(self, outstream):
-            for msg in self.messages:
-                outstream.write("Warning: {}\n".format(msg))
+    def get_messages(self):
+        return self.messages
+
+    def clear_messages(self):
+        self.messages = []
+
+    def print_messages(self):
+        for msg in self.messages:
+            print("Warning: {}".format(msg))
+
+    def write_messages(self, outstream):
+        for msg in self.messages:
+            outstream.write("Warning: {}\n".format(msg))
 
 
 #
