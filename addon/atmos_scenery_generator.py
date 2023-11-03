@@ -1,10 +1,10 @@
 
 bl_info = {
-    "name": "ATMOS Scenery Generator",
+    "name": "ATMOS Scenery_Model Generator",
     "author": "Abdelmawla Saeed Rizk abdelmawla.rizk@uni-paderborn.de",
     "version": (1, 0, 0),
     "blender": (3, 6, 0),
-    "location": "Right side panel > VIEW_3D > Scenery Generator",
+    "location": "Right side panel > VIEW_3D > Scenery_Model Generator",
     "description": "import terrain with OpenStreetMap and Google 3D cities, to generate 3d environment "
 }
 
@@ -100,11 +100,11 @@ register_List.append(ImportTerrainOperator)
     
 class LayoutPanel(bpy.types.Panel):
     """Creates a Panel in the scene context of the properties editor"""
-    bl_label = "ATMOS Scenery Generator"
+    bl_label = "ATMOS Scenery_Model Generator"
     bl_idname = __name__#"PT_UniPaderpornRtm"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = "Scenery Generator"
+    bl_category = "Scenery_Model Generator"
 
     def draw(self, context):
         layout = self.layout

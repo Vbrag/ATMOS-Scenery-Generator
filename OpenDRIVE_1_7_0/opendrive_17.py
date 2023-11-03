@@ -7,13 +7,13 @@
 #
 # Command line options:
 #   ('--use-getter-setter', 'none')
-#   ('-o', 'C:\\Abdelmawla\\GitHub\\ATMOS-Scenery-Generator\\ASAM_OpenDRIVE_BS_V1_7_0\\opendrive_17.py')
+#   ('-o', 'C:\\Abdelmawla\\GitHub\\ATMOS-Scenery_Model-Generator\\ASAM_OpenDRIVE_BS_V1_7_0\\opendrive_17.py')
 #
 # Command line arguments:
-#   C:\Abdelmawla\GitHub\ATMOS-Scenery-Generator\ASAM_OpenDRIVE_BS_V1_7_0\xsd_schema\opendrive_17_core.xsd
+#   C:\Abdelmawla\GitHub\ATMOS-Scenery_Model-Generator\ASAM_OpenDRIVE_BS_V1_7_0\xsd_schema\opendrive_17_core.xsd
 #
 # Command line:
-#   C:\Users\abdelmaw\AppData\Local\Programs\Python\Python311\Scripts\generateDS.py --use-getter-setter="none" -o "C:\Abdelmawla\GitHub\ATMOS-Scenery-Generator\ASAM_OpenDRIVE_BS_V1_7_0\opendrive_17.py" C:\Abdelmawla\GitHub\ATMOS-Scenery-Generator\ASAM_OpenDRIVE_BS_V1_7_0\xsd_schema\opendrive_17_core.xsd
+#   C:\Users\abdelmaw\AppData\Local\Programs\Python\Python311\Scripts\generateDS.py --use-getter-setter="none" -o "C:\Abdelmawla\GitHub\ATMOS-Scenery_Model-Generator\ASAM_OpenDRIVE_BS_V1_7_0\opendrive_17.py" C:\Abdelmawla\GitHub\ATMOS-Scenery_Model-Generator\ASAM_OpenDRIVE_BS_V1_7_0\xsd_schema\opendrive_17_core.xsd
 #
 # Current working directory (os.getcwd()):
 #   Abdelmawla

@@ -10,6 +10,8 @@ import os , math
 import numpy as  np
 from pathlib import Path
 import ctypes, sys
+from pyproj import CRS, Transformer
+
 
 savePath = "C:\\Users\\abdelmaw\\Documents\\OpenStreetMaps\\"
 
@@ -139,7 +141,7 @@ def gbs_Decimal2Degrees(gps):
     
      
 
-def projection_fromGeographic(lat, lon):
+def projection_fromGeographic(latitude, longitude):
     
     # see conversion formulas at
     # http://en.wikipedia.org/wiki/Transverse_Mercator_projection
@@ -149,14 +151,25 @@ def projection_fromGeographic(lat, lon):
     radius = 6378137
     k = 1
     
-    self_lon = 0
-    self_lat = 0
+    self_lon = 0#8.7455 #minlon
+    self_lat = 0#51.7145#minlat
     self_latInRadians = math.radians(self_lat)
-    lat = math.radians(lat)
-    lon = math.radians(lon-self_lon)
+    lat = math.radians(latitude)
+    lon = math.radians(longitude-self_lon)
     B = math.sin(lon) * math.cos(lat)
     x = 0.5 * k * radius * math.log((1+B)/(1-B))
     y = k * radius * ( math.atan(math.tan(lat)/math.cos(lon)) - self_latInRadians )
+    
+    
+    # referenceLat =  51.7145#minlat
+    # referenceLon = 8.7455 #minlon
+    # crs_4326  = CRS.from_epsg(4326) # epsg 4326 is wgs84
+    #
+    #
+    # uproj = CRS.from_proj4("+proj=tmerc +lat_0={0} +lon_0={1} +x_0=0 +y_0=0 +ellps=GRS80 +units=m".format(referenceLat, referenceLon))
+    # transformer = Transformer.from_crs(crs_4326, uproj)
+    #
+    # x,y = next(transformer.itransform([(latitude,longitude)]))
     return (x,y)
 
 
