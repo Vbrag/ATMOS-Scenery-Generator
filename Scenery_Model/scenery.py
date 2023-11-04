@@ -205,7 +205,6 @@ class Waterway():
 
             x = node.get("x")
             y = node.get("y")
-            
             if x < min_x:
                 x = min_x
                 
@@ -217,10 +216,6 @@ class Waterway():
                 
             if y > max_y:
                 y = max_y  
-
-            
-             
- 
             Floor_plan.append((x ,y ))
             
             if len(node.get("tags").keys()) > 0:
@@ -230,7 +225,7 @@ class Waterway():
         # print(Floor_plan) 
         # print(tags)  
          
-        Floor_plan = [*Floor_plan  , Floor_plan[0]]
+        #Floor_plan = [*Floor_plan  , Floor_plan[0]]
          
         return Waterway(waterway_id, Floor_plan, tags)  
         
@@ -893,7 +888,7 @@ class Scenery():
 if __name__ == '__main__':
     
     
-    filepath = os.path.abspath("C:\\Users\\abdel\\Documents\\GitHub\\ATMOS-Scenery-Generator\\OSM_Interface\\Paderborn_inner_ring.osm")
+    filepath = os.path.abspath("C:\\Users\\abdel\\Documents\\GitHub\\ATMOS-Scenery-Generator\\OSM_Interface\\paderborn_waterway.osm")
     sceneryObj = Scenery.from_Osm(filepath)
  
     sceneryObj.draw_scenery() 
