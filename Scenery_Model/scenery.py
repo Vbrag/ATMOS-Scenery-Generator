@@ -103,14 +103,20 @@ class Building():
         elif  'colour' in self.tags.keys():
             facecolor = self.tags.get('colour')        
         
-        p = Polygon(self.Floor_plan, facecolor = facecolor) 
+        
+        
+        try:
+            p = Polygon(self.Floor_plan, facecolor = facecolor) 
+            
+        except:
+            p = Polygon(self.Floor_plan, facecolor = 'gray')             
         ax.add_patch(p)
         
 
-class ParkingSpace():
+class AreaSpace():
  
     @classmethod
-    def fromOSMdict(cls, dictobj , ParkingSpace_id):
+    def fromOSMdict(cls, dictobj , ParkingSpace_id ,  min_x, min_y ,max_x, max_y):
         # print(" ############## Building #################")
         
         
@@ -121,8 +127,24 @@ class ParkingSpace():
         tags["noads_info"] = []
         
         for node in dictobj.get('noads'):
+
+            x = node.get("x")
+            y = node.get("y")
+            
+            if x < min_x:
+                x = min_x
+                
+            if x > max_x:
+                x = max_x            
+
+            if y < min_y:
+                y = min_y
+                
+            if y > max_y:
+                y = max_y  
+
  
-            Floor_plan.append((node.get("x") ,node.get("y") ))
+            Floor_plan.append((x ,y ))
             
             if len(node.get("tags").keys()) > 0:
                 tags["noads_info"].append(node)
@@ -131,7 +153,9 @@ class ParkingSpace():
         # print(Floor_plan) 
         # print(tags)  
          
-        return ParkingSpace(ParkingSpace_id, Floor_plan, tags)  
+        Floor_plan = [*Floor_plan  , Floor_plan[0]]
+         
+        return AreaSpace(ParkingSpace_id, Floor_plan, tags)  
         
          
  
@@ -147,7 +171,84 @@ class ParkingSpace():
         self.tags = tags 
         
         
-    def draw_ParkingSpace(self, fig , ax ):
+    def draw_Space(self, fig , ax ):
+        
+        xs, ys = zip(* self.Floor_plan ) #create lists of x and y values
+        ax.plot(xs,ys)
+        
+        facecolor = 'y'
+        # if 'roof:colour' in self.tags.keys():
+        #     facecolor = self.tags.get('roof:colour')
+        #
+        # elif  'building:colour' in self.tags.keys():
+        #     facecolor = self.tags.get('building:colour')
+            
+        
+        
+        p = Polygon(self.Floor_plan, facecolor = facecolor) 
+        ax.add_patch(p)
+
+class Waterway():
+ 
+    @classmethod
+    def fromOSMdict(cls, dictobj , waterway_id ,  min_x, min_y ,max_x, max_y):
+        # print(" ############## Building #################")
+        
+        
+        
+        
+        Floor_plan = []
+        tags = dictobj.get('tags')
+        tags["noads_info"] = []
+        
+        for node in dictobj.get('noads'):
+
+            x = node.get("x")
+            y = node.get("y")
+            
+            if x < min_x:
+                x = min_x
+                
+            if x > max_x:
+                x = max_x            
+
+            if y < min_y:
+                y = min_y
+                
+            if y > max_y:
+                y = max_y  
+
+            
+             
+ 
+            Floor_plan.append((x ,y ))
+            
+            if len(node.get("tags").keys()) > 0:
+                tags["noads_info"].append(node)
+              
+        # print(Building_id)     
+        # print(Floor_plan) 
+        # print(tags)  
+         
+        Floor_plan = [*Floor_plan  , Floor_plan[0]]
+         
+        return Waterway(waterway_id, Floor_plan, tags)  
+        
+         
+ 
+    
+    def __init__(self ,waterway_id , Floor_plan =[] , tags = dict()):
+        
+        self.waterway_id = waterway_id
+        self.Floor_plan = Floor_plan 
+        
+        if self.Floor_plan[0] !=  self.Floor_plan[-1]:
+            self.Floor_plan.append(self.Floor_plan[0])
+               
+        self.tags = tags 
+        
+        
+    def draw_Space(self, fig , ax ):
         
         xs, ys = zip(* self.Floor_plan ) #create lists of x and y values
         ax.plot(xs,ys)
@@ -163,8 +264,8 @@ class ParkingSpace():
         
         p = Polygon(self.Floor_plan, facecolor = facecolor) 
         ax.add_patch(p)
- 
- 
+
+  
 class Barrier_roadObject():
  
     @classmethod
@@ -218,11 +319,14 @@ class Barrier_roadObject():
         #     facecolor = self.tags.get('building:colour')
             
         
-        
-        p = Polygon(self.Floor_plan, facecolor = facecolor) 
+        try:
+            p = Polygon(self.Floor_plan, facecolor = facecolor, alpha=0.5) 
+            
+        except:
+            facecolor = 'g'
+            p = Polygon(self.Floor_plan, facecolor = facecolor, alpha=0.5)             
         ax.add_patch(p)
-
-          
+      
 class Road():
  
     @classmethod
@@ -247,9 +351,40 @@ class Road():
               
         # print(Road_id)     
         # print(points) 
-        # print(tags)  
-         
-        return Road(Road_id, points, tags)  
+        # print(tags) 
+        
+        tags_keys =  tags.keys()
+        if ("service" in tags_keys  and  tags.get("service") =="parking_aisle") or (  tags.get("highway") =="pedestrian"   )  or (  tags.get("highway") =="footway"   )  or ( "foot" in tags_keys and  tags.get("foot") =="designated"    )  or (   tags.get("highway") =="path" )  or ( tags.get("highway") =="service"  )  :
+            
+            return Footway_Road(Road_id, points, tags)  
+        
+        
+        elif (tags.get("highway") ==  "steps" ):
+            return Footway_Road(Road_id, points, tags) 
+        
+        elif ("bicycle" in tags_keys  and  tags.get("bicycle") =="yes")  or ( "highway" in tags_keys  and  tags.get("highway") =="cycleway" ) or ("bicycle" in tags_keys and  tags.get("bicycle") =="designated" ) :
+
+            return Bicycle_Road(Road_id, points, tags) 
+        
+        
+        elif "lanes" in tags_keys  or tags.get("highway") =="residential"   or  tags.get("highway") =="living_street"    or  tags.get("highway") == "construction"    :
+            
+            return Drivable_Road(Road_id, points, tags)
+        
+        
+        elif "maxspeed" in tags_keys :
+            return Drivable_Road(Road_id, points, tags)        
+        
+        
+        elif tags.get("highway") =="busway"  :
+            return Drivable_Road(Road_id, points, tags)           
+        
+        elif "railway" in tags_keys:
+
+            return Railway_Road(Road_id, points, tags) 
+            
+        else:
+            return Road(Road_id, points, tags)  
         
          
  
@@ -263,67 +398,175 @@ class Road():
         
     def draw_Road(self, fig , ax ):
         
-        
-        tags_keys = self.tags.keys()
-        if "lanes" in tags_keys:
-            
-            # xs, ys = zip(*self.points) #create lists of x and y values
-            # ax.plot(xs,ys ,color="r" )            
-            # print(self.points)
-            #
-            # for key in self.tags:
-            #     print(key , " ---> ",self.tags.get(key))
-            
-            n_lans = int(self.tags.get("lanes"))
-            lane_width  = 3.5
  
-            for index , point in enumerate(self.points):
-                
-                if index <  len(self.points) -1:
-                    
-                    x_start , y_start  = point
-                    x_end   , y_end    = self.points[index+1]
-                    
-                    Road_lenght = math.sqrt( (x_end -x_start ) *(x_end -x_start )    +(y_end -y_start ) *(y_end -y_start )  )
-                    
-                    Road_width = n_lans*lane_width
-                    
-                    
-                    angle= math.atan2((y_end -y_start ) ,(x_end -x_start ) )
-                    
-                    t2 = mpl.transforms.Affine2D().rotate_around(x_start, y_start, angle) + ax.transData
-                    
-                    p = Rectangle((x_start  ,y_start - Road_width / 2.0 ), Road_lenght, Road_width, color="k", alpha=1)
-                    
-                    p.set_transform(t2)
+        xs, ys = zip(*self.points) #create lists of x and y values
+        ax.plot(xs,ys)
+        
+        print("######### draw raod ###########")
+        
+        print(self.points)
+        
+        for key in self.tags:
+            print(key , " ---> ",self.tags.get(key))
+        
+        return False
+        # facecolor = 'k'
+        # if 'roof:colour' in self.tags.keys():
+        #     facecolor = self.tags.get('roof:colour')
+        #
+        # elif  'building:colour' in self.tags.keys():
+        #     facecolor = self.tags.get('building:colour')
+        #
+        #
+        #
+        # p = Polygon(self.Floor_plan, facecolor = facecolor) 
+        # ax.add_patch(p)
+    
+class Footway_Road(Road):
+    
+    
+    def __init__(self, Road_id, points=[], tags=dict()):
+        Road.__init__(self, Road_id, points=points, tags=tags)    
+    
+    
+    def draw_Road(self, fig , ax ):
+        
+ 
+        n_lans = 1
+        lane_width  = 2
+           
+        for index , point in enumerate(self.points):
+        
+            if index <  len(self.points) -1:
+        
+                x_start , y_start  = point
+                x_end   , y_end    = self.points[index+1]
+        
+                Road_lenght = math.sqrt( (x_end -x_start ) *(x_end -x_start )    +(y_end -y_start ) *(y_end -y_start )  )
+        
+                Road_width = n_lans*lane_width
+        
+        
+                angle= math.atan2((y_end -y_start ) ,(x_end -x_start ) )
+        
+                t2 = mpl.transforms.Affine2D().rotate_around(x_start, y_start, angle) + ax.transData
+        
+                p = Rectangle((x_start  ,y_start - Road_width / 2.0 ), Road_lenght, Road_width, color="gray", alpha=1)
+        
+                p.set_transform(t2)
+        
+                ax.add_patch(p)  
   
-                    ax.add_patch(p)
-             
+class Bicycle_Road(Road):
+    
+    
+    def __init__(self, Road_id, points=[], tags=dict()):
+        Road.__init__(self, Road_id, points=points, tags=tags)    
+    
+    
+    def draw_Road(self, fig , ax ):    
+    
+        n_lans = 1
+        lane_width  =   float(self.tags.get("cycleway:width" , 2.5 ) )
         
-        else:
-            xs, ys = zip(*self.points) #create lists of x and y values
-            ax.plot(xs,ys)
- 
-            print("######### draw raod ###########")
-            
-            print(self.points)
-            
-            for key in self.tags:
-                print(key , " ---> ",self.tags.get(key))
-            
-            
-            # facecolor = 'k'
-            # if 'roof:colour' in self.tags.keys():
-            #     facecolor = self.tags.get('roof:colour')
-            #
-            # elif  'building:colour' in self.tags.keys():
-            #     facecolor = self.tags.get('building:colour')
-            #
-            #
-            #
-            # p = Polygon(self.Floor_plan, facecolor = facecolor) 
-            # ax.add_patch(p)
+        
+                        
+        for index , point in enumerate(self.points):
+        
+            if index <  len(self.points) -1:
+        
+                x_start , y_start  = point
+                x_end   , y_end    = self.points[index+1]
+        
+                Road_lenght = math.sqrt( (x_end -x_start ) *(x_end -x_start )    +(y_end -y_start ) *(y_end -y_start )  )
+        
+                Road_width = n_lans*lane_width
+        
+        
+                angle= math.atan2((y_end -y_start ) ,(x_end -x_start ) )
+        
+                t2 = mpl.transforms.Affine2D().rotate_around(x_start, y_start, angle) + ax.transData
+        
+                p = Rectangle((x_start  ,y_start - Road_width / 2.0 ), Road_lenght, Road_width, color="b", alpha= 0.5)
+        
+                p.set_transform(t2)
+        
+                ax.add_patch(p)     
+                
+class Drivable_Road(Road):
+    
+    
+    def __init__(self, Road_id, points=[], tags=dict()):
+        Road.__init__(self, Road_id, points=points, tags=tags)    
+    
+    
+    def draw_Road(self, fig , ax ):   
+                
+        n_lans = int(self.tags.get("lanes" , 2))
+        lane_width  = 3.5
+        
+        for index , point in enumerate(self.points):
+        
+            if index <  len(self.points) -1:
+        
+                x_start , y_start  = point
+                x_end   , y_end    = self.points[index+1]
+        
+                Road_lenght = math.sqrt( (x_end -x_start ) *(x_end -x_start )    +(y_end -y_start ) *(y_end -y_start )  )
+        
+                Road_width = n_lans*lane_width
+        
+        
+                angle= math.atan2((y_end -y_start ) ,(x_end -x_start ) )
+        
+                t2 = mpl.transforms.Affine2D().rotate_around(x_start, y_start, angle) + ax.transData
+        
+                p = Rectangle((x_start  ,y_start - Road_width / 2.0 ), Road_lenght, Road_width, color="k", alpha= .8)
+        
+                p.set_transform(t2)
+        
+                ax.add_patch(p)
 
+        xs, ys = zip(*self.points) #create lists of x and y values
+        ax.plot(xs,ys , color="r")     
+        
+        
+class Railway_Road(Road):
+    
+    
+    def __init__(self, Road_id, points=[], tags=dict()):
+        Road.__init__(self, Road_id, points=points, tags=tags)    
+    
+    
+    def draw_Road(self, fig , ax ):   
+                
+ 
+         
+        for index , point in enumerate(self.points):
+        
+            if index <  len(self.points) -1:
+        
+                x_start , y_start  = point
+                x_end   , y_end    = self.points[index+1]
+        
+                Road_lenght = math.sqrt( (x_end -x_start ) *(x_end -x_start )    +(y_end -y_start ) *(y_end -y_start )  )
+        
+                Road_width = 6
+        
+        
+                angle= math.atan2((y_end -y_start ) ,(x_end -x_start ) )
+        
+                t2 = mpl.transforms.Affine2D().rotate_around(x_start, y_start, angle) + ax.transData
+        
+                p = Rectangle((x_start  ,y_start - Road_width / 2.0 ), Road_lenght, Road_width, color="r", alpha= .8)
+        
+                p.set_transform(t2)
+        
+                ax.add_patch(p)
+
+        xs, ys = zip(*self.points) #create lists of x and y values
+        ax.plot(xs,ys , color="r")               
+                
 class Scenery():
     
     @classmethod
@@ -331,7 +574,7 @@ class Scenery():
         
         Roads =[]
         Buildings = []
-        ParkingSpaces = []
+        Spaces = []
         Barriers = []
         
         
@@ -409,22 +652,174 @@ class Scenery():
             tagkeys =  tags.keys()
             
             
-            if "historic" in tagkeys  or "boundary"  in tagkeys or len(tagkeys) == 0 or ( "landuse" in tagkeys   and tags.get("landuse") ==  "retail" ):
+            if "historic" in tagkeys  or "roof:edge" in tagkeys or "boundary"  in tagkeys or len(tagkeys) == 0 or ( "landuse" in tagkeys   and tags.get("landuse") ==  "retail"   or    tags.get("landuse") ==  "residential"  or    tags.get("landuse") ==  "construction"  or    tags.get("landuse") ==  "industrial"):
                 
+                # area = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y )
+                #
+                # Spaces.append(area)
                 pass
             
-            elif "building" in tagkeys  :
+            elif "building" in tagkeys   or  "building:material" in tagkeys  or  "demolished:building" in tagkeys   or  "building:levels" in tagkeys  or "building:part" in tagkeys or ( "amenity" in tagkeys   and tags.get("amenity") ==  "kindergarten"   or tags.get("amenity") ==  "school"    ):
+                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                
+                Buildings.append(building)
+                
+                
+                
+                
+            elif "roof:ridge" in tagkeys   :              
+                
+                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                
+                Buildings.append(building)                
+
+            elif "indoor" in tagkeys   :              
+                
+                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                
+                Buildings.append(building)
+                
+            elif "highway" in tagkeys  and  tags.get("highway") ==  "elevator" :              
+                
+                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                
+                Buildings.append(building)                
+                
+                
+            # elif "source" in tagkeys   :              
+            #
+            #     # building = Building.fromOSMdict(waysdict[way_id] , way_id)
+            #     #
+            #     # Buildings.append(building) 
+
+            elif "amenity" in tagkeys and  tags.get("amenity") ==  "college"   :              
+                
+                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                
+                Buildings.append(building)
+                
+                
+            elif "amenity" in tagkeys and  tags.get("amenity") ==  "hospital"   :              
+                
+                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                
+                Buildings.append(building)
+                
+                
+            elif "landuse" in tagkeys  and tags.get("landuse") ==  "railway":                  
+                
+                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                
+                Buildings.append(building) 
+ 
+            elif "leisure" in tagkeys  and tags.get("leisure") ==  "swimming_pool":                  
+                
                 building = Building.fromOSMdict(waysdict[way_id] , way_id)
                 
                 Buildings.append(building)
  
  
-            elif "parking" in tagkeys   or ("leisure"  in tagkeys  and  tags.get("leisure") ==  "park") :
+            elif "parking" in tagkeys   or ("leisure"  in tagkeys  and  tags.get("leisure") ==  "park"  )   or ("area" in tagkeys and  tags.get("area") ==  "yes")   or  ("amenity"  in tagkeys  and  tags.get("amenity") ==  "bicycle_parking")   :
  
-                parking = ParkingSpace.fromOSMdict(waysdict[way_id] , way_id   )
+                parking = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
                 
-                ParkingSpaces.append(parking)
+                Spaces.append(parking)
+                
+            elif "motor_vehicle:conditional" in tagkeys:
+                
+                parking = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
+                
+                Spaces.append(parking)
+                
+                
+                
+                                
+                
+            elif "amenity" in tagkeys  and ( tags.get("amenity") ==  "parking" or tags.get("amenity") ==  "parking_space")   or  "parking_space" in tagkeys :                 
+                parking = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
+                
+                Spaces.append(parking)
+                
+                
+                                
+                
+            elif "name" in tagkeys  and  "public_transport" in tagkeys  :                
+                
+                area = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
+                
+                Spaces.append(area) 
+                
+            elif "leisure" in tagkeys  and  "sport" in tagkeys  :                
+                
+                area = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
+                
+                Spaces.append(area)                
 
+
+            elif "landuse" in tagkeys  and  tags.get("landuse") ==  "brownfield"   :                
+                
+                area = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
+                
+                Spaces.append(area)  
+                               
+                
+            elif ( "landuse" in tagkeys   and tags.get("landuse") ==  "grass" )   or ( "landuse" in tagkeys   and tags.get("landuse") ==  "greenfield" )   or   ( "leisure" in tagkeys   and tags.get("leisure") ==  "playground" ) or ("leisure"  in tagkeys  and  tags.get("leisure") ==  "garden"  )   :
+                
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                
+                Barriers.append(barrier)
+
+
+            elif ( "landuse" in tagkeys   and tags.get("landuse") ==  "cemetery" ) :                
+                
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                
+                Barriers.append(barrier)                
+                
+            elif ( "stairwell" in tagkeys     ) :               
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                
+                Barriers.append(barrier) 
+                
+                
+            elif "shelter" in tagkeys  and  "public_transport" in tagkeys  :
+   
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                
+                Barriers.append(barrier)  
+                
+                
+            elif "amenity" in tagkeys  and  tags.get("amenity") ==  "shelter"    :
+   
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                
+                Barriers.append(barrier)  
+                                                                              
+   
+            elif "playground" in tagkeys    :
+   
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                
+                Barriers.append(barrier)     
+
+
+
+
+   
+            elif "amenity" in tagkeys  and  tags.get("amenity") ==  "bench"  :
+   
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                
+                Barriers.append(barrier) 
+                
+                
+                
+            elif "waterway" in tagkeys :
+                                
+                
+                waterway = Waterway.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
+                
+                Spaces.append(waterway)
 
             elif "barrier" in tagkeys   or ( "landuse" in tagkeys   and tags.get("landuse") ==  "village_green" ) or "natural" in tagkeys   or ( "amenity" in tagkeys   and tags.get("amenity") ==  "fountain" ) : #  or "natural" in tagkeys   or "amenity" in tagkeys 
  
@@ -433,29 +828,31 @@ class Scenery():
                 Barriers.append(barrier)
                 
                 
-            elif "highway" in tagkeys:
+            elif "highway" in tagkeys   or  "railway" in tagkeys      :
                 #print(way)
                 road = Road.fromOSMdict(waysdict[way_id] , way_id ,  min_x, min_y ,max_x, max_y )
                 
                 Roads.append(road)                 
             else:
- 
+                print("***********************************************************************")
                 print(way)
-                
-                
-                 
+                # road = Road.fromOSMdict(waysdict[way_id] , way_id ,  min_x, min_y ,max_x, max_y )
+                # fig, ax = plt.subplots(figsize=(1, 1), facecolor='lightskyblue', layout='constrained')
+                # plt.axis('equal')
+                # road.draw_Road(  fig , ax )
+                # plt.show() 
             
             
-        return Scenery(metaData ,Roads, Buildings, ParkingSpaces , Barriers)
+        return Scenery(metaData ,Roads, Buildings, Spaces , Barriers)
     
     
-    def __init__(self, metaData = dict(), Roads = [] ,Buildings = [] ,  ParkingSpaces = []  , Barriers = []  ):
+    def __init__(self, metaData = dict(), Roads = [] ,Buildings = [] ,  Spaces = []  , Barriers = []  ):
         
         
         self.metaData =metaData
         self.Roads = Roads
         self.Buildings = Buildings 
-        self.ParkingSpaces =ParkingSpaces 
+        self.Spaces =Spaces 
         self.Barriers = Barriers     
         
         
@@ -464,38 +861,40 @@ class Scenery():
     
     
     def draw_scenery(self):
+        
         fig, ax = plt.subplots(figsize=(1, 1), facecolor='lightskyblue', layout='constrained')
         plt.axis('equal')
+
+        for space in  self.Spaces:
+            space.draw_Space(  fig , ax)
         
         for Building in self.Buildings:
             Building.draw_building(  fig , ax)
-            
-           
-
-        for parkingSpace in self.ParkingSpaces:
-            parkingSpace.draw_ParkingSpace(  fig , ax)
-
-
+ 
         for Barrier_roadObject in self.Barriers:
             Barrier_roadObject.draw_Barrier(  fig , ax)
             
-            
-         
-        for road in self.Roads:
  
-            road.draw_Road(  fig , ax )
+        for road in self.Roads:
+            
+            if isinstance(road ,Drivable_Road):
+            
+                road.draw_Road(  fig , ax )
+                
+                
+        for road in self.Roads:
+            
+            if not isinstance(road ,Drivable_Road):
+            
+                road.draw_Road(  fig , ax ) 
             
         plt.show() 
-            
- 
 
 if __name__ == '__main__':
     
     
-    filepath = os.path.abspath("C:\\Users\\abdel\\Documents\\GitHub\\ATMOS-Scenery-Generator\\OSM_Interface\\westerntor.osm")
+    filepath = os.path.abspath("C:\\Users\\abdel\\Documents\\GitHub\\ATMOS-Scenery-Generator\\OSM_Interface\\Paderborn_inner_ring.osm")
     sceneryObj = Scenery.from_Osm(filepath)
-    
  
-    
     sceneryObj.draw_scenery() 
     
