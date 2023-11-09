@@ -88,12 +88,12 @@ class Building():
         # print(Floor_plan) 
         # print(tags)  
          
-        return Building(Building_id, Floor_plan, tags)  
+        return Building(Building_id, Floor_plan, tags, dictobj.get('noads') )  
         
          
  
     
-    def __init__(self ,Building_id , Floor_plan =[] , tags = dict()):
+    def __init__(self ,Building_id , Floor_plan =[] , tags = dict(), nodes = []):
         
         self.Building_id = Building_id
         self.Floor_plan = Floor_plan 
@@ -102,6 +102,7 @@ class Building():
             self.Floor_plan.append(self.Floor_plan[0])
                
         self.tags = tags 
+        self.nodes =nodes
         
         
     def draw_building(self, fig , ax ):
@@ -666,7 +667,7 @@ class Scenery():
             for tag  in node.tag:
                 tags[tag.k] = tag.v
         
-            nodsdict[node_id] = {"x": x , "y" : y , "tags" : tags}
+            nodsdict[node_id] = {"x": x , "y" : y , "tags" : tags  ,"latitude":latitude  , "longitude":longitude , "node_id" : node_id}
             #print(node)
             #print(nodsdict[node_id])
             
@@ -963,13 +964,14 @@ class Scenery():
                 # plt.show() 
             
             
-        return Scenery(metaData ,Roads, Buildings, Spaces , Barriers)
+        return Scenery(metaData , nodsdict ,Roads, Buildings, Spaces , Barriers)
     
     
-    def __init__(self, metaData = dict(), Roads = [] ,Buildings = [] ,  Spaces = []  , Barriers = []  ):
+    def __init__(self, metaData = dict(), nodsdict =dict(), Roads = [] ,Buildings = [] ,  Spaces = []  , Barriers = []  ):
         
         
         self.metaData =metaData
+        self.nodsdict =nodsdict
         self.Roads = Roads
         self.Buildings = Buildings 
         self.Spaces =Spaces 
@@ -978,13 +980,61 @@ class Scenery():
         
     
     
+    def onclick(self, event):
+        #global ix, iy
+        ix, iy = event.xdata, event.ydata
+        print (f'x = {ix}, y = {iy}')
+        
+        
+        dist = 100000000000000000000000000000000000000000000000000
+        closet_node= None
+        
+        
+        for node_id in self.nodsdict.keys():
+            node = self.nodsdict.get(node_id)
+            node_x = node["x"]
+            node_y =  node["y"]
+            
+            new_dist =  math.sqrt( (ix -node_x ) *(ix -node_x )    +(iy -node_y ) *(iy -node_y )  )
+            
+            
+            if new_dist < dist:
+                dist = new_dist
+                
+                closet_node = node_id
+                
+            
+            
+        
+        
+        #print(self.nodsdict.get(closet_node))
+        
+        results = []
+        for space in  self.Spaces:
+            
+            for node in space.Floor_plan: 
+                if node["node_id"]  == closet_node:
+                    results.append(space)
+                    
+            
+             
+        print(results)  
+             
+        
+            
+    
     
     
     def draw_scenery(self):
         
+
+        
         fig, ax = plt.subplots(figsize=(1, 1), facecolor='lightskyblue', layout='constrained')
         plt.axis('equal')
+        onclick = self.onclick
+        cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
+        
         for space in  self.Spaces:
             space.draw_Space(  fig , ax)
         
@@ -1010,10 +1060,21 @@ class Scenery():
             
         plt.show() 
 
+
+
+    # global coords
+    # coords.append((ix, iy))
+    #
+    # if len(coords) == 2:
+    #     fig.canvas.mpl_disconnect(cid)
+    #
+    # return coords
+
+
 if __name__ == '__main__':
     
     
-    filepath = os.path.abspath("C:\\Users\\abdel\\Documents\\GitHub\\ATMOS-Scenery-Generator\\OSM_Interface\\Paderborn_inner_ring.osm")
+    filepath = os.path.abspath("C:\\Abdelmawla\\GitHub\\ATMOS-Scenery-Generator\\OSM_Interface\\abtsbrede.osm")
     sceneryObj = Scenery.from_Osm(filepath)
  
     sceneryObj.draw_scenery() 
