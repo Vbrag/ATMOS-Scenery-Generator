@@ -12,10 +12,10 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon , Rectangle
 import matplotlib as mpl
-
+import numpy as np
 
 projection_fromGeographic_cash = dict()
-
+clear = lambda: os.system('cls')
 
 def projection_fromGeographic(latitude, longitude, referenceLat = 0 , referenceLon = 0):
     
@@ -75,27 +75,30 @@ class Building():
         
         Floor_plan = []
         tags = dictobj.get('tags')
-        tags["noads_info"] = []
+        tags["nodes_info"] = []
         
-        for node in dictobj.get('noads'):
+        
+        
+        
+        for node in dictobj.get('nodes'):
  
             Floor_plan.append((node.get("x") ,node.get("y") ))
             
             if len(node.get("tags").keys()) > 0:
-                tags["noads_info"].append(node)
+                tags["nodes_info"].append(node)
               
         # print(Building_id)     
         # print(Floor_plan) 
         # print(tags)  
          
-        return Building(Building_id, Floor_plan, tags, dictobj.get('noads') )  
+        return Building(Building_id, Floor_plan, tags, dictobj.get('nodes') )  
         
          
  
     
     def __init__(self ,Building_id , Floor_plan =[] , tags = dict(), nodes = []):
         
-        self.Building_id = Building_id
+        self.object_id = Building_id
         self.Floor_plan = Floor_plan 
         
         if self.Floor_plan[0] !=  self.Floor_plan[-1]:
@@ -141,9 +144,9 @@ class AreaSpace():
         
         Floor_plan = []
         tags = dictobj.get('tags')
-        tags["noads_info"] = []
+        tags["nodes_info"] = []
         
-        for node in dictobj.get('noads'):
+        for node in dictobj.get('nodes'):
 
             x = node.get("x")
             y = node.get("y")
@@ -165,28 +168,28 @@ class AreaSpace():
      
                 
                 if len(node.get("tags").keys()) > 0:
-                    tags["noads_info"].append(node)
+                    tags["nodes_info"].append(node)
               
         # print(Building_id)     
         # print(Floor_plan) 
         # print(tags)  
  
          
-        return AreaSpace(ParkingSpace_id, Floor_plan, tags)  
+        return AreaSpace(ParkingSpace_id, Floor_plan, tags,  dictobj.get('nodes'))  
         
          
  
     
-    def __init__(self ,ParkingSpace_id , Floor_plan =[] , tags = dict()):
+    def __init__(self ,ParkingSpace_id , Floor_plan =[] , tags = dict() ,nodes =[]):
         
-        self.ParkingSpace_id = ParkingSpace_id
+        self.object_id = ParkingSpace_id
         self.Floor_plan = Floor_plan 
         
         if self.Floor_plan[0] !=  self.Floor_plan[-1]:
             self.Floor_plan.append(self.Floor_plan[0])
                
         self.tags = tags 
-        
+        self.nodes =nodes        
         
     def draw_Space(self, fig , ax ):
         
@@ -216,9 +219,9 @@ class Waterway():
         
         Floor_plan = []
         tags = dictobj.get('tags')
-        tags["noads_info"] = []
+        tags["nodes_info"] = []
         
-        for node in dictobj.get('noads'):
+        for node in dictobj.get('nodes'):
 
             x = node.get("x")
             y = node.get("y")
@@ -241,7 +244,7 @@ class Waterway():
      
                 
                 if len(node.get("tags").keys()) > 0:
-                    tags["noads_info"].append(node)
+                    tags["nodes_info"].append(node)
  
               
         # print(Building_id)     
@@ -250,21 +253,21 @@ class Waterway():
          
         #Floor_plan = [*Floor_plan  , Floor_plan[0]]
          
-        return Waterway(waterway_id, Floor_plan, tags)  
+        return Waterway(waterway_id, Floor_plan, tags, dictobj.get('nodes'))  
         
          
  
     
-    def __init__(self ,waterway_id , Floor_plan =[] , tags = dict()):
+    def __init__(self ,waterway_id , Floor_plan =[] , tags = dict(),nodes =[]):
         
-        self.waterway_id = waterway_id
+        self.object_id = waterway_id
         self.Floor_plan = Floor_plan 
         
         # if self.Floor_plan[0] !=  self.Floor_plan[-1]:
         #     self.Floor_plan.append(self.Floor_plan[0])
                
         self.tags = tags 
-        
+        self.nodes =nodes        
         
     def draw_Space(self, fig , ax ):
         
@@ -319,34 +322,34 @@ class Barrier_roadObject():
         
         Floor_plan = []
         tags = dictobj.get('tags')
-        tags["noads_info"] = []
+        tags["nodes_info"] = []
         
-        for node in dictobj.get('noads'):
+        for node in dictobj.get('nodes'):
  
             Floor_plan.append((node.get("x") ,node.get("y") ))
             
             if len(node.get("tags").keys()) > 0:
-                tags["noads_info"].append(node)
+                tags["nodes_info"].append(node)
               
         # print(Building_id)     
         # print(Floor_plan) 
         # print(tags)  
          
-        return Barrier_roadObject(barrier_id, Floor_plan, tags)  
+        return Barrier_roadObject(barrier_id, Floor_plan, tags, dictobj.get('nodes'))  
         
          
  
     
-    def __init__(self ,barrier_id , Floor_plan =[] , tags = dict()):
+    def __init__(self ,barrier_id , Floor_plan =[] , tags = dict() , nodes =[] ):
         
-        self.barrier_id = barrier_id
+        self.object_id = barrier_id
         self.Floor_plan = Floor_plan 
         
         if self.Floor_plan[0] !=  self.Floor_plan[-1]:
             self.Floor_plan.append(self.Floor_plan[0])
                
         self.tags = tags 
-        
+        self.nodes = nodes         
         
     def draw_Barrier(self, fig , ax ):
         
@@ -368,8 +371,264 @@ class Barrier_roadObject():
             facecolor = 'g'
             p = Polygon(self.Floor_plan, facecolor = facecolor, alpha=0.5)             
         ax.add_patch(p)
+ 
+ 
+ 
+        
+        
+        
+
+
+class StraightLine():
+    
+    def __init__(self,    length=0):
+        
+ 
+        self.length = length
+        
+
+    def evalX(self, x0 , y0 ,hdg , X):
+        
+ 
+            
+        if hdg != math.pi/2:
+        
+            y =   y0 + (X - x0)*math.tan(hdg)
+        else:
+            
+            y =   y0
+            
+   
+        lenght = math.sqrt( (X -x0 ) *(X -x0 )    +(y -y0 ) *(y -y0 )  ) 
+        
+        if lenght <=  self.length:
+            return y
+
+        else:
+            return None
+                 
+                
+        
+        
+        
+        
+
+ 
+    
+    def eval(self, x0 , y0 ,hdg,  S , S0 , T):
+        
+        
+        hdg = hdg  
+        
+        
+        delta_s = S - S0 
+        
+        alfa = math.pi/2.0  - hdg  
+        
+ 
+
+        x =  x0 + delta_s*math.cos(hdg)  
+        y =  y0 + delta_s*math.sin(hdg)     
+    
+        x = x + T*math.cos(alfa )
+        y = y - T*math.sin(alfa )
+                 
+ 
+        
+        return (x , y) 
+ 
+    
+    
+    def get_endPoint(self, x0 , y0 ,hdg):
+        
+        x_end = x0 + self.length* math.cos( hdg)
+        y_end = y0 + self.length* math.sin( hdg)        
+        hdg_end = hdg
+    
+        return (x_end ,y_end , hdg_end )
+   
+  
+class Arc():
+    
+    def __init__(self, length=0 , Radius = 0 ):
+        
+        self.length =length
+        self.Radius = Radius
+ 
+ 
+
+
+    def eval(self, x0 , y0 ,hdg, S ,S0 ,T):
+        
+ 
+
+        alfa =   math.pi/2  - hdg  
+
+        x_center = x0 + self.Radius * math.cos( alfa )
+        y_center = y0 - self.Radius * math.sin( alfa )
+
+        
+        delta_s = S - S0 
+        
+        
+        theta =  (delta_s /self.Radius )* (math.pi)
+        
+        hdg_end =    hdg-theta
+ 
+        xs =  x_center + self.Radius*math.cos(math.pi - alfa -theta )    
+        ys =  y_center + self.Radius*math.sin(math.pi - alfa -theta)   
+        
+        
+        xs = xs + T*math.cos(math.pi/2.0  - hdg_end )
+        ys = ys - T*math.sin(math.pi/2.0  - hdg_end )
+           
+        
+        return (xs , ys) 
+    
+    
+    def get_endPoint(self, x0 , y0 ,hdg):
+        
+        alfa =   math.pi/2  - hdg  
+
+        x_center = x0 + self.Radius * math.cos( alfa )
+        y_center = y0 - self.Radius * math.sin( alfa )
+
+        
+        delta_s = self.length
+        
+        
+        theta =  (delta_s /self.Radius )* (math.pi)
+ 
+        x_end =  x_center + self.Radius*math.cos(math.pi - alfa -theta )   
+        y_end =  y_center + self.Radius*math.sin(math.pi - alfa -theta)
+              
+        hdg_end =    hdg-theta
+    
+        return (x_end ,y_end , hdg_end )
+    
+    
+    def evalX(self, x0 , y0 ,hdg , X):
+        
+        alfa =   math.pi/2  - hdg  
+
+        x_center = x0 + self.Radius * math.cos( alfa )
+        y_center = y0 - self.Radius * math.sin( alfa )
+        
+        try:
+            theta =  -1*( math.acos( (X - x_center)/self.Radius ) -math.pi +alfa) 
+            
+            y =  y_center + self.Radius*math.sin(math.pi - alfa -theta)
+            
+     
+       
+            lenght = theta /(math.pi) *self.Radius
+            
+            if lenght <=  self.length:
+                return y
+    
+            else:
+                return None
+            
+        except:
+            return None
+
+class RoadReferenceLine():
+
+
+    @classmethod  
+    def fitRoadReferenceLine(cls, points,permutations=  10 ):
+        
+        pass
+        
+        
+        
+        
+        
+        
+        
+        
+
+    
+    def __init__(self, x0=0, y0=0 , hdg  = 0 , geometry_elements = [] ):
+        
+        self.x0 = x0 
+        self.y0 = y0
+        self.hdg = hdg
+        self.geometry_elements = geometry_elements
+        
+    
+    
+    def getLength(self):
+        
+        length  =0
+        for ele in self.geometry_elements:
+            length = length+ ele.length
+            
+        return length
+             
+        
+ 
+    
+    def eval(self, S ,T):
+
+        x0 = self.x0   
+        y0 = self.y0   
+        hdg = self.hdg   
+        S0 = 0
+        
+        
+        for ele in self.geometry_elements:
+            
+            if S - S0 < ele.length:
+                
+                return ele.eval(  x0 , y0 , hdg ,  S ,S0,T )
+            
+            else:
+                
+                x0 , y0 , hdg = ele.get_endPoint(x0 ,y0 , hdg )
+                
+                S0 = S0 + ele.length
+            
+        
+        
+        return ele.eval(  x0 , y0 , hdg ,  S ,S0,T )
+        
+        
+    def evalX(self, X):
+
+        x0 = self.x0   
+        y0 = self.y0   
+        hdg = self.hdg   
+ 
+        S0 = 0
+        
+        for ele in self.geometry_elements:
+            
+            Y = ele.evalX(  x0 , y0 ,hdg , X)
+            
+            if Y is not None:
+                
+                return Y
+            
+            else:
+                
+                x0 , y0 , hdg = ele.get_endPoint(x0 ,y0 , hdg )
+                
+                S0 = S0 + ele.length
+            
+        
+        
+        return None       
+        
+    
+ 
+ 
       
 class Road():
+    
+    
+   
+    
  
     @classmethod
     def fromOSMdict(cls, dictobj , Road_id ,    min_x, min_y ,max_x, max_y):
@@ -377,9 +636,9 @@ class Road():
  
         points = []
         tags = dictobj.get('tags')
-        tags["noads_info"] = []
+        tags["nodes_info"] = []
         
-        for node in dictobj.get('noads'):
+        for node in dictobj.get('nodes'):
             
             x = node.get("x")
             y = node.get("y")
@@ -389,7 +648,7 @@ class Road():
                 points.append((node.get("x") ,node.get("y") ))
                 
                 if len(node.get("tags").keys()) > 0:
-                    tags["noads_info"].append(node)
+                    tags["nodes_info"].append(node)
               
         # print(Road_id)     
         # print(points) 
@@ -398,46 +657,55 @@ class Road():
         tags_keys =  tags.keys()
         if ("service" in tags_keys  and  tags.get("service") =="parking_aisle") or (  tags.get("highway") =="pedestrian"   )  or (  tags.get("highway") =="footway"   )  or ( "foot" in tags_keys and  tags.get("foot") =="designated"    )  or (   tags.get("highway") =="path" )  or ( tags.get("highway") =="service"  )  :
             
-            return Footway_Road(Road_id, points, tags)  
+            return Footway_Road(Road_id, points, tags, dictobj.get('nodes'))  
         
         
         elif (tags.get("highway") ==  "steps" ):
-            return Footway_Road(Road_id, points, tags) 
+            return Footway_Road(Road_id, points, tags ,dictobj.get('nodes')) 
         
         elif ("bicycle" in tags_keys  and  tags.get("bicycle") =="yes")  or ( "highway" in tags_keys  and  tags.get("highway") =="cycleway" ) or ("bicycle" in tags_keys and  tags.get("bicycle") =="designated" ) :
 
-            return Bicycle_Road(Road_id, points, tags) 
+            return Bicycle_Road(Road_id, points, tags , dictobj.get('nodes')) 
         
         
         elif "lanes" in tags_keys  or tags.get("highway") =="residential"   or  tags.get("highway") =="living_street"    or  tags.get("highway") == "construction"    :
             
-            return Drivable_Road(Road_id, points, tags)
+            return Drivable_Road(Road_id, points, tags, dictobj.get('nodes'))
         
         
         elif "maxspeed" in tags_keys :
-            return Drivable_Road(Road_id, points, tags)        
+            return Drivable_Road(Road_id, points, tags , dictobj.get('nodes'))        
         
         
         elif tags.get("highway") =="busway"  :
             
-            return Drivable_Road(Road_id, points, tags)           
+            return Drivable_Road(Road_id, points, tags, dictobj.get('nodes'))           
+
+        elif tags.get("highway") =="platform"  :
+            
+            return Drivable_Road(Road_id, points, tags, dictobj.get('nodes'))  
+
+ 
+        elif tags.get("surface") =="asphalt"  :
+            
+            return Drivable_Road(Road_id, points, tags, dictobj.get('nodes'))  
         
         elif "railway" in tags_keys:
 
-            return Railway_Road(Road_id, points, tags) 
+            return Railway_Road(Road_id, points, tags, dictobj.get('nodes')) 
             
         else:
-            return Road(Road_id, points, tags)  
+            return Road(Road_id, points, tags, dictobj.get('nodes'))  
         
          
  
     
-    def __init__(self ,Road_id , points =[] , tags = dict()):
+    def __init__(self ,Road_id , points =[] , tags = dict() , nodes =[]):
         
-        self.Road_id = Road_id
+        self.object_id = Road_id
         self.points = points        
         self.tags = tags 
-        
+        self.nodes = nodes           
         
     def draw_Road(self, fig , ax ):
         
@@ -468,9 +736,10 @@ class Road():
 class Footway_Road(Road):
     
     
-    def __init__(self, Road_id, points=[], tags=dict()):
-        Road.__init__(self, Road_id, points=points, tags=tags)    
+    def __init__(self, Road_id, points=[], tags=dict(), nodes=[]):
+        Road.__init__(self, Road_id, points=points, tags=tags, nodes=nodes)
     
+  
     
     def draw_Road(self, fig , ax ):
         
@@ -502,9 +771,8 @@ class Footway_Road(Road):
   
 class Bicycle_Road(Road):
     
-    
-    def __init__(self, Road_id, points=[], tags=dict()):
-        Road.__init__(self, Road_id, points=points, tags=tags)    
+    def __init__(self, Road_id, points=[], tags=dict(), nodes=[]):
+        Road.__init__(self, Road_id, points=points, tags=tags, nodes=nodes)    
     
     
     def draw_Road(self, fig , ax ):    
@@ -539,8 +807,8 @@ class Bicycle_Road(Road):
 class Drivable_Road(Road):
     
     
-    def __init__(self, Road_id, points=[], tags=dict()):
-        Road.__init__(self, Road_id, points=points, tags=tags)    
+    def __init__(self, Road_id, points=[], tags=dict(), nodes=[]):
+        Road.__init__(self, Road_id, points=points, tags=tags, nodes=nodes)   
     
     
     def draw_Road(self, fig , ax ):   
@@ -570,15 +838,15 @@ class Drivable_Road(Road):
         
                 ax.add_patch(p)
 
-        # xs, ys = zip(*self.points) #create lists of x and y values
-        # ax.plot(xs,ys , color="r")     
+        xs, ys = zip(*self.points) #create lists of x and y values
+        ax.plot(xs,ys , color="k")     
         
         
 class Railway_Road(Road):
     
     
-    def __init__(self, Road_id, points=[], tags=dict()):
-        Road.__init__(self, Road_id, points=points, tags=tags)    
+    def __init__(self, Road_id, points=[], tags=dict(), nodes=[]):
+        Road.__init__(self, Road_id, points=points, tags=tags, nodes=nodes)
     
     
     def draw_Road(self, fig , ax ):   
@@ -679,16 +947,16 @@ class Scenery():
             
             way_id = way.id
             visible = (way.visible == "true")
-            noads = []
+            nodes = []
             for nd in way.nd:
-                noads.append(nodsdict.get(nd.ref, None))
+                nodes.append(nodsdict.get(nd.ref, None))
                 
             tags = dict()
         
             for tag  in way.tag:
                 tags[tag.k] = tag.v            
             
-            waysdict[way_id] = {"visible": visible , "noads" : noads , "tags" : tags}            
+            waysdict[way_id] = {"visible": visible , "nodes" : nodes , "tags" : tags}            
             
             #print(waysdict[way_id])
             
@@ -701,6 +969,20 @@ class Scenery():
                 #
                 # Spaces.append(area)
                 pass
+
+            elif "highway" in tagkeys  and  tags.get("highway") ==  "elevator" :              
+                
+                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                
+                Buildings.append(building)
+
+            
+            elif "highway" in tagkeys   or  "railway" in tagkeys      :
+                #print(way)
+                road = Road.fromOSMdict(waysdict[way_id] , way_id ,  min_x, min_y ,max_x, max_y )
+                
+                Roads.append(road)          
+    
             
             elif "building" in tagkeys   or  "building:material" in tagkeys  or  "demolished:building" in tagkeys   or  "building:levels" in tagkeys  or "building:part" in tagkeys or ( "amenity" in tagkeys   and tags.get("amenity") ==  "kindergarten"   or tags.get("amenity") ==  "school"    ):
                 building = Building.fromOSMdict(waysdict[way_id] , way_id)
@@ -733,11 +1015,7 @@ class Scenery():
                 
                 Buildings.append(building)
                 
-            elif "highway" in tagkeys  and  tags.get("highway") ==  "elevator" :              
                 
-                building = Building.fromOSMdict(waysdict[way_id] , way_id)
-                
-                Buildings.append(building)                
                 
  
             elif "man_made" in tagkeys  and  tags.get("man_made") ==  "bridge" :              
@@ -787,9 +1065,9 @@ class Scenery():
                 Spaces.append(parking)
                 
             elif "motor_vehicle:conditional" in tagkeys:
-                
+            
                 parking = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
-                
+            
                 Spaces.append(parking)
                 
                 
@@ -949,11 +1227,7 @@ class Scenery():
                 Barriers.append(barrier)
                 
                 
-            elif "highway" in tagkeys   or  "railway" in tagkeys      :
-                #print(way)
-                road = Road.fromOSMdict(waysdict[way_id] , way_id ,  min_x, min_y ,max_x, max_y )
-                
-                Roads.append(road)                 
+               
             else:
                 print("***********************************************************************")
                 print(way)
@@ -982,12 +1256,18 @@ class Scenery():
     
     def onclick(self, event):
         #global ix, iy
+        clear()
         ix, iy = event.xdata, event.ydata
+        
+        print("***********************************************************")
+        print("***********************************************************")
+        print("***********************************************************")
+        print("***********************************************************")
         print (f'x = {ix}, y = {iy}')
         
         
-        dist = 100000000000000000000000000000000000000000000000000
-        closet_node= None
+        dist = 20
+        closet_node= []
         
         
         for node_id in self.nodsdict.keys():
@@ -1001,24 +1281,58 @@ class Scenery():
             if new_dist < dist:
                 dist = new_dist
                 
-                closet_node = node_id
+                closet_node.append( node_id )
                 
             
             
         
         
-        #print(self.nodsdict.get(closet_node))
+        #print( closet_node  )
         
         results = []
         for space in  self.Spaces:
-            
-            for node in space.Floor_plan: 
-                if node["node_id"]  == closet_node:
-                    results.append(space)
+            for node in space.nodes: 
+                if node["node_id"]  in closet_node:
                     
+                    if space not in results:
+                        results.append(space)
+                    
+ 
+        for Building in  self.Buildings:
+            for node in Building.nodes: 
+                if node["node_id"]  in closet_node:
+                    if Building not in results:
+                        results.append(Building)
+
+
+        for Road in  self.Roads:
+            for node in Road.nodes: 
+                if node["node_id"]  in closet_node:
+                    if Road not in results:
+                        results.append(Road)
             
+
+        for Barrier in  self.Barriers:
+            for node in Barrier.nodes: 
+                if node["node_id"]  in closet_node:
+                    if Barrier not in results:
+                        results.append(Barrier)
+
              
-        print(results)  
+        for result in results:
+            print(f"#############################{result.__class__.__name__}############################")
+            
+            print(f"#############################{result.object_id}############################")            
+            
+            
+            for key in result.tags.keys():
+                
+                print(key, "--->" , result.tags.get(key))
+                
+            
+            
+            
+               
              
         
             
@@ -1074,8 +1388,59 @@ class Scenery():
 if __name__ == '__main__':
     
     
-    filepath = os.path.abspath("C:\\Abdelmawla\\GitHub\\ATMOS-Scenery-Generator\\OSM_Interface\\abtsbrede.osm")
-    sceneryObj = Scenery.from_Osm(filepath)
+    # filepath = os.path.abspath("..\\OSM_Interface\\WesternTor_2.osm")
+    # sceneryObj = Scenery.from_Osm(filepath)
+    #
+    # sceneryObj.draw_scenery() 
+    
+    x0 = 0
+    y0 = 0
+    hdg =  math.pi/4
+    
+    length = 100.0
+    Radius = 100
+    geometry_elements = [StraightLine(length), Arc(length, Radius) , StraightLine(length) ,  Arc(length,- Radius), StraightLine(length) ,  Arc(length,  Radius)] # 
+    refObj = RoadReferenceLine(x0, y0, hdg, geometry_elements)
+    
+    
+    S = np.arange(0.0,length * len(geometry_elements),0.1  )
+    xy = []
+    
+    T = 0
+    
+    for ele in S:
+        xy.append(refObj.eval(ele,T))
  
-    sceneryObj.draw_scenery() 
+    plt.plot(*zip(*xy))
+    
+    # xy = []
+    #
+    # T = 1
+    #
+    # for ele in S:
+    #     xy.append(refObj.eval(ele,T))
+    #
+    # plt.plot(*zip(*xy))
+    #
+    # xy = []
+    #
+    # T = -1
+    #
+    # for ele in S:
+    #     xy.append(refObj.eval(ele,T))
+    #
+    # plt.plot(*zip(*xy))    
+ 
+    
+    X = np.arange(0,600 ,1)    
+    Y = []
+    for x in X:
+        Y.append(refObj.evalX(x))
+    
+    plt.scatter(X,Y)
+    plt.show()    
+    
+    
+    
+    
     
