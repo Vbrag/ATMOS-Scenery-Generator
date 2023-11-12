@@ -605,18 +605,22 @@ class RoadReferenceLine():
             line = Arc(length, Radius)    
             X = np.array(opt_points_X)
             Y = np.array(opt_points_Y)
-            
+            print(Y)
             refObj.get_endPoint()
             
             yhat= line.evalX(x0, y0, hdg, X)
-            
-            _  , yend , _ = line.get_endPoint(x0, y0, hdg)
+           
+            #_  , yend , _ = line.get_endPoint(x0, y0, hdg)
   
-            yhat= np.where(yhat  !=  None  , yhat , yend) 
+            yhat= np.where(yhat  !=  None  , yhat , 0) 
                
-            Y  = np.where(Y   !=  None  , Y  , yend)         
+            #Y  = np.where(Y   !=  None  , Y  , 0)         
+             
+            #print(yhat)
             
             eror = yhat - Y
+            
+            #print(eror)
             
             eror=  eror.astype(float)
             
@@ -624,7 +628,7 @@ class RoadReferenceLine():
             
             return ls_error    
         
-        use_line  = True
+        use_line  = False
         
         length = None
         radius = None
@@ -639,93 +643,98 @@ class RoadReferenceLine():
         for point in points[1:]:
             opt_points_X.append(point[0])
             
-            if point[1] is not None:
+            # if point[1] is not None:
+            #
+            #     opt_points_Y.append(point[1].tolist()  )
+            #
+
+        
+
+        if use_line:
+            func = lambda x:func_liner(x ,  x0, y0, hdg , opt_points_X , opt_points_Y)
             
-                opt_points_Y.append(point[1].tolist()  )
- 
-                if use_line:
-                    func = lambda x:func_liner(x ,  x0, y0, hdg , opt_points_X , opt_points_Y)
+            if length == None:
+                length0 = 1 
+                
+            else:
+                length0 = length                    
+        
+        
+            res = minimize(func, np.array([length0]))
+            
+            res_length = res.x[0]
+            
+        
+            
+            res_fun = res.fun
+            
+            print(res_fun)
+        
+            if res_fun <= 0.001:
+            
+                if length == None:
+                    length = res_length
                     
-                    if length == None:
-                        length0 = 1 
-                        
-                    else:
-                        length0 = length                    
-             
-     
-                    res = minimize(func, np.array([length0]))
+                    refObj.geometry_elements.append( StraightLine(length))
                     
-                    res_length = res.x[0]
+                else:
+                    length = res_length
                     
-      
+                    refObj.geometry_elements[-1].length =  length  
                     
-                    res_fun = res.fun
+            else:
+                length = None
+                radius = None                    
+                use_line = False
+                x0 , y0 , hdg  = refObj.get_endPoint()
+                opt_points_X = [point[0]]
+                opt_points_Y = [point[1]]
+                
+        else :                                     
+            func = lambda x : func_arc(x  ,  x0, y0, hdg , opt_points_X , opt_points_Y) 
+            
+            if length == None:
+                length0 = 1 
+            else:
+                length0 = length   
+                         
+            if radius == None:
+                radius0 = 10  
+            else:
+                radius0 = radius   
+            res = minimize(func, np.array([length0 ,radius0 ]))
+            
+            res_length = res.x[0]
+            res_radius = res.x[1]                
+        
+            
+            res_fun = res.fun
+            print(res)
+            print(res_fun)
+        
+            if res_fun <= 0.001:
+            
+                if length == None:
+                    length = res_length
+                    radius =  res_radius  
+                                            
+                    refObj.geometry_elements.append( Arc(length ,  radius     ))
                     
-                    print(res_fun)
-    
-                    if res_fun <= 0.001:
+                else:
+                    length = res_length
+                    radius = res_radius                         
+                     
                     
-                        if length == None:
-                            length = res_length
-                            
-                            refObj.geometry_elements.append( StraightLine(length))
-                            
-                        else:
-                            length = res_length
-                            
-                            refObj.geometry_elements[-1].length =  length  
-                            
-                    else:
-                        length = None
-                        radius = None                    
-                        use_line = False
-                        x0 , y0 , hdg  = refObj.get_endPoint()
-                        opt_points_X = [point[0]]
-                        opt_points_Y = [point[1]]
-                        
-                else :                                     
-                    func = lambda x : func_arc(x  ,  x0, y0, hdg , opt_points_X , opt_points_Y) 
                     
-                    if length == None:
-                        length0 = 1 
-                    else:
-                        length0 = length   
-                                 
-                    if radius == None:
-                        radius0 = 0  
-                    else:
-                        radius0 = radius   
-                    res = minimize(func, np.array([length0 ,radius0 ]))
-                    
-                    res_length = res.x[0]
-                    res_radius = res.x[1]                
-      
-                    
-                    res_fun = res.fun
-    
-                    if res_fun <= 0.001:
-                    
-                        if length == None:
-                            length = res_length
-                            radius =  res_radius  
-                                                    
-                            refObj.geometry_elements.append( Arc(length ,  radius     ))
-                            
-                        else:
-                            length = res_length
-                            radius = res_radius                         
-                             
-                            
-                            
-                            refObj.geometry_elements[-1].length =  length  
-                            refObj.geometry_elements[-1].radius =   radius                            
-                    else:
-                        length = None
-                        radius = None                    
-                        use_line = True
-                        x0 , y0 , hdg  = refObj.get_endPoint()
-                        opt_points_X = [point[0]]
-                        opt_points_Y = [point[1]]                
+                    refObj.geometry_elements[-1].length =  length  
+                    refObj.geometry_elements[-1].radius =   radius                            
+            else:
+                length = None
+                radius = None                    
+                use_line = True
+                x0 , y0 , hdg  = refObj.get_endPoint()
+                opt_points_X = [point[0]]
+                opt_points_Y = [point[1]]                
                            
             
         return refObj
