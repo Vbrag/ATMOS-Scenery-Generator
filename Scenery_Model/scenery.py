@@ -708,7 +708,7 @@ class RoadReferenceLine():
                 for Geo_cls in [StraightLine , Arc]:
                     print(Geo_cls.__name__)
                     
-                    newele , ls_error = Geo_cls.fit(x0, y0, hdg, opt_points_X, opt_points_Y)
+                    newele , ls_error = Geo_cls.fit(x0_start, y0_start, hdg_start, opt_points_X, opt_points_Y)
                     
                     if ls_error < ls_error_max_error  :
                         #GeoElem = newele
@@ -716,7 +716,7 @@ class RoadReferenceLine():
                         Xend = opt_points_X[-1]
                         Yend = opt_points_Y[-1]
                         
-                        S, T = newele.XY2ST( x0 , y0 ,hdg ,Xend, Yend,0)
+                        S, T = newele.XY2ST( x0_start, y0_start, hdg_start ,Xend, Yend,0)
                         
                         print("S" , S , "T" ,T)
                         newele.length = S
