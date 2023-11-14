@@ -369,12 +369,12 @@ class StraightLine():
         Y = np.array(opt_points_Y)
         
         refObj.get_endPoint()
+        S0 = 0
+        S ,T = line.XY2ST(x0 , y0 ,hdg , X , Y ,S0)
         
-        yhat= line.evalX(x0, y0, hdg, X)
+         
         
-        yhat= np.where(yhat  !=  None  , yhat , 0) 
-        
-        eror = yhat - Y
+        eror = T
         
         eror=  eror.astype(float)
     
@@ -390,17 +390,17 @@ class StraightLine():
         self.length = length
         
 
-    def evalX(self, x0 , y0 ,hdg , X):
-  
-        if hdg != np.pi/2:      
-            y =   y0 + (X - x0)*np.tan(hdg)
-        else:
-            y =   y0
-            
-        deltaX= (X -x0 ).astype(float)
-        deltaY= (y -y0 ).astype(float)
-        lenght = np.sqrt(  deltaX * deltaX    + deltaY *deltaY  ) 
-        return np.where(lenght   <=  self.length  , y , None)
+    # def XY2ST(self, x0 , y0 ,hdg , X):
+    #
+    #     if hdg != np.pi/2:      
+    #         y =   y0 + (X - x0)*np.tan(hdg)
+    #     else:
+    #         y =   y0
+    #
+    #     deltaX= (X -x0 ).astype(float)
+    #     deltaY= (y -y0 ).astype(float)
+    #     lenght = np.sqrt(  deltaX * deltaX    + deltaY *deltaY  ) 
+    #     return np.where(lenght   <=  self.length  , y , None)
         
  
                  
@@ -453,7 +453,7 @@ class StraightLine():
 class Arc():
 
     @classmethod    
-    def fit( cls,    x0, y0, hdg , opt_points_X , opt_points_Y ):
+    def fit( cls, x0, y0, hdg , opt_points_X , opt_points_Y ):
 
         length=0   
         
@@ -472,25 +472,18 @@ class Arc():
 
         
         def cost_func(Radius , x0, y0, hdg , opt_points_X , opt_points_Y ):
-        
-
-    
-     
+ 
             
             arc = Arc(length, Radius)    
             X = np.array(opt_points_X)
             Y = np.array(opt_points_Y)
              
             refObj.get_endPoint()
+            S0 = 0
+            S ,T = arc.XY2ST(x0 , y0 ,hdg , X ,Y, S0)
+ 
             
-            yhat= arc.evalX(x0, y0, hdg, X)
-           
-     
-            yhat= np.where(yhat  !=  None  , yhat , 0) 
-               
-     
-            
-            eror = yhat - Y
+            eror = T
             
      
             
@@ -589,22 +582,22 @@ class Arc():
         return (x_end ,y_end , hdg_end )
     
     
-    def evalX(self, x0 , y0 ,hdg , X):
-        
-        alfa =   np.pi/2  - hdg  
-
-        x_center = x0 + self.Radius * np.cos( alfa )
-        y_center = y0 - self.Radius * np.sin( alfa )
-        
- 
-        theta =  -1*( np.arccos( (X - x_center)/self.Radius ) -np.pi +alfa) 
-        
-        y =  y_center + self.Radius*np.sin(np.pi - alfa -theta)
- 
-        lenght = theta /(np.pi) *self.Radius
-        
- 
-        return np.where(lenght   <=  self.length  , y , None)
+    # def XY2ST(self, x0 , y0 ,hdg , X):
+    #
+    #     alfa =   np.pi/2  - hdg  
+    #
+    #     x_center = x0 + self.Radius * np.cos( alfa )
+    #     y_center = y0 - self.Radius * np.sin( alfa )
+    #
+    #
+    #     theta =  -1*( np.arccos( (X - x_center)/self.Radius ) -np.pi +alfa) 
+    #
+    #     y =  y_center + self.Radius*np.sin(np.pi - alfa -theta)
+    #
+    #     lenght = theta /(np.pi) *self.Radius
+    #
+    #
+    #     return np.where(lenght   <=  self.length  , y , None)
 
 
     def XY2ST(self, x0 , y0 ,hdg , X ,Y, S0):
@@ -925,13 +918,14 @@ class RoadReferenceLine():
         return x0 , y0 , hdg 
  
     
-    def eval(self, S ,T):
+    def ST2XY(self, S ,T):
 
         x0 = self.x0   
         y0 = self.y0   
         hdg = self.hdg   
         S0 = 0
         
+        ele = None
         
         for ele in self.geometry_elements:
             
@@ -947,44 +941,51 @@ class RoadReferenceLine():
             
         
         
-        x_end , y_end , hdg  = self.get_endPoint()
+        #x_end , y_end , hdg  = self.get_endPoint()
         
         
-        return ( x_end , y_end )
+        if ele is not None:
+        
+            return ele.ST2XY(  x0 , y0 , hdg ,  S ,S0,T )
+        
+        else:
+            return (S,T)
         
         
-    def evalX(self, X):
+    def XY2ST(self, X , Y):
     
         x0 = self.x0   
         y0 = self.y0   
         hdg = self.hdg   
     
         S0 = 0
-    
+        
+        S_list =[]
+        T_list =[]  
+        
+              
         for ele in self.geometry_elements:
             
  
             
-            Y = ele.evalX(  x0 , y0 ,hdg , X)
+            (S,T)= ele.XY2ST(  x0 , y0 ,hdg , X ,Y, S0)
             
-            
-            if Y != None   :
-                 
-                return Y
+ 
+            S_list.append(S)
+            T_list.append(T)           
     
-            else:
-    
-                x0 , y0 , hdg = ele.get_endPoint(x0 ,y0 , hdg )
-    
-                S0 = S0 + ele.length
+            x0 , y0 , hdg = ele.get_endPoint(x0 ,y0 , hdg )
+
+            S0 = S0 + ele.length
     
     
-    
-        return None       
-        
+        indexMinT = np.argmin(T_list)
+ 
+        T =  T_list[indexMinT]   
+        S =  S_list[indexMinT]
     
  
- 
+        return (S,T)
       
 class Road():
     
@@ -1784,17 +1785,17 @@ if __name__ == '__main__':
     
     length = 20.0
     Radius = 50.0
-    geometry_elements = [ StraightLine(length) ,  Arc(length, Radius) ] # ,  ,,   ,   Arc(length,- Radius), StraightLine(length) ,  Arc(length,  Radius) 
+    geometry_elements = [   StraightLine(length) ] # StraightLine(length) ,,  ,,   ,   Arc(length,- Radius), StraightLine(length) ,  Arc(length,  Radius) 
     refObj = RoadReferenceLine(x0, y0, hdg, geometry_elements)
     
     
-    S = np.arange(0.0,refObj.getLength() *3,0.001  )
+    S = np.arange(0.0,refObj.getLength() ,0.1  )
     # xy = []
     # #
     # # T = 0
     # #
     # # for ele in S:
-    # #     xy.append(refObj.eval(ele,T))
+    # #     xy.append(refObj.ST2XY(ele,T))
     # #
     # # plt.plot(*zip(*xy))
     #
@@ -1803,7 +1804,7 @@ if __name__ == '__main__':
     # T = 1
     #
     # for ele in S:
-    #     xy.append(refObj.eval(ele,T))
+    #     xy.append(refObj.ST2XY(ele,T))
     #
     # plt.plot(*zip(*xy))
     #
@@ -1812,7 +1813,7 @@ if __name__ == '__main__':
     # T = -1
     #
     # for ele in S:
-    #     xy.append(refObj.eval(ele,T))
+    #     xy.append(refObj.ST2XY(ele,T))
     #
     # plt.plot(*zip(*xy))    
     #
@@ -1820,11 +1821,12 @@ if __name__ == '__main__':
     #
     points =[]
     
-    X_all = np.arange(0.0,70,1.0)    
+   
     Y = []
-    X =[]
-    for x in X_all:
-        y = refObj.evalX(x)
+    X = []
+    
+    for s in S:
+        x, y = refObj.ST2XY(s,0)
         
         if y != None:
             Y.append(y)
@@ -1836,27 +1838,29 @@ if __name__ == '__main__':
     opt_points_X = X
     opt_points_Y = Y
     
-    
-    #Arc.fit(x0, y0, hdg, opt_points_X, opt_points_Y)
+    # line , ls_error  = StraightLine.fit(x0, y0, hdg, opt_points_X, opt_points_Y)
+    # print("length", line.length )
+    # print(ls_error)
+    #
+    # arc , ls_error = Arc.fit(x0, y0, hdg, opt_points_X, opt_points_Y)
     
     ReferenceLine =   RoadReferenceLine.fitRoadReferenceLine(points, x0 , y0  , hdg )  
     print(x0 , y0  , hdg )
     
     print(ReferenceLine.__dict__)
-     
+    
     for ele in ReferenceLine.geometry_elements:
         print("ele : " , ele.__class__.__name__)
         print("length", ele.length )
-        
+    
         try:
             print("Radius" , ele.Radius )
-            
+    
         except:
             pass
     xy = []
     for ele in S:
-        xy.append(ReferenceLine.eval(ele,0))
-    
+        xy.append(ReferenceLine.ST2XY(ele,0))
     plt.plot(*zip(*xy))
     
     
