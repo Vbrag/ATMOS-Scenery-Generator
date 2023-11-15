@@ -679,11 +679,11 @@ class Arc():
         
         T = L - self.Radius      
         
-        gama  =  np.arctan2(deltaY ,deltaX )
+        gama  =  np.arctan2(deltaY ,deltaX ) 
  
         
       
-        theta =    np.pi  -  alfa   -  gama 
+        theta =      (np.pi  -  alfa   -  gama  )
         S = theta /(np.pi) *self.Radius + S0
  
         return (S,T)
@@ -848,60 +848,105 @@ class RoadReferenceLine():
             referenceLine.set_endPoint(x_midel, y_midel)
             
             
-
-
+        excludIndex  =[] 
+        index = 0
         referenceLine.set_endPoint(x_end, y_end)
-        def cost_func(opt_paramter ,   opt_points_X , opt_points_Y ):
+
+ 
+        print("#############################################")
+        for ele in referenceLine.geometry_elements:
+            print("ele : " , ele.__class__.__name__)
+            print("length", ele.length )
         
-            index = 0
-            for obj in referenceLine.geometry_elements:
-                for key in obj.__dict__.keys():
-                    setattr(obj, key, opt_paramter[index])
-                    index =index +1
+            try:
+                print("Radius" , ele.Radius )
         
-        
-        
-            eror = []
-        
-            for index in  range( 0 , len(opt_points_X) ):
-                X = opt_points_X[index]
-                Y = opt_points_Y[index]           
-                S ,T = referenceLine.XY2ST(  X ,Y )
-                #X2,Y2 = referenceLine.ST2XY(S, 0)
-                #eror.append(X2 - X)
-                eror.append(T)
-        
-        
-        
-            eror = np.array( eror )
-        
-            eror=  eror.astype(float)
-            ls_error =   np.sum(  eror *eror)  
-            return   ls_error 
-        
-        
-        
-        
-        
-        
+            except:
+                pass
+                
         x0 =[]
         for obj in referenceLine.geometry_elements:
+            
+            objectIndex  = []
+            objectvalues  = []
+            exclue = False
             for key in obj.__dict__.keys():
-                x0.append(obj.__dict__.get(key))           
+                
+                objectIndex.append(index)
+                x0_ele = obj.__dict__.get(key)
+                objectvalues.append(x0_ele)
+                if x0_ele < 0:
+                    exclue = True
+  
+                     
+                index =index +1
+            if exclue:
+                excludIndex = excludIndex +objectIndex
+            else:
+                x0 =x0 + objectvalues
         
+        print(excludIndex)     
+        print(x0)        
+ 
         
+        print(x0)
         
-        func = lambda x : cost_func(x  ,  opt_points_X , opt_points_Y) 
-        
-        
-        
-        # res = minimize(func, x0 , method='SLSQP' , tol=1e-100, options={'maxiter':100 ,'gtol': 1e-100, 'disp': False})
+        # def cost_func(opt_paramter ,   opt_points_X , opt_points_Y ):
+        #
+        #     index = 0
+        #     opt_paramter = opt_paramter.tolist()
+        #     for obj in referenceLine.geometry_elements:
+        #         for key in obj.__dict__.keys():
+        #
+        #             if index  in excludIndex:
+        #                 opt_paramter.insert( index , obj.__dict__.get(key))
         #
         #
+        #             index =index +1
+        #
+        #
+        #     index = 0           
+        #     for obj in referenceLine.geometry_elements:
+        #         for key in obj.__dict__.keys():
+        #             setattr(obj, key, opt_paramter[index])
+        #             index =index +1
+        #
+        #
+        #
+        #     eror = []
+        #
+        #     for index in  range( 0 , len(opt_points_X) ):
+        #         X = opt_points_X[index]
+        #         Y = opt_points_Y[index]           
+        #         S ,T = referenceLine.XY2ST(  X ,Y )
+        #         #X2,Y2 = referenceLine.ST2XY(S, 0)
+        #         #eror.append(X2 - X)
+        #         eror.append(T)
+        #
+        #
+        #
+        #     eror = np.array( eror )
+        #
+        #     eror=  eror.astype(float)
+        #     ls_error =   np.sum(  eror *eror)  
+        #     return   ls_error 
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        # func = lambda x : cost_func(x  ,  opt_points_X , opt_points_Y) 
+        # res = minimize(func, x0 , method='SLSQP' , tol=1e-100, options={'maxiter':1000 ,'gtol': 1e-100, 'disp': False})
         # print(res)
-    
-
-
+        #
+        #
+        # referenceLine.set_endPoint(x_end, y_end)
             
         
     
@@ -2313,11 +2358,11 @@ if __name__ == '__main__':
     
     x0 = 0
     y0 = 0
-    hdg =  -np.pi/4
+    hdg =  np.pi/4
     
     length = 200.0
     Radius = 500.0
-    geometry_elements = [  Arc(length,   Radius) , StraightLine(length) ,Arc(length,   Radius)] # ,   , StraightLine(length) Arc(length,   Radius), StraightLine(length) ,   Arc(length,   Radius)  ,     StraightLine(length) ,  Arc(length,  Radius ),  Arc(length,  Radius),  ,,   )  , StraightLine(length) ,  Arc(length,  Radius )
+    geometry_elements = [ StraightLine(length) ,  Arc(length,   Radius) , StraightLine(length) ,  Arc(length,  -  Radius)  ] # , , StraightLine(length) ,Arc(length,   Radius)  , StraightLine(length) Arc(length,   Radius), StraightLine(length) ,   Arc(length,   Radius)  ,     StraightLine(length) ,  Arc(length,  Radius ),  Arc(length,  Radius),  ,,   )  , StraightLine(length) ,  Arc(length,  Radius )
     refObj = RoadReferenceLine(x0, y0, hdg, geometry_elements)
     
     
