@@ -13,12 +13,85 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon , Rectangle
 import matplotlib as mpl
 import numpy as np
-from scipy.optimize import minimize
+from math import isclose 
 import random
+from scipy.optimize import minimize
  
 
 projection_fromGeographic_cash = dict()
 clear = lambda: os.system('cls')
+
+
+def define_circle(p1, p2, p3):
+    """
+    Returns the center and radius of the circle passing the given 3 points.
+    In case the 3 points form a line, returns (None, infinity).
+    """
+    
+    
+    
+    
+    
+    x_start, y_start = p1
+    x_midel, y_midel = p2          
+    x_end  , y_end   = p3   
+    
+    deltax1 = x_midel - x_start
+    deltax2 = x_end   - x_midel     
+    
+    deltay1 = y_midel - y_start
+    deltay2 = y_end   - y_midel             
+            
+    
+ 
+    
+    
+    if deltax1  == 0:
+        
+        if  deltay1 > 0:
+            hdg1 = np.pi/2
+        else:
+            hdg1 = -np.pi/2                    
+        
+    else:
+    
+        hdg1 =  np.arctan2( deltay1 ,deltax1 )
+    
+    
+    if deltax2  == 0:
+        
+        if  deltay2 > 0:
+            hdg2 = np.pi/2
+        else:
+            hdg2 = -np.pi/2                    
+        
+    else:
+    
+        hdg2 =  np.arctan2( deltay2 ,deltax2 )    
+    
+    
+    
+    
+    temp = p2[0] * p2[0] + p2[1] * p2[1]
+    bc = (p1[0] * p1[0] + p1[1] * p1[1] - temp) / 2
+    cd = (temp - p3[0] * p3[0] - p3[1] * p3[1]) / 2
+    det = (p1[0] - p2[0]) * (p2[1] - p3[1]) - (p2[0] - p3[0]) * (p1[1] - p2[1])
+    
+    if abs(det) < 1.0e-6:
+        return ((None,None), np.inf)
+    
+    # Center of circle
+    cx = (bc*(p2[1] - p3[1]) - cd*(p1[1] - p2[1])) / det
+    cy = ((p1[0] - p2[0]) * cd - (p2[0] - p3[0]) * bc) / det
+    
+    radius = np.sqrt((cx - p1[0])**2 + (cy - p1[1])**2)
+    
+    if hdg2 >hdg1     :
+ 
+        radius = -1.0 *radius
+        
+    
+    return ((cx, cy), radius)
 
 def projection_fromGeographic(latitude, longitude, referenceLat = 0 , referenceLon = 0):
     
@@ -346,62 +419,49 @@ class Barrier_roadObject():
 
 class StraightLine():
     
-    @classmethod
-    def fit( cls,  x0, y0, hdg , opt_points_X , opt_points_Y):    
-    
- 
-        x_end = opt_points_X[0]
-        y_end = opt_points_Y[0]   
-        x_start = opt_points_X[-1]
-        y_start = opt_points_Y[-1] 
-    
-    
-        deltaX = np.array( x_end - x_start ).astype(float)
-        deltaY = np.array( y_end - y_start ).astype(float)
-    
- 
-        length = np.sqrt( deltaX*deltaX   +  deltaY *deltaY  ) 
-        
-        line = StraightLine(length)
-        
-         
-        
-        X = np.array(opt_points_X)
-        Y = np.array(opt_points_Y)
-        
-        refObj.get_endPoint()
-        S0 = 0
-        S ,T = line.XY2ST(x0 , y0 ,hdg , X , Y ,S0)
-        
-         
-        
-        eror = T
-        
-        eror=  eror.astype(float)
-    
-        
-        ls_error =   np.sum(  eror *eror    )
-        
-    
-        return line , ls_error
+    # @classmethod
+    # def fit( cls,  x0, y0, hdg , opt_points_X , opt_points_Y):    
+    #
+    #
+    #     x_end = opt_points_X[0]
+    #     y_end = opt_points_Y[0]   
+    #     x_start = opt_points_X[-1]
+    #     y_start = opt_points_Y[-1] 
+    #
+    #
+    #     deltaX = np.array( x_end - x_start ).astype(float)
+    #     deltaY = np.array( y_end - y_start ).astype(float)
+    #
+    #
+    #     length = np.sqrt( deltaX*deltaX   +  deltaY *deltaY  ) 
+    #
+    #     line = StraightLine(length)
+    #
+    #
+    #
+    #     X = np.array(opt_points_X)
+    #     Y = np.array(opt_points_Y)
+    #
+    #     refObj.get_endPoint()
+    #     S0 = 0
+    #     S ,T = line.XY2ST(x0 , y0 ,hdg , X , Y ,S0)
+    #
+    #
+    #
+    #     eror = T
+    #
+    #     eror=  eror.astype(float)
+    #
+    #
+    #     ls_error =   np.sum(  eror *eror    )
+    #
+    #
+    #     return line , ls_error
     
     def __init__(self,    length=1):
         
  
         self.length = length
-        
-
-    # def XY2ST(self, x0 , y0 ,hdg , X):
-    #
-    #     if hdg != np.pi/2:      
-    #         y =   y0 + (X - x0)*np.tan(hdg)
-    #     else:
-    #         y =   y0
-    #
-    #     deltaX= (X -x0 ).astype(float)
-    #     deltaY= (y -y0 ).astype(float)
-    #     lenght = np.sqrt(  deltaX * deltaX    + deltaY *deltaY  ) 
-    #     return np.where(lenght   <=  self.length  , y , None)
         
  
                  
@@ -453,76 +513,76 @@ class StraightLine():
   
 class Arc():
 
-    @classmethod    
-    def fit( cls, x0, y0, hdg , opt_points_X , opt_points_Y ):
-
-        length=0   
-        
-        
-        for index ,point_x in enumerate( opt_points_X[0:-1] ):
-            
-            point_y = opt_points_Y[index]
-        
-            x_end = opt_points_X[index+1]
-            y_end = opt_points_Y[index+1]
-        
-            deltaX = np.array( x_end - point_x ).astype(float)
-            deltaY = np.array( y_end - point_y ).astype(float)
-        
-            length  = length +  np.sqrt( deltaX*deltaX   +  deltaY *deltaY  ) 
-
-        
-        def cost_func(Radius , x0, y0, hdg , opt_points_X , opt_points_Y ):
- 
-            
-            arc = Arc(length, Radius)    
-            X = np.array(opt_points_X)
-            Y = np.array(opt_points_Y)
-             
-            refObj.get_endPoint()
-            S0 = 0
-            S ,T = arc.XY2ST(x0 , y0 ,hdg , X ,Y, S0)
- 
-            
-            eror = T
-            
-     
-            
-            eror=  eror.astype(float)
-            
-            ls_error =   np.sum(  eror *eror)  
-            
-            return   ls_error    
-        
-        
-        
-        geometry_elements = []
-        
-        refObj = RoadReferenceLine(x0, y0, hdg, geometry_elements)
-        bnds = (  (None, None))                                  
-        func = lambda x : cost_func(x  ,  x0, y0, hdg , opt_points_X , opt_points_Y) 
-        
-        radius0 = 1
-              
-        res = minimize(func, np.array([ radius0 ]) , method='SLSQP' , tol=1e-100, options={'maxiter':100 ,'gtol': 1e-100, 'disp': False})
-        
-        res_radius = res.x[0]
-                
-        
-        
-        ls_error = res.fun
-        print(res)
-        print(ls_error) 
-        
-        #if length == None:
- 
-        radius =  res_radius  
-                                
-        newele=  Arc(length ,  radius     ) 
-        print( "radius0",radius )
-        
-        
-        return newele , ls_error 
+    # @classmethod    
+    # def fit( cls, x0, y0, hdg , opt_points_X , opt_points_Y ):
+    #
+    #     length=0   
+    #
+    #
+    #     for index ,point_x in enumerate( opt_points_X[0:-1] ):
+    #
+    #         point_y = opt_points_Y[index]
+    #
+    #         x_end = opt_points_X[index+1]
+    #         y_end = opt_points_Y[index+1]
+    #
+    #         deltaX = np.array( x_end - point_x ).astype(float)
+    #         deltaY = np.array( y_end - point_y ).astype(float)
+    #
+    #         length  = length +  np.sqrt( deltaX*deltaX   +  deltaY *deltaY  ) 
+    #
+    #
+    #     def cost_func(Radius , x0, y0, hdg , opt_points_X , opt_points_Y ):
+    #
+    #
+    #         arc = Arc(length, Radius)    
+    #         X = np.array(opt_points_X)
+    #         Y = np.array(opt_points_Y)
+    #
+    #         refObj.get_endPoint()
+    #         S0 = 0
+    #         S ,T = arc.XY2ST(x0 , y0 ,hdg , X ,Y, S0)
+    #
+    #
+    #         eror = T
+    #
+    #
+    #
+    #         eror=  eror.astype(float)
+    #
+    #         ls_error =   np.sum(  eror *eror)  
+    #
+    #         return   ls_error    
+    #
+    #
+    #
+    #     geometry_elements = []
+    #
+    #     refObj = RoadReferenceLine(x0, y0, hdg, geometry_elements)
+    #     bnds = (  (None, None))                                  
+    #     func = lambda x : cost_func(x  ,  x0, y0, hdg , opt_points_X , opt_points_Y) 
+    #
+    #     radius0 = 1
+    #
+    #     res = minimize(func, np.array([ radius0 ]) , method='SLSQP' , tol=1e-100, options={'maxiter':100 ,'gtol': 1e-100, 'disp': False})
+    #
+    #     res_radius = res.x[0]
+    #
+    #
+    #
+    #     ls_error = res.fun
+    #     print(res)
+    #     print(ls_error) 
+    #
+    #     #if length == None:
+    #
+    #     radius =  res_radius  
+    #
+    #     newele=  Arc(length ,  radius     ) 
+    #     print( "radius0",radius )
+    #
+    #
+    #     return newele , ls_error 
 
 
     
@@ -564,6 +624,8 @@ class Arc():
     
     def get_endPoint(self, x0 , y0 ,hdg):
         
+        #if self.Radius > 0:
+        
         alfa =   np.pi/2  - hdg  
 
         x_center = x0 + self.Radius * np.cos( alfa )
@@ -581,24 +643,27 @@ class Arc():
         hdg_end =    hdg-theta
     
         return (x_end ,y_end , hdg_end )
-    
-    
-    # def XY2ST(self, x0 , y0 ,hdg , X):
-    #
-    #     alfa =   np.pi/2  - hdg  
-    #
-    #     x_center = x0 + self.Radius * np.cos( alfa )
-    #     y_center = y0 - self.Radius * np.sin( alfa )
-    #
-    #
-    #     theta =  -1*( np.arccos( (X - x_center)/self.Radius ) -np.pi +alfa) 
-    #
-    #     y =  y_center + self.Radius*np.sin(np.pi - alfa -theta)
-    #
-    #     lenght = theta /(np.pi) *self.Radius
-    #
-    #
-    #     return np.where(lenght   <=  self.length  , y , None)
+        
+        # else:
+        #
+        #     alfa =   np.pi/2  - hdg  
+        #
+        #     x_center = x0 + self.Radius * np.cos( alfa )
+        #     y_center = y0 - self.Radius * np.sin( alfa )
+        #
+        #
+        #     delta_s = self.length
+        #
+        #
+        #     theta =  (delta_s /self.Radius )* (np.pi)
+        #
+        #     x_end =  x_center + self.Radius*np.cos(np.pi - alfa -theta )   
+        #     y_end =  y_center + self.Radius*np.sin(np.pi - alfa -theta)
+        #
+        #     hdg_end =    hdg-theta
+        #
+        #     return (x_end ,y_end , hdg_end )    
+ 
 
 
     def XY2ST(self, x0 , y0 ,hdg , X ,Y, S0):
@@ -628,6 +693,222 @@ class Arc():
 class RoadReferenceLine():
 
 
+    @classmethod  
+    def fitRoadReferenceLine(cls, points ,x0 = None, y0 =None , hdg = None  ):
+    
+        #ls_error_max_error = 1.0/1000000 
+        x0_start = x0
+        y0_start = y0        
+        hdg_start = hdg
+    
+    
+        if x0 is None or y0 is None:
+            x0, y0 = points[0]
+            x0_start = x0
+            y0_start = y0
+    
+        x1, y1 = points[1] 
+    
+        if hdg is None:
+    
+            hdg =  np.arctan2((y1 -y0 ) ,(x1 -x0 ) )
+            hdg_start = hdg
+    
+        geometry_elements =[]
+    
+    
+        referenceLine = RoadReferenceLine(x0_start, y0_start, hdg_start, geometry_elements)
+    
+        opt_points_X = [x0_start , x1 ]
+        opt_points_Y = [y0_start , y1 ]
+            
+        for index in range(2 , len(points),1):
+            index_1 = index-1
+            index_2 = index-2
+             
+
+    
+            #point_0 = (x0 ,y0)
+            point_start =   points[index_2]
+            point_midel = points[index_1]
+            point_End = points[index]
+
+
+
+    
+            x_start, y_start = point_start
+            
+            referenceLine.set_endPoint(x_start, y_start)
+    
+            x0 , y0 , hdg0  = referenceLine.get_endPoint()    
+        
+            x_midel, y_midel = point_midel          
+            x_end  , y_end   = point_End  
+            
+            opt_points_X.append(x_end) 
+            opt_points_Y.append(y_end)
+    
+            deltax1 = x_midel - x_start
+            deltax2 = x_end   - x_midel     
+    
+            deltay1 = y_midel - y_start
+            deltay2 = y_end   - y_midel             
+    
+    
+    
+    
+    
+            if deltax1  == 0:
+    
+                if  deltay1 > 0:
+                    hdg1 = np.pi/2
+                else:
+                    hdg1 = -np.pi/2                    
+    
+            else:
+    
+                hdg1 =  np.arctan2( deltay1 ,deltax1 )
+    
+    
+            if deltax2  == 0:
+    
+                if  deltay2 > 0:
+                    hdg2 = np.pi/2
+                else:
+                    hdg2 = -np.pi/2                    
+    
+            else:
+    
+                hdg2 =  np.arctan2( deltay2 ,deltax2 )                   
+    
+            length = np.sqrt( deltax1*deltax1   +  deltay1 *deltay1  )
+    
+            if   isclose(hdg1, hdg2, abs_tol=1e-6)   : #  or  isclose(hdg1, hdg0, abs_tol=1e-3)  or  isclose(hdg2, hdg0, abs_tol=1e-3) 
+                #line
+    
+                if len(referenceLine.geometry_elements) > 0   :
+    
+                    if isinstance(referenceLine.geometry_elements[-1], StraightLine):
+                        #extend
+    
+                        old_length = referenceLine.geometry_elements[-1].length
+                        referenceLine.geometry_elements[-1].length = old_length + length
+    
+    
+    
+                    else:
+    
+                        referenceLine.geometry_elements.append(StraightLine(length))                        
+    
+    
+                else:
+    
+                    referenceLine.geometry_elements.append(StraightLine(length))
+    
+    
+    
+    
+            else:
+                #arc   
+                (cx, cy), radius = define_circle(point_start, point_midel, point_End)
+    
+                if radius != np.inf:
+                    if len(referenceLine.geometry_elements) > 0   :
+    
+                        if isinstance(referenceLine.geometry_elements[-1], Arc):
+    
+    
+                            if  isclose(referenceLine.geometry_elements[-1].Radius, radius, abs_tol=1e-3)  :
+    
+    
+                                old_length = referenceLine.geometry_elements[-1].length
+                                referenceLine.geometry_elements[-1].length = old_length + length 
+                                referenceLine.geometry_elements[-1].Radius = (radius + referenceLine.geometry_elements[-1].Radius )/2.0
+    
+                            else:
+                                old_length = referenceLine.geometry_elements[-1].length
+                                referenceLine.geometry_elements[-1].length = old_length + length 
+                                referenceLine.geometry_elements[-1].Radius = (radius*length + referenceLine.geometry_elements[-1].Radius*old_length )/(old_length + length )
+    
+                                #referenceLine.geometry_elements.append(Arc(length, radius))
+ 
+                        else:
+    
+                            referenceLine.geometry_elements.append( Arc(length, radius) )                        
+    
+    
+                    else:
+    
+                        referenceLine.geometry_elements.append( Arc(length, radius) )            
+    
+                else:
+    
+                    referenceLine.geometry_elements.append( StraightLine(length) )       
+    
+            referenceLine.set_endPoint(x_midel, y_midel)
+            
+            
+
+
+        referenceLine.set_endPoint(x_end, y_end)
+        def cost_func(opt_paramter ,   opt_points_X , opt_points_Y ):
+        
+            index = 0
+            for obj in referenceLine.geometry_elements:
+                for key in obj.__dict__.keys():
+                    setattr(obj, key, opt_paramter[index])
+                    index =index +1
+        
+        
+        
+            eror = []
+        
+            for index in  range( 0 , len(opt_points_X) ):
+                X = opt_points_X[index]
+                Y = opt_points_Y[index]           
+                S ,T = referenceLine.XY2ST(  X ,Y )
+                #X2,Y2 = referenceLine.ST2XY(S, 0)
+                #eror.append(X2 - X)
+                eror.append(T)
+        
+        
+        
+            eror = np.array( eror )
+        
+            eror=  eror.astype(float)
+            ls_error =   np.sum(  eror *eror)  
+            return   ls_error 
+        
+        
+        
+        
+        
+        
+        x0 =[]
+        for obj in referenceLine.geometry_elements:
+            for key in obj.__dict__.keys():
+                x0.append(obj.__dict__.get(key))           
+        
+        
+        
+        func = lambda x : cost_func(x  ,  opt_points_X , opt_points_Y) 
+        
+        
+        
+        # res = minimize(func, x0 , method='SLSQP' , tol=1e-100, options={'maxiter':100 ,'gtol': 1e-100, 'disp': False})
+        #
+        #
+        # print(res)
+    
+
+
+            
+        
+    
+        return referenceLine   
+    
+    
+    
     # @classmethod  
     # def fitRoadReferenceLine(cls, points ,x0 = None, y0 =None , hdg = None  ):
     #
@@ -711,9 +992,10 @@ class RoadReferenceLine():
     #         referenceLine.geometry_elements.append(GeoElem)
     #         x0  , y0   , hdg = referenceLine.get_endPoint()    
     #
-    #     return referenceLine
-
-    # @classmethod  
+    #     return referenceLine    
+    
+    
+    #@classmethod  
     # def fitRoadReferenceLine(cls, points ,x0 = None, y0 =None , hdg = None , max_iterations  = 10 ):
     #
     #     ls_error_max_error = 1.0/1000000 
@@ -820,283 +1102,282 @@ class RoadReferenceLine():
     #     print(res)
     #     print(ls_error)             
     #     return referenceLine
-        
-        
-   
-
-
-    @classmethod  
-    def fitRoadReferenceLine(cls, points ,x0 = None, y0 =None , hdg = None  ):
-        ls_error_max_error = 1.0/10000  
-        x0_start = x0
-        y0_start = y0        
-        hdg_start = hdg
-    
-    
-        opt_points_X = [ ]
-        opt_points_Y = [ ]  
-        for point in points:
-    
-            if point[0] is not None and point[1] is not None :
-                opt_points_X.append( point[0]  )
-                opt_points_Y.append( point[1]  )      
-    
-    
-        if x0 is None or y0 is None:
-            x0, y0 = points[0]
-            x0_start = x0
-            y0_start = y0
-    
-        x1, y1 = points[1] 
-    
-        if hdg is None:
-    
-            hdg =  np.arctan2((y1 -y0 ) ,(x1 -x0 ) )
-            hdg_start = hdg
-    
-    
-        GeoElem = None
-        for Geo_cls in [StraightLine , Arc]:
-    
-            print(Geo_cls.__name__)
-    
-            newele , ls_error = Geo_cls.fit(x0, y0, hdg, opt_points_X, opt_points_Y)
-    
-            if ls_error < ls_error_max_error  :
-                GeoElem = newele
-    
-                Xend = opt_points_X[-1]
-                Yend = opt_points_Y[-1]
-    
-                S, T = newele.XY2ST( x0 , y0 ,hdg ,Xend, Yend,0)
-    
-                print("S" , S , "T" ,T)
-                newele.length = S
-    
-                break
-    
-    
-    
-        geometry_elements =[]
-        if GeoElem is not None:
-            geometry_elements.append(GeoElem)
-    
-        else:
-    
-            midelpoint= 2
-            opt_points_X_part1 =  opt_points_X[0:midelpoint]
-            opt_points_Y_part1 =  opt_points_Y[0:midelpoint]
-            opt_points_X_part2 =  opt_points_X[midelpoint: ]
-            opt_points_Y_part2 =  opt_points_Y[midelpoint: ]
-    
-            solution_dict = dict()
-    
-            for index ,pointx in   enumerate(opt_points_X_part2):
-                opt_points_X_part1.append(pointx)
-                opt_points_Y_part1.append(opt_points_Y_part2[index])
-                for Geo_cls in [StraightLine , Arc]:
-                    print(Geo_cls.__name__)
-    
-                    newele , ls_error = Geo_cls.fit(x0_start, y0_start, hdg_start, opt_points_X_part1, opt_points_Y_part1)
-    
-                    if ls_error < ls_error_max_error  :
-                        #GeoElem = newele
-    
-                        Xend = opt_points_X_part1[-1]
-                        Yend = opt_points_Y_part1[-1]
-    
-                        S, T = newele.XY2ST( x0_start, y0_start, hdg_start ,Xend, Yend,0)
-    
-                        print("S" , S , "T" ,T)
-                        newele.length = S  
-    
-                        solution_dict[index] = newele 
-    
-    
-            if len(solution_dict.keys()) > 0:
-                index = max(list(solution_dict.keys()))
-    
-                GeoElem =  solution_dict.get(index )   
-    
-                geometry_elements.append(GeoElem)
-                part1 = RoadReferenceLine(x0_start, y0_start, hdg_start, geometry_elements)
-    
-                x0  , y0   , hdg = part1.get_endPoint()
-    
-                points_part2 = points[5+index:]
-    
-                points_part2 = [(x0  , y0) , *points_part2] 
-                part2 = RoadReferenceLine.fitRoadReferenceLine(points_part2,x0  , y0   , hdg )
-                if part2 is not None:
-    
-    
-                    geometry_elements =  geometry_elements + part2.geometry_elements
-    
-                else:
-                    i = 0
-                    while part2 is None and i < 5:  
-    
-                        part1.geometry_elements[-1].length  = geometry_elements[-1].length*0.9  
-                        x0  , y0   , hdg = part1.get_endPoint() 
-                        points_part2 = [(x0  , y0) , *points_part2] 
-                        part2 = RoadReferenceLine.fitRoadReferenceLine(points_part2,x0  , y0   , hdg )                    
-                        i = i +1
-    
-    
-            else:
-    
-    
-    
-                return None  
-    
-    
-    
-        refObj = RoadReferenceLine(x0_start, y0_start, hdg_start, geometry_elements)
-    
-    
-        return refObj
-    #     # x0, y0 = points[0]
-    #     # x1, y1 = points[1]        
-    #     #
-    #     # hdg =  np.arctan2((y1 -y0 ) ,(x1 -x0 ) )
-    #     #
-    #     #
-    #     # geometry_elements = []
-    #     #
-    #     #
-    #     # refObj = RoadReferenceLine(x0, y0, hdg, geometry_elements)
-    #     #
-    #     #
-    #     # use_line  = False
-    #     #
-    #     #
-    #     #
-    #     # x0 , y0 , hdg  = refObj.get_endPoint()
-    #     #
-    #     # #point0 = points[0] 
-    #     #
-    #     # opt_points_X = [ ]
-    #     # opt_points_Y = [ ] 
-    #     #
-    #     # length0 = 0
-    #     # radius0 = 20
-    #     #
-    #     # for point in points:
-    #     #
-    #     #     if point[0] is not None and point[1] is not None :
-    #     #         opt_points_X.append( point[0]  )
-    #     #         opt_points_Y.append( point[1]  )
-    #     #
-    #     #         if len(opt_points_X) > 1:
-    #     #             x_end = point[0]
-    #     #             y_end = point[1]   
-    #     #             x_start = opt_points_X[-2]
-    #     #             y_start = opt_points_Y[-2]
-    #     #
-    #     #
-    #     #             deltaX = np.array( x_end - x_start ).astype(float)
-    #     #             deltaY = np.array( y_end - y_start ).astype(float)
-    #     #
-    #     #
-    #     #
-    #     #             length0  = length0 +  np.sqrt( deltaX*deltaX   +  deltaY *deltaY  )                
-    #     #
-    #     #
-    #     #
-    #     #
-    #     # if use_line:
-    #     #     bnds = ((0, None) )
-    #     #     func = lambda x:StraightLine.func(x ,  x0, y0, hdg , opt_points_X , opt_points_Y)
-    #     #
-    #     #     # if length == None:
-    #     #     #     length0 = 1 
-    #     #     #
-    #     #     # else:
-    #     #     #     length0 = length                    
-    #     #
-    #     #
-    #     #     res = minimize(func, np.array([length0]), method='SLSQP', bounds=bnds , tol=1e-100, options={'maxiter':100 ,'gtol': 1e-100, 'disp': False})
-    #     #
-    #     #     res_length = res.x[0]
-    #     #
-    #     #
-    #     #
-    #     #     res_fun = res.fun
-    #     #
-    #     #     print(res)
-    #     #     print(res_fun)
-    #     #
-    #     #     #if res_fun <= 0.001:
-    #     #
-    #     #     #if length == None:
-    #     #     length = res_length
-    #     #
-    #     #     refObj.geometry_elements.append( StraightLine(length))
-    #     #
-    #     #     # else:
-    #     #     #     length = res_length
-    #     #     #
-    #     #     #     refObj.geometry_elements[-1].length =  length  
-    #     #     #        
-    #     #     # else:
-    #     #     #     length = None
-    #     #     #     radius = None                    
-    #     #     #     use_line = False
-    #     #     #     x0 , y0 , hdg  = refObj.get_endPoint()
-    #     #     #     opt_points_X = [point[0]]
-    #     #     #     opt_points_Y = [point[1]]
-    #     #
-    #     # else :   
-    #     #     bnds = ((0, None), (None, None))                                  
-    #     #     func = lambda x : Arc.func(x  ,  x0, y0, hdg , opt_points_X , opt_points_Y) 
-    #     #
-    #     #     # if length == None:
-    #     #     #     length0 = 20.0
-    #     #     # else:
-    #     #     #     length0 = length   
-    #     #     #
-    #     #     # if radius == None:
-    #     #     #     radius0 = 20 
-    #     #     # else:
-    #     #     #     radius0 = radius 
-    #     #
-    #     #
-    #     #
-    #     #     res = minimize(func, np.array([length0 ,radius0 ]) , method='SLSQP', bounds=bnds , tol=1e-100, options={'maxiter':100 ,'gtol': 1e-100, 'disp': False})
-    #     #
-    #     #     res_length = res.x[0]
-    #     #     res_radius = res.x[1]                
-    #     #
-    #     #
-    #     #     res_fun = res.fun
-    #     #     print(res)
-    #     #     print(res_fun) 
-    #     #
-    #     #     #if length == None:
-    #     #     length = res_length
-    #     #     radius =  res_radius  
-    #     #
-    #     #     refObj.geometry_elements.append( Arc(length ,  radius     ))
-    #     #     print("length0" ,length0 ,"radius0",radius0 )
-    #     #
-    #     #     # else:
-    #     #     #     length = res_length
-    #     #     #     radius = res_radius                         
-    #     #     #
-    #     #     #
-    #     #     #
-    #     #     #     refObj.geometry_elements[-1].length =  length  
-    #     #     #     refObj.geometry_elements[-1].radius =   radius                            
-    #     #     # else:
-    #     #     #     length = None
-    #     #     #     radius = None                    
-    #     #     #     use_line = True
-    #     #     #     x0 , y0 , hdg  = refObj.get_endPoint()
-    #     #     #     opt_points_X = [point[0]]
-    #     #     #     opt_points_Y = [point[1]]                
-    #     #
-    #     #
-    #     # return refObj
+ 
+    # @classmethod  
+    # def fitRoadReferenceLine(cls, points ,x0 = None, y0 =None , hdg = None  ):
+    #     ls_error_max_error = 1.0/10000  
+    #     x0_start = x0
+    #     y0_start = y0        
+    #     hdg_start = hdg
+    #
+    #
+    #     opt_points_X = [ ]
+    #     opt_points_Y = [ ]  
+    #     for point in points:
+    #
+    #         if point[0] is not None and point[1] is not None :
+    #             opt_points_X.append( point[0]  )
+    #             opt_points_Y.append( point[1]  )      
+    #
+    #
+    #     if x0 is None or y0 is None:
+    #         x0, y0 = points[0]
+    #         x0_start = x0
+    #         y0_start = y0
+    #
+    #     if len(points) <2:
+    #         return None    
+    #
+    #     x1, y1 = points[1] 
+    #
+    #     if hdg is None:
+    #
+    #         hdg =  np.arctan2((y1 -y0 ) ,(x1 -x0 ) )
+    #         hdg_start = hdg
+    #
+    #
+    #     GeoElem = None
+    #     for Geo_cls in [StraightLine , Arc]:
+    #
+    #         print(Geo_cls.__name__)
+    #
+    #         newele , ls_error = Geo_cls.fit(x0, y0, hdg, opt_points_X, opt_points_Y)
+    #
+    #         if ls_error < ls_error_max_error  :
+    #             GeoElem = newele
+    #
+    #             Xend = opt_points_X[-1]
+    #             Yend = opt_points_Y[-1]
+    #
+    #             S, T = newele.XY2ST( x0 , y0 ,hdg ,Xend, Yend,0)
+    #
+    #             print("S" , S , "T" ,T)
+    #             newele.length = S
+    #
+    #             break
+    #
+    #
+    #
+    #     geometry_elements =[]
+    #     if GeoElem is not None:
+    #         geometry_elements.append(GeoElem)
+    #
+    #     else:
+    #
+    #         midelpoint= 2
+    #         opt_points_X_part1 =  opt_points_X[0:midelpoint]
+    #         opt_points_Y_part1 =  opt_points_Y[0:midelpoint]
+    #         opt_points_X_part2 =  opt_points_X[midelpoint: ]
+    #         opt_points_Y_part2 =  opt_points_Y[midelpoint: ]
+    #
+    #         solution_dict = dict()
+    #
+    #         for index ,pointx in   enumerate(opt_points_X_part2):
+    #             opt_points_X_part1.append(pointx)
+    #             opt_points_Y_part1.append(opt_points_Y_part2[index])
+    #             for Geo_cls in [StraightLine , Arc]:
+    #                 print(Geo_cls.__name__)
+    #
+    #                 newele , ls_error = Geo_cls.fit(x0_start, y0_start, hdg_start, opt_points_X_part1, opt_points_Y_part1)
+    #
+    #                 if ls_error < ls_error_max_error  :
+    #                     #GeoElem = newele
+    #
+    #                     Xend = opt_points_X_part1[-1]
+    #                     Yend = opt_points_Y_part1[-1]
+    #
+    #                     S, T = newele.XY2ST( x0_start, y0_start, hdg_start ,Xend, Yend,0)
+    #
+    #                     print("S" , S , "T" ,T)
+    #                     newele.length = S  
+    #
+    #                     solution_dict[index] = newele 
+    #
+    #
+    #         if len(solution_dict.keys()) > 0:
+    #             index = max(list(solution_dict.keys()))
+    #
+    #             GeoElem =  solution_dict.get(index )   
+    #
+    #             geometry_elements.append(GeoElem)
+    #             part1 = RoadReferenceLine(x0_start, y0_start, hdg_start, geometry_elements)
+    #
+    #             x0  , y0   , hdg = part1.get_endPoint()
+    #
+    #             points_part2 = points[5+index:]
+    #
+    #             points_part2 = [(x0  , y0) , *points_part2] 
+    #             part2 = RoadReferenceLine.fitRoadReferenceLine(points_part2,x0  , y0   , hdg )
+    #             if part2 is not None:
+    #
+    #
+    #                 geometry_elements =  geometry_elements + part2.geometry_elements
+    #
+    #             else:
+    #                 i = 0
+    #                 while part2 is None and i < 5:  
+    #
+    #                     part1.geometry_elements[-1].length  = geometry_elements[-1].length*0.9  
+    #                     x0  , y0   , hdg = part1.get_endPoint() 
+    #                     points_part2 = [(x0  , y0) , *points_part2] 
+    #                     part2 = RoadReferenceLine.fitRoadReferenceLine(points_part2,x0  , y0   , hdg )                    
+    #                     i = i +1
+    #
+    #
+    #         else:
+    #
+    #
+    #
+    #             return None  
+    #
+    #
+    #
+    #     refObj = RoadReferenceLine(x0_start, y0_start, hdg_start, geometry_elements)
+    #
+    #
+    #     return refObj
+    # #     # x0, y0 = points[0]
+    # #     # x1, y1 = points[1]        
+    # #     #
+    # #     # hdg =  np.arctan2((y1 -y0 ) ,(x1 -x0 ) )
+    # #     #
+    # #     #
+    # #     # geometry_elements = []
+    # #     #
+    # #     #
+    # #     # refObj = RoadReferenceLine(x0, y0, hdg, geometry_elements)
+    # #     #
+    # #     #
+    # #     # use_line  = False
+    # #     #
+    # #     #
+    # #     #
+    # #     # x0 , y0 , hdg  = refObj.get_endPoint()
+    # #     #
+    # #     # #point0 = points[0] 
+    # #     #
+    # #     # opt_points_X = [ ]
+    # #     # opt_points_Y = [ ] 
+    # #     #
+    # #     # length0 = 0
+    # #     # radius0 = 20
+    # #     #
+    # #     # for point in points:
+    # #     #
+    # #     #     if point[0] is not None and point[1] is not None :
+    # #     #         opt_points_X.append( point[0]  )
+    # #     #         opt_points_Y.append( point[1]  )
+    # #     #
+    # #     #         if len(opt_points_X) > 1:
+    # #     #             x_end = point[0]
+    # #     #             y_end = point[1]   
+    # #     #             x_start = opt_points_X[-2]
+    # #     #             y_start = opt_points_Y[-2]
+    # #     #
+    # #     #
+    # #     #             deltaX = np.array( x_end - x_start ).astype(float)
+    # #     #             deltaY = np.array( y_end - y_start ).astype(float)
+    # #     #
+    # #     #
+    # #     #
+    # #     #             length0  = length0 +  np.sqrt( deltaX*deltaX   +  deltaY *deltaY  )                
+    # #     #
+    # #     #
+    # #     #
+    # #     #
+    # #     # if use_line:
+    # #     #     bnds = ((0, None) )
+    # #     #     func = lambda x:StraightLine.func(x ,  x0, y0, hdg , opt_points_X , opt_points_Y)
+    # #     #
+    # #     #     # if length == None:
+    # #     #     #     length0 = 1 
+    # #     #     #
+    # #     #     # else:
+    # #     #     #     length0 = length                    
+    # #     #
+    # #     #
+    # #     #     res = minimize(func, np.array([length0]), method='SLSQP', bounds=bnds , tol=1e-100, options={'maxiter':100 ,'gtol': 1e-100, 'disp': False})
+    # #     #
+    # #     #     res_length = res.x[0]
+    # #     #
+    # #     #
+    # #     #
+    # #     #     res_fun = res.fun
+    # #     #
+    # #     #     print(res)
+    # #     #     print(res_fun)
+    # #     #
+    # #     #     #if res_fun <= 0.001:
+    # #     #
+    # #     #     #if length == None:
+    # #     #     length = res_length
+    # #     #
+    # #     #     refObj.geometry_elements.append( StraightLine(length))
+    # #     #
+    # #     #     # else:
+    # #     #     #     length = res_length
+    # #     #     #
+    # #     #     #     refObj.geometry_elements[-1].length =  length  
+    # #     #     #        
+    # #     #     # else:
+    # #     #     #     length = None
+    # #     #     #     radius = None                    
+    # #     #     #     use_line = False
+    # #     #     #     x0 , y0 , hdg  = refObj.get_endPoint()
+    # #     #     #     opt_points_X = [point[0]]
+    # #     #     #     opt_points_Y = [point[1]]
+    # #     #
+    # #     # else :   
+    # #     #     bnds = ((0, None), (None, None))                                  
+    # #     #     func = lambda x : Arc.func(x  ,  x0, y0, hdg , opt_points_X , opt_points_Y) 
+    # #     #
+    # #     #     # if length == None:
+    # #     #     #     length0 = 20.0
+    # #     #     # else:
+    # #     #     #     length0 = length   
+    # #     #     #
+    # #     #     # if radius == None:
+    # #     #     #     radius0 = 20 
+    # #     #     # else:
+    # #     #     #     radius0 = radius 
+    # #     #
+    # #     #
+    # #     #
+    # #     #     res = minimize(func, np.array([length0 ,radius0 ]) , method='SLSQP', bounds=bnds , tol=1e-100, options={'maxiter':100 ,'gtol': 1e-100, 'disp': False})
+    # #     #
+    # #     #     res_length = res.x[0]
+    # #     #     res_radius = res.x[1]                
+    # #     #
+    # #     #
+    # #     #     res_fun = res.fun
+    # #     #     print(res)
+    # #     #     print(res_fun) 
+    # #     #
+    # #     #     #if length == None:
+    # #     #     length = res_length
+    # #     #     radius =  res_radius  
+    # #     #
+    # #     #     refObj.geometry_elements.append( Arc(length ,  radius     ))
+    # #     #     print("length0" ,length0 ,"radius0",radius0 )
+    # #     #
+    # #     #     # else:
+    # #     #     #     length = res_length
+    # #     #     #     radius = res_radius                         
+    # #     #     #
+    # #     #     #
+    # #     #     #
+    # #     #     #     refObj.geometry_elements[-1].length =  length  
+    # #     #     #     refObj.geometry_elements[-1].radius =   radius                            
+    # #     #     # else:
+    # #     #     #     length = None
+    # #     #     #     radius = None                    
+    # #     #     #     use_line = True
+    # #     #     #     x0 , y0 , hdg  = refObj.get_endPoint()
+    # #     #     #     opt_points_X = [point[0]]
+    # #     #     #     opt_points_Y = [point[1]]                
+    # #     #
+    # #     #
+    # #     # return refObj
     
     def __init__(self, x0=0, y0=0 , hdg  = 0 , geometry_elements = [] ):
         
@@ -1132,6 +1413,27 @@ class RoadReferenceLine():
             
         return x0 , y0 , hdg 
  
+ 
+    def set_endPoint(self , X_end ,Y_end):
+        
+        (S,_) = self.XY2ST(X_end ,Y_end)
+        
+        S0 = 0
+        
+        if len(self.geometry_elements ) > 1:
+            for ele in self.geometry_elements[:-1]:
+                S0 = S0 + ele.length
+                
+        
+        print( S  )
+        
+        if len(self.geometry_elements ) >= 1 and  (S - S0 ) > 0:
+            
+            
+            self.geometry_elements[-1].length = S - S0               
+        
+        
+            
     
     def ST2XY(self, S ,T):
 
@@ -1185,22 +1487,27 @@ class RoadReferenceLine():
             
             (S,T)= ele.XY2ST(  x0 , y0 ,hdg , X ,Y, S0)
             
- 
-            S_list.append(S)
-            T_list.append(T)           
+            if (S >= 0):
+                S_list.append(S)
+                T_list.append(np.abs( T ))           
     
             x0 , y0 , hdg = ele.get_endPoint(x0 ,y0 , hdg )
 
             S0 = S0 + ele.length
-    
-    
-        indexMinT = np.argmin(T_list)
- 
-        T =  T_list[indexMinT]   
-        S =  S_list[indexMinT]
-    
- 
-        return (S,T)
+        
+        # print(S_list)
+        # print(T_list)
+        if len(T_list) >0:
+            indexMinT = np.argmin(T_list)
+     
+            T =  T_list[indexMinT]   
+            S =  S_list[indexMinT]
+        
+     
+            return (S,T)
+        
+        else:
+            return ( X , Y)
       
 class Road():
     
@@ -1989,6 +2296,16 @@ class Scenery():
 
 if __name__ == '__main__':
     
+
+    
+    #
+    # center, radius = define_circle((0,1), (1,0), (0,-1))
+    # if center is not None:
+    #     plt.figure(figsize=(10, 10))
+    #     circle = plt.Circle(center, radius)
+    #     plt.gcf().gca().add_artist(circle)    
+    #     plt.show()
+
     
     # filepath = os.path.abspath("..\\OSM_Interface\\WesternTor_2.osm")
     # sceneryObj = Scenery.from_Osm(filepath)    
@@ -1996,11 +2313,11 @@ if __name__ == '__main__':
     
     x0 = 0
     y0 = 0
-    hdg =  0 #np.pi/4
+    hdg =  -np.pi/4
     
-    length = 20.0
-    Radius = 50.0
-    geometry_elements = [  Arc(length,  - Radius)] # ,   Arc(length,   Radius), StraightLine(length) ,   Arc(length,   Radius)  ,     StraightLine(length) ,  Arc(length,  Radius ),  Arc(length,  Radius),  ,,   )  , StraightLine(length) ,  Arc(length,  Radius )
+    length = 200.0
+    Radius = 500.0
+    geometry_elements = [  Arc(length,   Radius) , StraightLine(length) ,Arc(length,   Radius)] # ,   , StraightLine(length) Arc(length,   Radius), StraightLine(length) ,   Arc(length,   Radius)  ,     StraightLine(length) ,  Arc(length,  Radius ),  Arc(length,  Radius),  ,,   )  , StraightLine(length) ,  Arc(length,  Radius )
     refObj = RoadReferenceLine(x0, y0, hdg, geometry_elements)
     
     
@@ -2068,15 +2385,18 @@ if __name__ == '__main__':
     
     print(ReferenceLine.__dict__)
     
-    for ele in ReferenceLine.geometry_elements:
-        print("ele : " , ele.__class__.__name__)
-        print("length", ele.length )
     
-        try:
-            print("Radius" , ele.Radius )
-    
-        except:
-            pass
+    for ref in [refObj ,ReferenceLine ]:
+        print("#############################################")
+        for ele in ref.geometry_elements:
+            print("ele : " , ele.__class__.__name__)
+            print("length", ele.length )
+        
+            try:
+                print("Radius" , ele.Radius )
+        
+            except:
+                pass
     xy = []
     for ele in S:
         xy.append(ReferenceLine.ST2XY(ele,0))
