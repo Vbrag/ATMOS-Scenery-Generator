@@ -683,7 +683,7 @@ class RoadReferenceLine():
 
 
     @classmethod  
-    def fitRoadReferenceLine(cls, points ,x0 = None, y0 =None , hdg = None , optimize  = True):
+    def fitRoadReferenceLine(cls, points ,x0 = None, y0 =None , hdg = None , optimize  = False):
     
         #ls_error_max_error = 1.0/1000000 
         x0_start = x0
@@ -892,7 +892,7 @@ class RoadReferenceLine():
             print(res)
             
             
-        referenceLine.set_endPoint(x_end, y_end)
+            referenceLine.set_endPoint(x_end, y_end)
             
         
     
@@ -1158,6 +1158,8 @@ class Road():
         
         elif "lanes" in tags_keys  or tags.get("highway") =="residential"   or  tags.get("highway") =="living_street"    or  tags.get("highway") == "construction"    :
             
+            
+            
             return Drivable_Road(Road_id, points, tags, dictobj.get('nodes'))
         
         
@@ -1309,7 +1311,11 @@ class Drivable_Road(Road):
     
     def __init__(self, Road_id, points=[], tags=dict(), nodes=[]):
         Road.__init__(self, Road_id, points=points, tags=tags, nodes=nodes)   
-    
+        
+        print(points)
+        self.ReferenceLine =   RoadReferenceLine.fitRoadReferenceLine(points , optimize=   False  )
+        print("ok")
+        
     
     def draw_Road(self, fig , ax ):   
                 
@@ -1910,104 +1916,105 @@ if __name__ == '__main__':
     #     plt.show()
 
     
-    # filepath = os.path.abspath("..\\OSM_Interface\\WesternTor_2.osm")
-    # sceneryObj = Scenery.from_Osm(filepath)    
-    # sceneryObj.draw_scenery() 
+    filepath = os.path.abspath("..\\OSM_Interface\\WesternTor_2.osm")
+    sceneryObj = Scenery.from_Osm(filepath)    
+    sceneryObj.draw_scenery() 
     
-    x0 = 0
-    y0 = 0
-    hdg =   np.pi/4
-    
-    length = 20.0
-    Radius = 50.0
-    geometry_elements = [ StraightLine(length) ,  Arc(length,   -Radius) ,StraightLine(length),  Arc(length,    -Radius),  Arc(length,   Radius) ] #) , StraightLine(length) ,  Arc(length,  -  Radius) , , StraightLine(length) ,Arc(length,   Radius)  , StraightLine(length) Arc(length,   Radius), StraightLine(length) ,   Arc(length,   Radius)  ,     StraightLine(length) ,  Arc(length,  Radius ),  Arc(length,  Radius),  ,,   )  , StraightLine(length) ,  Arc(length,  Radius )
-    refObj = RoadReferenceLine(x0, y0, hdg, geometry_elements)
-    
-    
-    S = np.arange(0.0,refObj.getLength() ,0.1  )
-    # xy = []
+    # x0 = 0
+    # y0 = 0
+    # hdg =   np.pi/4
+    #
+    # length = 20.0
+    # Radius = 50.0
+    # geometry_elements = [ StraightLine(length) ,  Arc(length,   -Radius) ,StraightLine(length),  Arc(length,    -Radius),  Arc(length,   Radius) ] #) , StraightLine(length) ,  Arc(length,  -  Radius) , , StraightLine(length) ,Arc(length,   Radius)  , StraightLine(length) Arc(length,   Radius), StraightLine(length) ,   Arc(length,   Radius)  ,     StraightLine(length) ,  Arc(length,  Radius ),  Arc(length,  Radius),  ,,   )  , StraightLine(length) ,  Arc(length,  Radius )
+    # refObj = RoadReferenceLine(x0, y0, hdg, geometry_elements)
+    #
+    #
+    # S = np.arange(0.0,refObj.getLength() ,0.1  )
+    # # xy = []
+    # # #
+    # # # T = 0
+    # # #
+    # # # for ele in S:
+    # # #     xy.append(refObj.ST2XY(ele,T))
+    # # #
+    # # # plt.plot(*zip(*xy))
     # #
-    # # T = 0
+    # # xy = []
+    # #
+    # # T = 1
     # #
     # # for ele in S:
     # #     xy.append(refObj.ST2XY(ele,T))
     # #
     # # plt.plot(*zip(*xy))
+    # #
+    # # xy = []
+    # #
+    # # T = -1
+    # #
+    # # for ele in S:
+    # #     xy.append(refObj.ST2XY(ele,T))
+    # #
+    # # plt.plot(*zip(*xy))    
+    # #
+    # #
+    # #
+    # points =[]
     #
+    #
+    # Y = []
+    # X = []
+    #
+    # for s in S:
+    #     x, y = refObj.ST2XY(s,0)
+    #
+    #     if y != None:
+    #         Y.append(y)
+    #         X.append(x)
+    #         points.append((x, y))
+    #
+    # plt.scatter(X,Y) 
+    #
+    # opt_points_X = X
+    # opt_points_Y = Y
+    #
+    # # line , ls_error  = StraightLine.fit(x0, y0, hdg, opt_points_X, opt_points_Y)
+    # #
+    # # print(line.__dict__)
+    # # setattr(line, 'length', 100)
+    # # print(line.__dict__)
+    # # print("length", line.length )
+    # # print(ls_error)
+    # #
+    # # arc , ls_error = Arc.fit(x0, y0, hdg, opt_points_X, opt_points_Y)
+    #
+    # ReferenceLine =   RoadReferenceLine.fitRoadReferenceLine(points, x0 , y0  , hdg )  
+    # print(x0 , y0  , hdg )
+    #
+    # print(ReferenceLine.__dict__)
+    #
+    #
+    # for ref in [refObj ,ReferenceLine ]:
+    #     print("#############################################")
+    #     for ele in ref.geometry_elements:
+    #         print("ele : " , ele.__class__.__name__)
+    #         print("length", ele.length )
+    #
+    #         try:
+    #             print("Radius" , ele.Radius )
+    #
+    #         except:
+    #             pass
     # xy = []
-    #
-    # T = 1
-    #
     # for ele in S:
-    #     xy.append(refObj.ST2XY(ele,T))
-    #
+    #     xy.append(ReferenceLine.ST2XY(ele,0))
     # plt.plot(*zip(*xy))
     #
-    # xy = []
     #
-    # T = -1
+    # plt.show()      
     #
-    # for ele in S:
-    #     xy.append(refObj.ST2XY(ele,T))
-    #
-    # plt.plot(*zip(*xy))    
-    #
-    #
-    #
-    points =[]
-    
-   
-    Y = []
-    X = []
-    
-    for s in S:
-        x, y = refObj.ST2XY(s,0)
-        
-        if y != None:
-            Y.append(y)
-            X.append(x)
-            points.append((x, y))
-    
-    plt.scatter(X,Y) 
-    
-    opt_points_X = X
-    opt_points_Y = Y
-    
-    # line , ls_error  = StraightLine.fit(x0, y0, hdg, opt_points_X, opt_points_Y)
-    #
-    # print(line.__dict__)
-    # setattr(line, 'length', 100)
-    # print(line.__dict__)
-    # print("length", line.length )
-    # print(ls_error)
-    #
-    # arc , ls_error = Arc.fit(x0, y0, hdg, opt_points_X, opt_points_Y)
-    
-    ReferenceLine =   RoadReferenceLine.fitRoadReferenceLine(points, x0 , y0  , hdg )  
-    print(x0 , y0  , hdg )
-    
-    print(ReferenceLine.__dict__)
-    
-    
-    for ref in [refObj ,ReferenceLine ]:
-        print("#############################################")
-        for ele in ref.geometry_elements:
-            print("ele : " , ele.__class__.__name__)
-            print("length", ele.length )
-        
-            try:
-                print("Radius" , ele.Radius )
-        
-            except:
-                pass
-    xy = []
-    for ele in S:
-        xy.append(ReferenceLine.ST2XY(ele,0))
-    plt.plot(*zip(*xy))
-    
-    
-    plt.show()      
-    
+
     
     
     
