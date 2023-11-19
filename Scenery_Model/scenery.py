@@ -162,12 +162,12 @@ class Building():
               
  
          
-        return Building(Building_id, Floor_plan, tags, dictobj.get('nodes') )  
+        return Building(Building_id, Floor_plan, tags  )  
         
          
  
     
-    def __init__(self ,Building_id , Floor_plan =[] , tags = dict(), nodes = []):
+    def __init__(self ,Building_id , Floor_plan =[] , tags = dict() ):
         
         self.object_id = Building_id
         self.Floor_plan = Floor_plan 
@@ -176,7 +176,7 @@ class Building():
             self.Floor_plan.append(self.Floor_plan[0])
                
         self.tags = tags 
-        self.nodes =nodes
+ 
         
         
     def draw_building(self, fig , ax ):
@@ -238,12 +238,12 @@ class AreaSpace():
                     tags["nodes_info"].append(node)
               
  
-        return AreaSpace(ParkingSpace_id, Floor_plan, tags,  dictobj.get('nodes'))  
+        return AreaSpace(ParkingSpace_id, Floor_plan, tags )  
         
          
  
     
-    def __init__(self ,ParkingSpace_id , Floor_plan =[] , tags = dict() ,nodes =[]):
+    def __init__(self ,ParkingSpace_id , Floor_plan =[] , tags = dict()  ):
         
         self.object_id = ParkingSpace_id
         self.Floor_plan = Floor_plan 
@@ -252,7 +252,7 @@ class AreaSpace():
             self.Floor_plan.append(self.Floor_plan[0])
                
         self.tags = tags 
-        self.nodes =nodes        
+       
         
     def draw_Space(self, fig , ax ):
         
@@ -305,18 +305,18 @@ class Waterway():
  
  
          
-        return Waterway(waterway_id, Floor_plan, tags, dictobj.get('nodes'))  
+        return Waterway(waterway_id, Floor_plan, tags )  
         
          
  
     
-    def __init__(self ,waterway_id , Floor_plan =[] , tags = dict(),nodes =[]):
+    def __init__(self ,waterway_id , Floor_plan =[] , tags = dict() ):
         
         self.object_id = waterway_id
         self.Floor_plan = Floor_plan 
  
         self.tags = tags 
-        self.nodes =nodes        
+       
         
     def draw_Space(self, fig , ax ):
         
@@ -380,12 +380,12 @@ class Barrier_roadObject():
               
  
          
-        return Barrier_roadObject(barrier_id, Floor_plan, tags, dictobj.get('nodes'))  
+        return Barrier_roadObject(barrier_id, Floor_plan, tags )  
         
          
  
     
-    def __init__(self ,barrier_id , Floor_plan =[] , tags = dict() , nodes =[] ):
+    def __init__(self ,barrier_id , Floor_plan =[] , tags = dict()   ):
         
         self.object_id = barrier_id
         self.Floor_plan = Floor_plan 
@@ -394,8 +394,7 @@ class Barrier_roadObject():
             self.Floor_plan.append(self.Floor_plan[0])
                
         self.tags = tags 
-        self.nodes = nodes         
-        
+          
     def draw_Barrier(self, fig , ax ):
         
  
@@ -801,7 +800,11 @@ class RoadReferenceLine():
                 hdg2 =  np.arctan2( deltay2 ,deltax2 )                   
     
             length = np.sqrt( deltax1*deltax1   +  deltay1 *deltay1  )  + 10
-    
+            
+            print("hdg0" , hdg0)
+            print("hdg1" , hdg1)
+            print("hdg2" , hdg2)
+            
             if     isclose(hdg1, hdg0, abs_tol=1e-3) and  isclose(hdg1, hdg2, abs_tol=1e-3)  and isclose(hdg2, hdg0, abs_tol=1e-3) : #  or  isclose(hdg2, hdg0, abs_tol=1e-3) isclose(hdg1, hdg2, abs_tol=1e-6)  or 
                 #line
     
@@ -1181,7 +1184,7 @@ class Road():
         tags = dictobj.get('tags')
         tags["nodes_info"] = []
         
-        nodes = []
+ 
         
         for node in dictobj.get('nodes'):
             
@@ -1195,7 +1198,7 @@ class Road():
                 if len(node.get("tags").keys()) > 0:
                     tags["nodes_info"].append(node)
                     
-                nodes.append(node)
+ 
               
         # print(Road_id)     
         # print(points) 
@@ -1204,96 +1207,79 @@ class Road():
         tags_keys =  tags.keys()
         if ("service" in tags_keys  and  tags.get("service") =="parking_aisle") or (  tags.get("highway") =="pedestrian"   )  or (  tags.get("highway") =="footway"   )  or ( "foot" in tags_keys and  tags.get("foot") =="designated"    )  or (   tags.get("highway") =="path" )  or ( tags.get("highway") =="service"  )  :
             
-            return Footway_Road(Road_id, points, tags, nodes)  
+            return Footway_Road(Road_id, points, tags )  
         
         
         elif (tags.get("highway") ==  "steps" ):
-            return Footway_Road(Road_id, points, tags ,nodes) 
+            return Footway_Road(Road_id, points, tags  ) 
         
         elif ("bicycle" in tags_keys  and  tags.get("bicycle") =="yes")  or ( "highway" in tags_keys  and  tags.get("highway") =="cycleway" ) or ("bicycle" in tags_keys and  tags.get("bicycle") =="designated" ) :
 
-            return Bicycle_Road(Road_id, points, tags , nodes) 
+            return Bicycle_Road(Road_id, points, tags  ) 
         
         
         elif "lanes" in tags_keys  or tags.get("highway") =="residential"   or  tags.get("highway") =="living_street"    or  tags.get("highway") == "construction"    :
             
             
             
-            return Drivable_Road(Road_id, points, tags, nodes)
+            return Drivable_Road(Road_id, points, tags )
         
         
         elif "maxspeed" in tags_keys :
-            return Drivable_Road(Road_id, points, tags , nodes)        
+            return Drivable_Road(Road_id, points, tags  )        
         
         
         elif tags.get("highway") =="busway"  :
             
-            return Drivable_Road(Road_id, points, tags, nodes)           
+            return Drivable_Road(Road_id, points, tags )           
 
         elif tags.get("highway") =="platform"  :
             
-            return Drivable_Road(Road_id, points, tags, nodes)  
+            return Drivable_Road(Road_id, points, tags )  
 
  
         elif tags.get("surface") =="asphalt"  :
             
-            return Drivable_Road(Road_id, points, tags, nodes)  
+            return Drivable_Road(Road_id, points, tags )  
         
         elif "railway" in tags_keys:
 
-            return Railway_Road(Road_id, points, tags, nodes) 
+            return Railway_Road(Road_id, points, tags ) 
             
         else:
-            return Road(Road_id, points, tags, nodes)  
+            return Road(Road_id, points, tags  )  
         
          
  
     
-    def __init__(self ,Road_id , points =[] , tags = dict() , nodes =[]):
+    def __init__(self ,Road_id , points =[] , tags = dict()  ):
         
         self.object_id = Road_id
         self.points = points        
         self.tags = tags 
-        self.nodes = nodes   
+   
         self.ReferenceLine = None     
         
     def __add__(self, other):
         
-        self.points = []#self.points + other.points
+        print("**************************************************************ADD**********************************************************************")
+        self.points = self.points + other.points
         
         
         
         self.tags = self.tags #+ other.tags
         
-        self_start = self.nodes[0]
-        self_End = self.nodes[-1]        
+        print("**************************************************************ADD**********************************************************************")
  
-        other_start = other.nodes[0]
-        other_End = other.nodes[-1]
-        
-        if self_End  == other_start:
-        
-            self.nodes = self.nodes + other.nodes
-        elif self_start ==  other_End:
-                    
-            self.nodes =  other.nodes + self.nodes 
+        #self.nodes =   self.nodes  +other.nodes
+                 
             
-        elif self_start ==  other_start:
-            other.nodes.reverse()
-            self.nodes = other.nodes+  self.nodes 
-            
-        elif self_End ==  other_End:
-            other.nodes.reverse()
-            self.nodes =   self.nodes  +other.nodes
-        else:
-            raise ValueError("a7a")                   
-            
-        for node in self.nodes:
-            
-            x = node.get("x")
-            y = node.get("y")
- 
-            self.points.append((x ,y ))
+        # for node in self.nodes:
+        #
+        #     x = node.get("x")
+        #     y = node.get("y")
+        #
+        #     self.points.append((x ,y ))
 
            
         return self
@@ -1342,8 +1328,8 @@ class Road():
 class Footway_Road(Road):
     
     
-    def __init__(self, Road_id, points=[], tags=dict(), nodes=[]):
-        Road.__init__(self, Road_id, points=points, tags=tags, nodes=nodes)
+    def __init__(self, Road_id, points=[], tags=dict() ):
+        Road.__init__(self, Road_id, points=points, tags=tags )
     
   
     
@@ -1383,8 +1369,8 @@ class Footway_Road(Road):
   
 class Bicycle_Road(Road):
     
-    def __init__(self, Road_id, points=[], tags=dict(), nodes=[]):
-        Road.__init__(self, Road_id, points=points, tags=tags, nodes=nodes)    
+    def __init__(self, Road_id, points=[], tags=dict() ):
+        Road.__init__(self, Road_id, points=points, tags=tags )    
     
     
     def draw_Road(self, fig , ax ):    
@@ -1425,8 +1411,8 @@ class Bicycle_Road(Road):
 class Drivable_Road(Road):
     
     
-    def __init__(self, Road_id, points=[], tags=dict(), nodes=[]):
-        Road.__init__(self, Road_id, points=points, tags=tags, nodes=nodes)   
+    def __init__(self, Road_id, points=[], tags=dict() ):
+        Road.__init__(self, Road_id, points=points, tags=tags )   
         
         # print("New Drivable_Road")
         # if len(points ) >=2:
@@ -1477,7 +1463,7 @@ class Drivable_Road(Road):
         
         if self.ReferenceLine is not None:
             points = []
-            for s in np.arange(0, self.ReferenceLine.getLength(), 0.1):
+            for s in np.arange(0, self.ReferenceLine.getLength(),0.5):
                 points.append(self.ReferenceLine.ST2XY(s, 0))
                 xs, ys = zip(*self.points) #create lists of x and y values
                 coler = random.choice(["b" , "y" , "k" , "r" , "w"]) 
@@ -1491,8 +1477,8 @@ class Drivable_Road(Road):
 class Railway_Road(Road):
     
     
-    def __init__(self, Road_id, points=[], tags=dict(), nodes=[]):
-        Road.__init__(self, Road_id, points=points, tags=tags, nodes=nodes)
+    def __init__(self, Road_id, points=[], tags=dict() ):
+        Road.__init__(self, Road_id, points=points, tags=tags )
     
     
     def draw_Road(self, fig , ax ):   
@@ -1934,9 +1920,9 @@ class Scenery():
                 
                 Road_id = road.object_id
                 
-                start = road.nodes[0]
+                start = road.points[0]
                 
-                end = road.nodes[-1]
+                end = road.points[-1]
  
                 
                 
@@ -1946,9 +1932,9 @@ class Scenery():
                     
                         other_Road_id = other_road.object_id
                         
-                        other_start = other_road.nodes[0]
+                        other_start = other_road.points[0]
                         
-                        other_end = other_road.nodes[-1]
+                        other_end = other_road.points[-1]
                         
                         point = None
                         if other_start == end:
@@ -2002,8 +1988,8 @@ class Scenery():
                 for road_id in mergelist:
                     road = rods_iD_dict.get(road_id)
                     
-                    start = road.nodes[0]
-                    end = road.nodes[-1]
+                    start = road.points[0]
+                    end = road.points[-1]
                     
                     index = 0
                     
@@ -2016,8 +2002,8 @@ class Scenery():
                             
                             index_other_road =  roadsList.index(other_road)
                         
-                            other_road_start = other_road.nodes[0]
-                            other_road_end = other_road.nodes[-1] 
+                            other_road_start = other_road.points[0]
+                            other_road_end = other_road.points[-1] 
                             
                             if other_road_start ==  end:
                                 index = index_other_road
@@ -2026,37 +2012,7 @@ class Scenery():
                                 index = index_other_road + 1
                                 
                             else:
-                                roadsList.reverse()
-                                for ele in roadsList:
-                                    ele.nodes.reverse()
-                                    
-                                other_road_start = other_road.nodes[0]
-                                other_road_end = other_road.nodes[-1]
-                                                                 
-                                if other_road_start ==  end:
-                                    index = index_other_road
-                                    
-                                elif other_road_end == start:
-                                    index = index_other_road + 1  
-                                    
-                                else:
-                                    roadsList.reverse()
-                                    for ele in roadsList:
-                                        ele.nodes.reverse()
-                                    other_road_start = other_road.nodes[0]
-                                    other_road_end = other_road.nodes[-1] 
-                                    
-                                    road.nodes.reverse()
-                                                                       
-                                    start = road.nodes[0]
-                                    end = road.nodes[-1]
-                                    if other_road_start ==  end:
-                                        index = index_other_road
-                                        
-                                    elif other_road_end == start:
-                                        index = index_other_road + 1  
-                                        
-                                    else:
+
                                         index = index_other_road + 1 
                                                                                      
  
@@ -2065,29 +2021,97 @@ class Scenery():
                 
                 print(roadsList)
                 
-                road0 = roadsList[0] 
-                
-                
-                coverd = [road0]
-                
-                roadsList.remove(road0)
-                i=0
-                while len(roadsList) > 0  and  i <10:
-                    other = roadsList[0]
+                #road0 = roadsList[0] 
  
-                    try:
-                        road0 =  road0  + other
-                        
-                        if other in Roads:
-                            Roads.remove(other)                     
-                    except:
-                        roadsList.remove(other)
-                        roadsList.append(other)
+                
+                i=0
+                while len(roadsList) > 1 :
+                   
+                    coverd = []
                     i = i +1
+                    road = random.choice(roadsList) #roadsList[0]#roadsList[0]#
+                    
+                    print("len(road)",len(road.points))
+                    
+                    for other in roadsList:
+                        
+                        if not other in  Roads:
+                            coverd.append(other)
+                        
+                        elif road != other :# and  len(road.points) + len(other.points) <200 and  other in  Roads:
+                            print("len(other)",len(other.points))
+                            road_start = road.points[0]
+                            road_End = road.points[-1]        
+                     
+                            other_start = other.points[0]
+                            other_End = other.points[-1]
+                            
+                            if other_End  == road_start:
+                                
+                                temp = road
+                                road =  other + road 
+                                other = temp
+                                coverd.append(other) 
+                                
+                            elif road_End ==  other_start:
+                                        
+                                road =  road + other  
+                                coverd.append(other) 
+ 
+                                    
+                            elif road_End ==  other_End or road_start ==  other_start :
+                                other.points.reverse()
+                                other_start = other.points[0]
+                                other_End = other.points[-1]                                
+                                
+                                if other_End  == road_start:
+                                    
+                                    road =  other + road 
+                                    coverd.append(other) 
+                                        
+                                    
+                                elif road_End ==  other_start:
+                                            
+                                    road =  road + other  
+                                    coverd.append(other) 
+                            other_start = other.points[0]
+                            other_End = other.points[-1]                                     
+           
+                            if other_start in road.points and other_End in road.points and other not in coverd:
+                                coverd.append(other) 
+                                
+                                if road in coverd:
+                                    coverd.remove(road)
+                                
+                            
+                            road_start = road.points[0]
+                            road_End = road.points[-1]                                   
+                                        
+                            if road_start in other.points and road_End in other.points and road not in coverd:
+                                coverd.append(road)                                            
+                    
+                                if other in coverd:
+                                    coverd.remove(other)                        
+                        
+                    for other in coverd:
+                        if other in Roads:
+                            Roads.remove(other)
+                            
+                        if other in roadsList: 
+                            roadsList.remove(other)                    
+                    
+                    if road not in Roads:
+                        Roads.append(road)
+                    if road not in roadsList:
+                        roadsList.append(road)
+                    
                     
                        
                     print(len(roadsList)) 
                     
+                    if   i >10:
+                        break
+                print("out")
  
             
             
