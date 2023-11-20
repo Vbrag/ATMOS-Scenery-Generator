@@ -539,7 +539,7 @@ class StraightLine():
     #
     #
     #     ls_error = res.fun
-    #     print(res)
+    #     t(res)
     #     print(ls_error) 
     #
     #     #if length == None:
@@ -943,9 +943,19 @@ class RoadReferenceLine():
  
             
             func = lambda x : cost_func(x  ,  opt_points_X , opt_points_Y) 
-            res = minimize(func, x0 , method='SLSQP' , tol=1e-20 , options={'maxiter':5000   , 'disp': True})
+            x0_save = x0.copy()
+            F_START = func(x0)
+            
+            res = minimize(func, x0 , method='SLSQP' , tol=1e-20 , options={'maxiter':500   , 'disp': True})
             print(res)
             
+            F_end = res.fun
+            
+            if F_START > F_end:
+                F_START = func(x0_save)
+                
+                #reset
+                
             
             referenceLine.set_endPoint(x_end, y_end)
             
@@ -1264,17 +1274,24 @@ class Road():
         
     def __add__(self, other):
         
-        print("**************************************************************ADD**********************************************************************")
+        #print("**************************************************************ADD**********************************************************************")
         # if other.points[0] in  self.points:
         #     self.points = self.points + other.points[1:]         
         # else:
         self.points = self.points + other.points 
         
         
+         
         
-        self.tags = self.tags #+ other.tags
         
-        print("**************************************************************ADD**********************************************************************")
+        self.tags = {**self.tags, **other.tags}  #+ other.tags
+        
+        
+        
+        
+        
+        
+        #print("**************************************************************ADD**********************************************************************")
  
         #self.nodes =   self.nodes  +other.nodes
                  
@@ -1432,7 +1449,7 @@ class Drivable_Road(Road):
         # print("New Drivable_Road OK")
     def draw_Road(self, fig , ax ):   
         
-        self.update_ReferenceLine(optimize = True)
+        self.update_ReferenceLine(optimize = False)
                 
         n_lans = int(self.tags.get("lanes" , 2))
         lane_width  = 3.5
@@ -1889,7 +1906,7 @@ class Scenery():
                 # road.draw_Road(  fig , ax )
                 # plt.show() 
             
-        #Roads =  Scenery.organize_Roads(Roads)  
+        Roads =  Scenery.organize_Roads(Roads)  
         return Scenery(metaData , nodsdict ,Roads, Buildings, Spaces , Barriers)
     
     
@@ -1926,7 +1943,12 @@ class Scenery():
         nameslist = list(rods_dict.keys())
         nameslist.reverse()
         for class_name in nameslist:
-            print(class_name)
+            # print(class_name)
+            #
+            # if "Drivable_Road" == class_name:
+            #     print("relavent")
+            
+            
             class_name_roads_list = rods_dict.get(class_name)
             
             #roads_start_end  = {}
@@ -1958,19 +1980,23 @@ class Scenery():
                             
                         elif other_end == start: 
                             point = str(start) 
-                        elif other_start == start:  
-                            point = str(start)  
-                        elif  other_end == end:
-                            point = str( end )  
+                        # elif other_start == start:  
+                        #     point = str(start)  
+                        # elif  other_end == end:
+                        #     point = str( end )  
                         
                         
                         if point is not None:
                             if pints_of_intest.get(point, None) is None:
                                 pints_of_intest[point] = []
+                                
+                            if not Road_id in pints_of_intest[point]:
                                 pints_of_intest[point].append(Road_id) 
-                                pints_of_intest[point].append(other_Road_id)  
-              
-              
+                                
+                            if not other_Road_id in pints_of_intest[point]:
+                                pints_of_intest[point].append(other_Road_id)
+                            
+ 
             mergelists = []                  
                                 
             for point in pints_of_intest.keys():
@@ -1985,148 +2011,192 @@ class Scenery():
                      
                     found = False
                     for mergelist in mergelists:
-                        if road_Id1 in mergelist:
-                            mergelist.append(road_Id2)
+                        if road_Id1 in mergelist or road_Id2 in mergelist:
                             found = True
-                        elif road_Id2 in mergelist:
-                            mergelist.append(road_Id1)
-                            found = True
+                            
+                            if not road_Id2 in mergelist:
+                                mergelist.append(road_Id2)
+                            if not road_Id1 in mergelist:
+                                mergelist.append(road_Id1)
+                            
+                            break
                             
                     if not  found:
                         newlist = [road_Id1 ,road_Id2 ]
                                                                            
                         mergelists.append(newlist)
-                            
+                    
+            
+            mergelists_updated= []
+            
+            removedLists = []
+            for mergelist in mergelists: 
+                reultList = mergelist
+                
+                for road_id in mergelist:
+                
+                    for other_mergelist in mergelists: 
+                        
+                        if other_mergelist != mergelist and road_id in other_mergelist:
+                            reultList = reultList + other_mergelist 
+                            removedLists.append(other_mergelist)
+                
+                if mergelist not in removedLists:
+                    
+                    reultList = list(set(reultList))
+                    
+                    mergelists_updated.append(reultList)   
+                
+                
+                
+                          
+            mergelists =  mergelists_updated  
+            
+        
             for mergelist in mergelists:
-                print(mergelist) 
+                #print(mergelist) 
                 
                 roadsList = []
                 for road_id in mergelist:
                     road = rods_iD_dict.get(road_id)
+                    roadsList.append(road)
                     
-                    start = road.points[0]
-                    end = road.points[-1]
-                    
-                    index = 0
-                    
-                    for other_road_id in mergelist:
-                        
-                         
-                        other_road = rods_iD_dict.get(other_road_id)
-                        
-                        if other_road in roadsList and other_road != road:
+                roadsListSorted = []
+                
+                while  len(roadsListSorted) < len(roadsList):
+                    for road in roadsList:
+                        if not road in roadsListSorted:
+                            start = road.points[0]
+                            end = road.points[-1] 
                             
-                            index_other_road =  roadsList.index(other_road)
-                        
-                            other_road_start = other_road.points[0]
-                            other_road_end = other_road.points[-1] 
+                            index = 0
                             
-                            if other_road_start ==  end:
-                                index = index_other_road
+                            for other_road  in roadsListSorted:
+                                other_road_start = other_road.points[0]
+                                other_road_end = other_road.points[-1]                                                    
                                 
-                            elif other_road_end == start:
-                                index = index_other_road + 1
-                                
-                            else:
+                                if start ==  other_road_end:
+                                    index = roadsListSorted.index(other_road) + 1
+                                    
+                                elif  end == other_road_start:
+                                    
+                                    index = roadsListSorted.index(other_road) 
+                                    
+                            roadsListSorted.insert(index, road)                                       
+                
+                
+                roadsList = roadsListSorted
+                
+ 
 
-                                        index = index_other_road + 1 
-                                                                                     
- 
-                    roadsList.insert(index, road)
-                     
-                
-                print(roadsList)
-                
-                #road0 = roadsList[0] 
- 
-                
-                i=0
-   
-                result = random.choice(roadsList)
-                
                 nTotal = 0
                 for other in roadsList:
                     nTotal = nTotal + len(other.points)
-                    
+
                 
-                while  len(result.points) !=  nTotal:
-                   
+                result = roadsList[0]
+                
+                i =0 
+                while  len(result.points) <  nTotal:
+                    
                     
                     i = i +1
-                    #road = random.choice(roadsList) #roadsList[0]#roadsList[0]#
                     
-                    print("len(road)",len(result.points)  , "-->" ,nTotal )
-                    
-                    for other in roadsList:
- 
+                    for other in roadsList[1:]:
                         
-                        if result != other :# and  len(road.points) + len(other.points) <200 and  other in  Roads:
-                            print("len(other)",len(other.points))
-                            road_start = result.points[0]
-                            road_End = result.points[-1]        
-                     
-                            other_start = other.points[0]
-                            other_End = other.points[-1]
-                            
-                            if other_End  == road_start:
-                                
- 
-                                result =  other + road 
- 
- 
-                                
-                            elif road_End ==  other_start:
+    
+                        start = result.points[0]
+                        end = result.points[-1] 
+                        
+     
+                        other_road_start = other.points[0]
+                        other_road_end = other.points[-1] 
+                        
+                        if end == other_road_start  :
+     
+                            result =  result + other 
+                        
+                        elif  other_road_end == start  :
+                            result =   other  + result                       
+                      
                                         
-                                result =  road + other  
- 
- 
-                                    
-                            # elif road_End ==  other_End or road_start ==  other_start :
-                            #
-                            #     if len(result.points) > len(other.points): 
-                            #
-                            #         other.points.reverse()
-                            #     else:
-                            #         result.points.reverse()
-                            #
-                            #     road_start = result.points[0]
-                            #     road_End = result.points[-1]                                    
-                            #     other_start = other.points[0]
-                            #     other_End   = other.points[-1]                                
-                            #
-                            #     if other_End  == road_start:
-                            #
-                            #         result =  other + road 
-                            #
-                            #
-                            #     elif road_End ==  other_start:
-                            #
-                            #         result =  road + other  
-                            #
-                            # other_start = other.points[0]
-                            # other_End   = other.points[-1]                                     
- 
-                   
-                       
-                    print(len(roadsList)) 
-                    
-                    if   i >10:
-                        break
-                print("out")
-                
-                road_start = result.points[0]
-                road_End = result.points[-1]   
-                for other in roadsList:
+                    if i > 10:
+                        break  
+                        
+                for other in roadsList[1:]:
                     other_start = other.points[0]
                     other_End = other.points[-1]  
-                    
+                
                     if   other_start in   result.points and     other_End in   result.points and other in Roads :
                         Roads.remove(other)
- 
+                        
+
+                        
+                    
+                        
+
                 if result not in Roads  and result is not None :
                     Roads.append(result)
-                 
+                    
+
  
+
+
+        for road in Roads:
+            for index in range(len(road.points)-1,0 ,-1):
+                
+                
+                if road.points[index] == road.points[index-1]:
+ 
+                    road.points.remove(road.points[index])
+                    
+                elif  road.points.count(road.points[index]) > 1: 
+                    
+                    #print(road.points.count(road.points[index]))
+                    road.points.remove(road.points[index])
+
+
+
+
+        #add midel point
+        for road in Roads:
+            for index in range(len(road.points)-2,0 ,-1): 
+                       
+                x_start , y_start  = road.points[index]
+                x_end   , y_end    = road.points[index+1]
+        
+                deltaX= (x_end -x_start ).astype(float)
+                deltaY= (y_end -y_start ) .astype(float)
+                
+        
+                Road_lenght = np.sqrt( deltaX *deltaX    + deltaY*deltaY  )
+ 
+                angle= np.arctan2(deltaY ,deltaX)
+                
+                x_new = x_start +  Road_lenght/2.0*np.cos(angle) 
+                y_new = y_start +  Road_lenght/2.0*np.sin(angle) 
+                
+                road.points.insert(index+1, (x_new ,y_new ))                
+                
+        #add 2nd midel point
+        for road in Roads:
+            for index in range(len(road.points)-2,0 ,-1): 
+                       
+                x_start , y_start  = road.points[index]
+                x_end   , y_end    = road.points[index+1]
+        
+                deltaX= (x_end -x_start ).astype(float)
+                deltaY= (y_end -y_start ) .astype(float)
+                
+        
+                Road_lenght = np.sqrt( deltaX *deltaX    + deltaY*deltaY  )
+ 
+                angle= np.arctan2(deltaY ,deltaX)
+                
+                x_new = x_start +  Road_lenght/2.0*np.cos(angle) 
+                y_new = y_start +  Road_lenght/2.0*np.sin(angle) 
+                
+                road.points.insert(index+1, (x_new ,y_new ))                                       
         
         return Roads
             
@@ -2138,11 +2208,11 @@ class Scenery():
         clear()
         ix, iy = event.xdata, event.ydata
         
-        print("***********************************************************")
-        print("***********************************************************")
-        print("***********************************************************")
-        print("***********************************************************")
-        print (f'x = {ix}, y = {iy}')
+        # print("***********************************************************")
+        # print("***********************************************************")
+        # print("***********************************************************")
+        # print("***********************************************************")
+        # print (f'x = {ix}, y = {iy}')
         
         
         dist = 20
@@ -2225,35 +2295,39 @@ class Scenery():
     def draw_scenery(self):
         
 
-        
+        #for road in self.Roads:
         fig, ax = plt.subplots(figsize=(1, 1), facecolor='lightskyblue', layout='constrained')
         plt.axis('equal')
-        onclick = self.onclick
+        #onclick = self.onclick
         #cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
         
-        # for space in  self.Spaces:
-        #     space.draw_Space(  fig , ax)
+        for space in  self.Spaces:
+            space.draw_Space(  fig , ax)
         
         for Building in self.Buildings:
             Building.draw_building(  fig , ax)
         
-        # for Barrier_roadObject in self.Barriers:
-        #     Barrier_roadObject.draw_Barrier(  fig , ax)
+        for Barrier_roadObject in self.Barriers:
+            Barrier_roadObject.draw_Barrier(  fig , ax)
             
+
+                
+                #plt.show() 
+                
+        for road in self.Roads:
+        
+            if not isinstance(road ,Drivable_Road):
+        
+                road.draw_Road(  fig , ax ) 
+
+
  
         for road in self.Roads:
             
             if isinstance(road ,Drivable_Road):
             
                 road.draw_Road(  fig , ax )
-                
-                
-        # for road in self.Roads:
-        #
-        #     if not isinstance(road ,Drivable_Road):
-        #
-        #         road.draw_Road(  fig , ax ) 
             
         plt.show() 
 
