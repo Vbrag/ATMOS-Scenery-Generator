@@ -923,17 +923,17 @@ class RoadReferenceLine():
             x_end, y_end = x1 , y1
     
     
-        for Point_index in range(2 , len(points),1):
-            index_1 = Point_index-1
-            index_2 = Point_index-2
+        for Point_index in range(0 , len(points)-2,1):
+            index_1 = Point_index+1
+            index_2 = Point_index+2
     
             #referenceLine_save = copy.deepcopy(referenceLine)   
     
     
             #point_0 = (x0 ,y0)
-            point_start =   points[index_2]
+            point_start =   points[Point_index]
             point_midel = points[index_1]
-            point_End = points[Point_index]
+            point_End = points[index_2]
     
     
     
@@ -951,48 +951,47 @@ class RoadReferenceLine():
             opt_points_Y.append(y_end)
     
             deltax1 = x_midel - x_start
-            deltax2 = x_end   - x_midel     
-    
             deltay1 = y_midel - y_start
-            deltay2 = y_end   - y_midel             
+            
+            # deltax2 = x_end   - x_midel 
+            # deltay2 = y_end   - y_midel             
+            # if deltax1  == 0:
+            #
+            #     if  deltay1 > 0:
+            #         hdg1 = np.pi/2
+            #     else:
+            #         hdg1 = -np.pi/2                    
+            #
+            # else:
+            #
+            #     hdg1 =  np.arctan2( deltay1 ,deltax1 )    
+            #
+            #
+            #
+            # if deltax1  == 0:
+            #
+            #     if  deltay1 > 0:
+            #         hdg1 = np.pi/2
+            #     else:
+            #         hdg1 = -np.pi/2                    
+            #
+            # else:
+            #
+            #     hdg1 =  np.arctan2( deltay1 ,deltax1 )
+            #
+            #
+            # if deltax2  == 0:
+            #
+            #     if  deltay2 > 0:
+            #         hdg2 = np.pi/2
+            #     else:
+            #         hdg2 = -np.pi/2                    
+            #
+            # else:
+            #
+            #     hdg2 =  np.arctan2( deltay2 ,deltax2 )                   
     
-            if deltax1  == 0:
-    
-                if  deltay1 > 0:
-                    hdg1 = np.pi/2
-                else:
-                    hdg1 = -np.pi/2                    
-    
-            else:
-    
-                hdg1 =  np.arctan2( deltay1 ,deltax1 )    
-    
-    
-    
-            if deltax1  == 0:
-    
-                if  deltay1 > 0:
-                    hdg1 = np.pi/2
-                else:
-                    hdg1 = -np.pi/2                    
-    
-            else:
-    
-                hdg1 =  np.arctan2( deltay1 ,deltax1 )
-    
-    
-            if deltax2  == 0:
-    
-                if  deltay2 > 0:
-                    hdg2 = np.pi/2
-                else:
-                    hdg2 = -np.pi/2                    
-    
-            else:
-    
-                hdg2 =  np.arctan2( deltay2 ,deltax2 )                   
-    
-            length = np.sqrt( deltax1*deltax1   +  deltay1 *deltay1  )   
+             
     
             #
             # if        isclose(hdg0, hdg1, abs_tol=1e-3) and isclose(hdg2, hdg0, abs_tol=1e-3) and isclose(hdg1, hdg2, abs_tol=1e-6)    : #  or   or 
@@ -1005,14 +1004,52 @@ class RoadReferenceLine():
             # else:
             #     #arc   
             (cx, cy), Radius = define_circle(point_start, point_midel, point_End)
-
+ 
             if Radius != np.inf:
-                L_circle  =  length * 1.1
+                
+                
+                
+                hdg0 = hdg0 - int(hdg0/(2*np.pi) ) *2*np.pi        
+   
+                deltaX= np.array( x_midel - cx ).astype(float)
+                deltaY= np.array( y_midel - cy ).astype(float)
+  
+                
+                #print("L" ,L)
+                if Radius >   0:
+         
+     
+                    
+                    alfa =   np.pi/2  - hdg0
+                    
+                    gama  =  np.arctan2(deltaY ,deltaX ) 
+             
+                    theta =      (np.pi  -  alfa   -  gama  )
+                
+                    theta  = theta - int(theta/(2*np.pi) ) *2*np.pi
+                
+                else:
+     
+                    
+                    alfa =     hdg0
+                    
+                    gama  =  np.pi/2  -np.arctan2( deltaY ,deltaX ) 
+             
+                    theta =     (np.pi  -  alfa   -  gama  ) 
+                
+                    theta  = np.abs(theta) - int(theta/(2*np.pi) ) *2*np.pi
+                
+ 
+                
+                L_circle = theta   *np.abs(  Radius)
+                
+ 
+
                 referenceLine.addArc(L_circle, Radius) 
 
 
             else:
-
+                length = np.sqrt( deltax1*deltax1   +  deltay1 *deltay1  ) 
                 referenceLine.addStraightLine(length)    
     
     
