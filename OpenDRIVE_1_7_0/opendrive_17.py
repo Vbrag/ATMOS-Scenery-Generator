@@ -31,7 +31,7 @@ import base64
 import datetime as datetime_
 import decimal as decimal_
 from lxml import etree as etree_
-
+import lxml as lxml
 
 Validate_simpletypes_ = True
 SaveElementTreeNode = True
@@ -649,7 +649,11 @@ except ModulenotfoundExp_ as exp:
                 return instring
         @staticmethod
         def convert_unicode(instring):
-            if isinstance(instring, str):
+            if isinstance(instring, lxml.etree.CDATA):
+                
+                result = lxml.ElementTree.tostring( instring, encoding="utf8")
+            
+            elif isinstance(instring, str):
                 result = quote_xml(instring)
             elif sys.version_info.major == 2 and isinstance(instring, unicode):
                 result = quote_xml(instring).encode('utf8')
@@ -3235,7 +3239,7 @@ class t_header_GeoReference(GeneratedsSuper):
         self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='t_header_GeoReference')
         outfile.write('>')
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
-        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write( self.valueOf_ )
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
     def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='t_header_GeoReference'):
         pass
