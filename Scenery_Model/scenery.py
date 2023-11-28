@@ -5,7 +5,7 @@ Created on 03.11.2023
 '''
 
 from OSM_Interface import  osm_map as  osm_map
-
+from scipy.special import fresnel
 from OpenDRIVE_1_7_0 import  opendrive_17 as  opendrive
 import os #, math
 import ctypes, sys
@@ -92,6 +92,99 @@ def define_circle(p1, p2, p3):
         #print(radius)    
         
     return ((cx, cy), radius)
+
+
+# def spiral_interp_centre(distance, x, y, hdg, length, curvEnd):
+#     '''Interpolate for a spiral centred on the origin'''
+#     # s doesn't seem to be needed...
+#     theta = hdg                    # Angle of the start of the curve
+#     Ltot = length                  # Length of curve
+#     Rend = 1 / curvEnd             # Radius of curvature at end of spiral
+#
+#     # Rescale, compute and unscale
+#     a = 1 / np.sqrt(2 * Ltot * Rend)  # Scale factor
+#     distance_scaled = distance * a # Distance along normalised spiral
+#     deltay_scaled, deltax_scaled = fresnel(distance_scaled)
+#     deltax = deltax_scaled / a
+#     deltay = deltay_scaled / a
+#
+#     # deltax and deltay give coordinates for theta=0
+#     deltax_rot = deltax * np.cos(theta) - deltay * np.sin(theta)
+#     deltay_rot = deltax * np.sin(theta) + deltay * np.cos(theta)
+#
+#     # Spiral is relative to the starting coordinates
+#     xcoord = x + deltax_rot
+#     ycoord = y + deltay_rot
+#
+#     return xcoord, ycoord
+
+
+import math
+import scipy.special
+import matplotlib.pyplot as plt
+import numpy as np
+
+def arcLength(XY):
+    return np.sum(np.hypot(np.diff(XY[:, 0]), np.diff(XY[:, 1])))
+
+def getAreaOfTriangle(XY, i, j, k):
+    xa, ya = XY[i, 0], XY[i, 1]
+    xb, yb = XY[j, 0], XY[j, 1]
+    xc, yc = XY[k, 0], XY[k, 1]
+    return abs((xa * (yb - yc) + xb * (yc - ya) + xc * (ya - yb)) / 2)
+
+def distance(XY, i, j):
+    return np.linalg.norm(XY[i, :] - XY[j, :])
+
+def getCurvatureUsingTriangle(XY, i, j, k):
+    fAreaOfTriangle = getAreaOfTriangle(XY, i, j, k)
+    AB = distance(XY, i, j)
+    BC = distance(XY, j, k)
+    CA = distance(XY, k, i)
+    fKappa = 4 * fAreaOfTriangle / (AB * BC * CA)
+    return fKappa
+
+def spiral_interp_centre(arcLength, x_i, y_i, yaw_i, curvEnd, N=300):
+    '''
+    :param arcLength: Desired length of the spiral
+    :param x_i: x-coordinate of initial point
+    :param y_i: y-coordinate of initial point
+    :param yaw_i: Initial yaw angle in radians
+    :param curvEnd: Curvature at the end of the curve.
+    :return:
+    '''
+    # Curvature along the Euler spiral is pi*t where t is the Fresnel integral limit.
+    # curvEnd = 1/R
+    # s = arcLength
+    # t = Fresnel integral limit
+    # Scalar a is used to find t such that (1/(a*R) = pi*t) and (a*s = t)
+    # ====> 1/(pi*a*R) = a*s
+    # ====> a^a*(pi*s*R)
+    # ====> a = 1/sqrt(pi*s*R)
+    # To achieve a specific curvature at a specific arc length, we must scale
+    # the Fresnel integration limit
+    scalar = math.pi
+    distances = np.linspace(start=0.0, stop=arcLength, num=N)
+    R = 1 / curvEnd  # Radius of curvature at end of spiral
+    # Rescale, compute and unscale
+    a = 1 / math.sqrt(scalar * arcLength * R) # Scale factor
+    scaled_distances = a * distances # Distance along normalized spiral
+    dy_scaled, dx_scaled = scipy.special.fresnel(scaled_distances)
+
+    dx = dx_scaled / a
+    dy = dy_scaled / a
+
+    # Rotate the whole curve by yaw_i
+    dx_rot = dx * math.cos(yaw_i) - dy * math.sin(yaw_i)
+    dy_rot = dx * math.sin(yaw_i) + dy * math.cos(yaw_i)
+
+    # Translate to (x_i, y_i)
+    x = x_i + dx_rot
+    y = y_i + dy_rot
+    return np.concatenate((x[:, np.newaxis], y[:, np.newaxis]), axis=1)
+
+
+
 
 def projection_fromGeographic(latitude, longitude, referenceLat = 0 , referenceLon = 0):
     
@@ -504,20 +597,20 @@ class StraightLine():
         return (x_end ,y_end , hdg_end )
     
  
-class Arc():
+class Spiral():
 
 
 
 
     
-    def __init__(self, length=1 , Radius = 1 ):
+    def __init__(self, length=1 , RadiusStrart = 1 ,  RadiusEnd = 1 ):
         
         self.length =length
-        self.Radius = Radius
- 
- 
+        self.RadiusStrart = RadiusStrart
+        self.RadiusEnd = RadiusEnd
 
 
+ 
     def ST2XY(self, x0 , y0 ,hdg, S ,S0 ,T):
         
         hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi
@@ -547,22 +640,22 @@ class Arc():
         
         return (xs , ys) 
 
-    def EvalX( self,  x0 , y0 , hdg , X ):
-        hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi
-
-        #alfa =   np.pi/2  - hdg
- 
-        x_center = x0 +self.Radius*np.sin( np.pi- hdg)
-        y_center = y0 +self.Radius*np.cos( np.pi-  hdg)
-        
-        
-        R = self.Radius
-        
-        
-         
-        Y = np.sqrt( R*R - (X - x_center)*(X - x_center) ) + y_center
-
-        return Y
+    # def EvalX( self,  x0 , y0 , hdg , X ):
+    #     hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi
+    #
+    #     #alfa =   np.pi/2  - hdg
+    #
+    #     x_center = x0 +self.Radius*np.sin( np.pi- hdg)
+    #     y_center = y0 +self.Radius*np.cos( np.pi-  hdg)
+    #
+    #
+    #     R = self.Radius
+    #
+    #
+    #
+    #     Y = np.sqrt( R*R - (X - x_center)*(X - x_center) ) + y_center
+    #
+    #     return Y
     
     def get_endPoint(self, x0 , y0 ,hdg):
         
@@ -645,6 +738,153 @@ class Arc():
         S =  L_circl+ S0
  
         return (S,T)
+
+
+
+
+
+class Arc():
+
+
+
+
+    
+    def __init__(self, length=1 , Radius = 1 ):
+        
+        self.length =length
+        self.Radius = Radius
+ 
+    def ST2XY(self, x0 , y0 ,hdg, S ,S0 ,T):
+        
+        hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi
+
+        alfa =   np.pi/2  - hdg
+ 
+        x_center = x0 +self.Radius*np.sin( np.pi- hdg)
+        y_center = y0 +self.Radius*np.cos( np.pi-  hdg)
+        
+        delta_s = S - S0 
+        
+        # if delta_s > self.length*2:
+        #     return (None , None)
+        # else:        
+        
+        theta =  (delta_s /(self.Radius + np.finfo(float).eps)) 
+        theta  = theta - int(theta/(2*np.pi) ) *2*np.pi
+        hdg_end =    hdg-theta
+ 
+        xs =  x_center + self.Radius*np.cos( np.pi-  alfa -theta )    
+        ys =  y_center + self.Radius*np.sin( np.pi- alfa - theta )   
+        
+        
+        xs = xs + T*np.sin(np.pi  - hdg_end )
+        ys = ys + T*np.cos(np.pi  - hdg_end )
+           
+        
+        return (xs , ys) 
+
+    # def EvalX( self,  x0 , y0 , hdg , X ):
+    #     hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi
+    #
+    #     #alfa =   np.pi/2  - hdg
+    #
+    #     x_center = x0 +self.Radius*np.sin( np.pi- hdg)
+    #     y_center = y0 +self.Radius*np.cos( np.pi-  hdg)
+    #
+    #
+    #     R = self.Radius
+    #
+    #
+    #
+    #     Y = np.sqrt( R*R - (X - x_center)*(X - x_center) ) + y_center
+    #
+    #     return Y
+    
+    def get_endPoint(self, x0 , y0 ,hdg):
+        
+        #if self.Radius > 0:
+        
+        hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi
+        alfa =   np.pi/2  - hdg
+ 
+        x_center = x0 +self.Radius*np.sin( np.pi- hdg)
+        y_center = y0 +self.Radius*np.cos( np.pi-  hdg)
+
+        
+        delta_s = self.length
+        
+        
+        theta =  (delta_s /(self.Radius + np.finfo(float).eps)) 
+        
+        try:    
+        
+            theta  = theta - int(theta/(2*np.pi) ) *2*np.pi
+            
+        except:
+            print(theta)
+            theta  = theta 
+            
+        
+        x_end =  x_center + self.Radius*np.cos(np.pi - alfa -theta )   
+        y_end =  y_center + self.Radius*np.sin(np.pi - alfa -theta)
+              
+        hdg_end =    hdg-theta
+    
+        return (x_end ,y_end , hdg_end )
+        
+ 
+    def XY2ST(self, x0 , y0 ,hdg , X ,Y, S0):
+        
+
+        hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi        
+ 
+        x_center = x0 +self.Radius*np.sin( np.pi- hdg)
+        y_center = y0 +self.Radius*np.cos( np.pi-  hdg)
+        
+        #print("x_center" , x_center)
+        #print("y_center" , y_center)   
+        
+             
+        deltaX= np.array( X - x_center ).astype(float)
+        deltaY= np.array( Y - y_center ).astype(float)
+        L = np.sqrt(  deltaX * deltaX    + deltaY *deltaY  )  
+        
+        #print("L" ,L)
+        if self.Radius >   0:
+ 
+            T =   self.Radius -L      
+            
+            alfa =   np.pi/2  - hdg
+            
+            gama  =  np.arctan2(deltaY ,deltaX ) 
+     
+            theta =      (np.pi  -  alfa   -  gama  )
+        
+            theta  = theta - int(theta/(2*np.pi) ) *2*np.pi
+        
+        else:
+            T =   self.Radius +L      
+            
+            alfa =     hdg
+            
+            gama  =  np.pi/2  -np.arctan2( deltaY ,deltaX ) 
+     
+            theta =     (np.pi  -  alfa   -  gama  ) 
+        
+            theta  = np.abs(theta) - int(theta/(2*np.pi) ) *2*np.pi
+        
+ 
+        
+        L_circl = theta   *np.abs( self.Radius)
+ 
+            
+        S =  L_circl+ S0
+ 
+        return (S,T)
+
+
+
+
 
 class RoadReferenceLine():
 
@@ -1388,17 +1628,29 @@ class Road():
         # print(tags) 
         
         tags_keys =  tags 
-        if ("service" in tags_keys  and   "parking_aisle" in tags_keys) or (   "pedestrian"  in tags_keys )  or (   "footway" in tags_keys  )  or ( "foot" in tags_keys and   "designated" in tags_keys   )  or (    "path"  in tags_keys)  or (  "service" in tags_keys )  :
+        
+ 
+        if "lanes" in tags_keys  or  "residential"  in tags_keys or   "living_street"   in tags_keys or    "construction"  in tags_keys  :
+ 
+            return Drivable_Road(  points, tags )
+        
+        
+        
+        elif 'motor_vehicle:conditional' in tags_keys :
             
-            return Footway_Road(  points, tags )  
+            return Drivable_Road(  points, tags )        
+        
+        elif ("service" in tags_keys  and   "parking_aisle" in tags_keys) or (   "pedestrian"  in tags_keys )  or (   "footway" in tags_keys  )  or ( "foot" in tags_keys and   "designated" in tags_keys   )  or (    "path"  in tags_keys)  or (  "service" in tags_keys )  :
+            
+            return Footway_Bicycle_Road(  points, tags )  
         
         
         elif (  "steps" in tags_keys ):
-            return Footway_Road(  points, tags  ) 
+            return Footway_Bicycle_Road(  points, tags  ) 
         
         elif ("bicycle" in tags_keys  and   "yes" in tags_keys)  or ( "highway" in tags_keys  and   "cycleway" in tags_keys) or ("bicycle" in tags_keys and  "designated" in tags_keys ) :
 
-            return Bicycle_Road(  points, tags  ) 
+            return Footway_Bicycle_Road(  points, tags  ) 
         
         
         elif "lanes" in tags_keys  or  "residential"  in tags_keys or   "living_street"   in tags_keys or    "construction"  in tags_keys  :
@@ -1524,12 +1776,8 @@ class Road():
             planView = None        
         
         return opendrive.t_road(id = self.object_id, junction = junction, length = length,   planView = planView )
-        
-        
-        
-    
-    
-class Footway_Road(Road):
+          
+class Footway_Bicycle_Road(Road):
     
     
     def __init__(self,   points=[], tags=dict() ):
@@ -1540,110 +1788,38 @@ class Footway_Road(Road):
     def draw_Road(self, fig , ax ):
         
  
-        n_lans = 1
-        lane_width  = 2
-           
-        for index , point in enumerate(self.points):
-        
-            if index <  len(self.points) -1:
-        
-                x_start , y_start  = point
-                x_end   , y_end    = self.points[index+1]
-                
-                
-                deltaX= (x_end -x_start ).astype(float)
-                deltaY= (y_end -y_start ) .astype(float)
-                
-                
-        
-                Road_lenght = np.sqrt( deltaX *deltaX    + deltaY *deltaY )
-        
-                Road_width = n_lans*lane_width
-        
-        
-                angle= np.arctan2(deltaY ,deltaX)
-        
-                t2 = mpl.transforms.Affine2D().rotate_around(x_start, y_start, angle) + ax.transData
-        
-                p = Rectangle((x_start  ,y_start - Road_width / 2.0 ), Road_lenght, Road_width, color="gray", alpha=.5)
-        
-                p.set_transform(t2)
-        
-                ax.add_patch(p)  
+        # n_lans = 1
+        # lane_width  = 2
+        #
+        # for index , point in enumerate(self.points):
+        #
+        #     if index <  len(self.points) -1:
+        #
+        #         x_start , y_start  = point
+        #         x_end   , y_end    = self.points[index+1]
+        #
+        #
+        #         deltaX= (x_end -x_start ).astype(float)
+        #         deltaY= (y_end -y_start ) .astype(float)
+        #
+        #
+        #
+        #         Road_lenght = np.sqrt( deltaX *deltaX    + deltaY *deltaY )
+        #
+        #         Road_width = n_lans*lane_width
+        #
+        #
+        #         angle= np.arctan2(deltaY ,deltaX)
+        #
+        #         t2 = mpl.transforms.Affine2D().rotate_around(x_start, y_start, angle) + ax.transData
+        #
+        #         p = Rectangle((x_start  ,y_start - Road_width / 2.0 ), Road_lenght, Road_width, color="gray", alpha=.5)
+        #
+        #         p.set_transform(t2)
+        #
+        #         ax.add_patch(p)  
 
 
-        if self.ReferenceLine is not None:
-            
-            
-            xs = []
-            ys = []
-            for s in np.arange(0, self.ReferenceLine.getLength(),.1):
-                
-                
-                
-                x, y = self.ReferenceLine.ST2XY(s, 0)
-                xs.append(x)
-                ys.append(y)
- 
-                #xs, ys = zip(*self.points) #create lists of x and y values
-                
-                
-                
-                
-            ax.plot(xs , ys , color="gray")   
-                
-  
-class Bicycle_Road(Road):
-    
-    def __init__(self,   points=[], tags=dict() ):
-        Road.__init__(self,   points=points, tags=tags )    
-    
-    
-    def draw_Road(self, fig , ax ):    
-    
-        n_lans = 1
- 
-        
-        if "cycleway:width" in self.tags:
-            index = self.tags.index("cycleway:width")
-        
-            lane_width =  self.tags[index+1]  
-        else:
-            lane_width =  2.5 
- 
- 
-
-
-        
-                        
-        for index , point in enumerate(self.points):
-        
-            if index <  len(self.points) -1:
-        
-                x_start , y_start  = point
-                x_end   , y_end    = self.points[index+1]
-
-
-                
-                deltaX= (x_end -x_start ).astype(float)
-                deltaY= (y_end -y_start ) .astype(float)
-                
-        
-                Road_lenght = np.sqrt( deltaX *deltaX    + deltaY*deltaY  )
-        
-                Road_width = n_lans*lane_width
-        
-        
-                angle= np.arctan2(deltaY ,deltaX )
-        
-                t2 = mpl.transforms.Affine2D().rotate_around(x_start, y_start, angle) + ax.transData
-        
-                p = Rectangle((x_start  ,y_start - Road_width / 2.0 ), Road_lenght, Road_width, color="y", alpha= 0.5)
-        
-                p.set_transform(t2)
-        
-                ax.add_patch(p)  
-                
         if self.ReferenceLine is not None:
             
             
@@ -1663,7 +1839,13 @@ class Bicycle_Road(Road):
                 
                 
             ax.plot(xs , ys , color="y")   
+
+            
+        else:
+            raise ValueError("wtf")
+            
                 
+ 
 class Drivable_Road(Road):
     
     
@@ -1683,67 +1865,72 @@ class Drivable_Road(Road):
         # print("New Drivable_Road OK")
     def draw_Road(self, fig , ax ):   
         
-        #print( self.tags)
-        if "lanes" in self.tags:
-            index = self.tags.index("lanes")
-        
-            n_lans =  int(self.tags[index+1])  
-        else:
-            n_lans =  2  
-            
-                    
-                
-        #n_lans = int(self.tags.get("lanes" , 2))
-        lane_width  = 3.5
-        #coler = random.choice(["b" , "y" , "k" , "r"  ]) 
-        for index , point in enumerate(self.points):
-        
-            if index <  len(self.points) -1:
-        
-                x_start , y_start  = point
-                x_end   , y_end    = self.points[index+1]
-        
-                deltaX= (x_end -x_start ).astype(float)
-                deltaY= (y_end -y_start ) .astype(float)
-                
-        
-                Road_lenght = np.sqrt( deltaX *deltaX    + deltaY*deltaY  )
-        
-                Road_width = n_lans*lane_width
-        
-        
-                angle= np.arctan2(deltaY ,deltaX )
-        
-                t2 = mpl.transforms.Affine2D().rotate_around(x_start, y_start, angle) + ax.transData
-        
-                p = Rectangle((x_start  ,y_start - Road_width / 2.0 ), Road_lenght, Road_width, color="k", alpha= .5)
-        
-                p.set_transform(t2)
-        
-                ax.add_patch(p)
-        #coler = random.choice(["b" , "y" , "k" , "r" , "w"]) 
-        # xs, ys = zip(*self.points) #create lists of x and y values
-        # ax.plot(xs,ys , color="k")    
-        
+        # #print( self.tags)
+        # if "lanes" in self.tags:
+        #     index = self.tags.index("lanes")
+        #
+        #     n_lans =  int(self.tags[index+1])  
+        # else:
+        #     n_lans =  2  
+        #
+        #
+        #
+        # #n_lans = int(self.tags.get("lanes" , 2))
+        # lane_width  = 3.5
+        # #coler = random.choice(["b" , "y" , "k" , "r"  ]) 
+        # for index , point in enumerate(self.points):
+        #
+        #     if index <  len(self.points) -1:
+        #
+        #         x_start , y_start  = point
+        #         x_end   , y_end    = self.points[index+1]
+        #
+        #         deltaX= (x_end -x_start ).astype(float)
+        #         deltaY= (y_end -y_start ) .astype(float)
+        #
+        #
+        #         Road_lenght = np.sqrt( deltaX *deltaX    + deltaY*deltaY  )
+        #
+        #         Road_width = n_lans*lane_width
+        #
+        #
+        #         angle= np.arctan2(deltaY ,deltaX )
+        #
+        #         t2 = mpl.transforms.Affine2D().rotate_around(x_start, y_start, angle) + ax.transData
+        #
+        #         p = Rectangle((x_start  ,y_start - Road_width / 2.0 ), Road_lenght, Road_width, color="k", alpha= .5)
+        #
+        #         p.set_transform(t2)
+        #
+        #         ax.add_patch(p)
+        # #coler = random.choice(["b" , "y" , "k" , "r" , "w"]) 
+        # # xs, ys = zip(*self.points) #create lists of x and y values
+        # # ax.plot(xs,ys , color="k")    
+        #
         if self.ReferenceLine is not None:
-            
-            
+        
+        
             xs = []
             ys = []
             for s in np.arange(0, self.ReferenceLine.getLength(),.1):
-                
-                
-                
+        
+        
+        
                 x, y = self.ReferenceLine.ST2XY(s, 0)
                 xs.append(x)
                 ys.append(y)
- 
+        
                 #xs, ys = zip(*self.points) #create lists of x and y values
-                
-                
-                
-                
+        
+        
+        
+        
             ax.plot(xs , ys , color="k")    
+        
+
+            
+        else:
+            raise ValueError("wtf")
             
             
     def export2opendrive(self):        
@@ -1830,31 +2017,31 @@ class Railway_Road(Road):
                 
  
          
-        for index , point in enumerate(self.points):
-        
-            if index <  len(self.points) -1:
-        
-                x_start , y_start  = point
-                x_end   , y_end    = self.points[index+1]
-        
-                deltaX= (x_end -x_start ).astype(float)
-                deltaY= (y_end -y_start ) .astype(float)
-                
-        
-                Road_lenght = np.sqrt( deltaX *deltaX    + deltaY*deltaY  )
-        
-                Road_width = 6
-        
-        
-                angle= np.arctan2(deltaY ,deltaX)
-        
-                t2 = mpl.transforms.Affine2D().rotate_around(x_start, y_start, angle) + ax.transData
-        
-                p = Rectangle((x_start  ,y_start - Road_width / 2.0 ), Road_lenght, Road_width, color="r", alpha= .5)
-        
-                p.set_transform(t2)
-        
-                ax.add_patch(p)
+        # for index , point in enumerate(self.points):
+        #
+        #     if index <  len(self.points) -1:
+        #
+        #         x_start , y_start  = point
+        #         x_end   , y_end    = self.points[index+1]
+        #
+        #         deltaX= (x_end -x_start ).astype(float)
+        #         deltaY= (y_end -y_start ) .astype(float)
+        #
+        #
+        #         Road_lenght = np.sqrt( deltaX *deltaX    + deltaY*deltaY  )
+        #
+        #         Road_width = 6
+        #
+        #
+        #         angle= np.arctan2(deltaY ,deltaX)
+        #
+        #         t2 = mpl.transforms.Affine2D().rotate_around(x_start, y_start, angle) + ax.transData
+        #
+        #         p = Rectangle((x_start  ,y_start - Road_width / 2.0 ), Road_lenght, Road_width, color="r", alpha= .5)
+        #
+        #         p.set_transform(t2)
+        #
+        #         ax.add_patch(p)
 
         # xs, ys = zip(*self.points) #create lists of x and y values
         # ax.plot(xs,ys , color="r")               
@@ -1876,7 +2063,11 @@ class Railway_Road(Road):
                 
                 
                 
-            ax.plot(xs , ys , color="r")                  
+            ax.plot(xs , ys , color="r") 
+            
+        else:
+            raise ValueError ("wtf")                 
+
 class Scenery():
     
     @classmethod
@@ -2540,17 +2731,18 @@ class Scenery():
     
     def onclick(self, event):
         #global ix, iy
-        clear()
+        
         ix, iy = event.xdata, event.ydata
         
-        # print("***********************************************************")
-        # print("***********************************************************")
-        # print("***********************************************************")
-        # print("***********************************************************")
-        # print (f'x = {ix}, y = {iy}')
+        print("***********************************************************")
+        print("***********************************************************")
+        print("***********************************************************")
+        print("***********************************************************")
+        clear()
+        print (f'x = {ix}, y = {iy}')
         
         
-        dist = 20
+        dist = 1000
         closet_node= []
         
         
@@ -2569,54 +2761,53 @@ class Scenery():
             if new_dist < dist:
                 dist = new_dist
                 
-                closet_node.append( node_id )
+                closet_node = (node_x ,node_y)
                 
             
             
         
         
-        #print( closet_node  )
+        print( str(closet_node ) )
         
         results = []
         for space in  self.Spaces:
-            for node in space.nodes: 
-                if node["node_id"]  in closet_node:
-                    
-                    if space not in results:
-                        results.append(space)
+            if closet_node in space.Floor_plan:
+                results.append(space)
+                
+            
+            # for node in space.nodes: 
+            #     if node["node_id"]  in closet_node:
+            #
+            #         if space not in results:
+            #             results.append(space)
                     
  
         for Building in  self.Buildings:
-            for node in Building.nodes: 
-                if node["node_id"]  in closet_node:
-                    if Building not in results:
-                        results.append(Building)
+            
+            
+            
+            if closet_node in Building.Floor_plan:
+                results.append(Building)
 
 
         for Road in  self.Roads:
-            for node in Road.nodes: 
-                if node["node_id"]  in closet_node:
-                    if Road not in results:
-                        results.append(Road)
+            if closet_node in Road.points:
+                results.append(Road)
             
 
         for Barrier in  self.Barriers:
-            for node in Barrier.nodes: 
-                if node["node_id"]  in closet_node:
-                    if Barrier not in results:
-                        results.append(Barrier)
-
+            if closet_node in Barrier.Floor_plan:
+                results.append(Barrier)
              
+        
         for result in results:
             print(f"#############################{result.__class__.__name__}############################")
             
-            print(f"#############################{result.object_id}############################")            
+            #print(f"#############################{result.object_id}############################")            
             
             
-            for key in result.tags.keys():
-                
-                print(key, "--->" , result.tags.get(key))
-                
+            print(result)
+            print(result.tags)
             
             
             
@@ -2687,10 +2878,10 @@ class Scenery():
         
 
         #for road in self.Roads:
-        fig, ax = plt.subplots(figsize=(1, 1), facecolor='lightskyblue', layout='constrained')
+        fig, ax = plt.subplots(figsize=(10, 10), facecolor='lightskyblue', layout='constrained')
         plt.axis('equal')
-        #onclick = self.onclick
-        #cid = fig.canvas.mpl_connect('button_press_event', onclick)
+        onclick = self.onclick
+        cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
         
         for space in  self.Spaces:
@@ -2735,6 +2926,30 @@ class Scenery():
 
 if __name__ == '__main__':
     
+
+    # #import numpy as np
+    # from scipy.special import fresnel
+    # #import matplotlib.pyplot as plt
+    #
+    # t = np.linspace(0, 5.0, 201)
+    # ss, cc = fresnel(t / np.sqrt(np.pi / 2))
+    # scaled_ss = np.sqrt(np.pi / 2) * ss
+    # scaled_cc = np.sqrt(np.pi / 2) * cc
+    # plt.plot(t, scaled_cc, 'g--', t, scaled_ss, 'r-', linewidth=2)
+    # plt.grid(True)
+    # plt.show()
+    #
+
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_aspect('equal')
+    R = 20.0
+    for d in range(400, 600, 20):
+        XY = spiral_interp_centre(d, 50, 100, math.radians(56), 1/R, N=300)
+        ax.plot(XY[:, 0], XY[:, 1])
+        print('d={:.3f}, dd={:.3f}, R={:.3f}, RR={:.3f}'.format(d, arcLength(XY), R, 1/getCurvatureUsingTriangle(XY, 299, 298, 297)))
+    plt.show()
 
     
     #
