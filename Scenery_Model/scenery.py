@@ -119,10 +119,10 @@ def define_circle(p1, p2, p3):
 #     return xcoord, ycoord
 
 
-import math
+#import math
 import scipy.special
-import matplotlib.pyplot as plt
-import numpy as np
+# import matplotlib.pyplot as plt
+# import numpy as np
 
 def arcLength(XY):
     return np.sum(np.hypot(np.diff(XY[:, 0]), np.diff(XY[:, 1])))
@@ -144,7 +144,7 @@ def getCurvatureUsingTriangle(XY, i, j, k):
     fKappa = 4 * fAreaOfTriangle / (AB * BC * CA)
     return fKappa
 
-def spiral_interp_centre(arcLength, x_i, y_i, yaw_i, curvEnd, N=300):
+def spiral_interp_centre(distances, arcLength, x_i, y_i, yaw_i, curvEnd ):
     '''
     :param arcLength: Desired length of the spiral
     :param x_i: x-coordinate of initial point
@@ -163,20 +163,20 @@ def spiral_interp_centre(arcLength, x_i, y_i, yaw_i, curvEnd, N=300):
     # ====> a = 1/sqrt(pi*s*R)
     # To achieve a specific curvature at a specific arc length, we must scale
     # the Fresnel integration limit
-    scalar = math.pi
-    distances = np.linspace(start=0.0, stop=arcLength, num=N)
-    R = 1 / curvEnd  # Radius of curvature at end of spiral
+    scalar = np.pi
+    #distances = np.linspace(start=0.0, stop=arcLength, num=N)
+    R = np.abs( 1 / curvEnd ) # Radius of curvature at end of spiral
     # Rescale, compute and unscale
-    a = 1 / math.sqrt(scalar * arcLength * R) # Scale factor
+    a = 1 / np.sqrt(scalar *  arcLength  * R  +   np.finfo(float).eps) # Scale factor
     scaled_distances = a * distances # Distance along normalized spiral
     dy_scaled, dx_scaled = scipy.special.fresnel(scaled_distances)
 
     dx = dx_scaled / a
-    dy = dy_scaled / a
+    dy = np.sign(curvEnd)* dy_scaled / a
 
     # Rotate the whole curve by yaw_i
-    dx_rot = dx * math.cos(yaw_i) - dy * math.sin(yaw_i)
-    dy_rot = dx * math.sin(yaw_i) + dy * math.cos(yaw_i)
+    dx_rot = dx * np.cos(yaw_i) - dy * np.sin(yaw_i)
+    dy_rot = dx * np.sin(yaw_i) + dy * np.cos(yaw_i)
 
     # Translate to (x_i, y_i)
     x = x_i + dx_rot
@@ -1628,9 +1628,13 @@ class Road():
         # print(tags) 
         
         tags_keys =  tags 
-        
+
+
+        if "railway" in tags_keys:
+
+            return Railway_Road(  points, tags )         
  
-        if "lanes" in tags_keys  or  "residential"  in tags_keys or   "living_street"   in tags_keys or    "construction"  in tags_keys  :
+        elif "lanes" in tags_keys  or  "residential"  in tags_keys or   "living_street"   in tags_keys or    "construction"  in tags_keys  :
  
             return Drivable_Road(  points, tags )
         
@@ -1677,9 +1681,7 @@ class Road():
             
             return Drivable_Road(  points, tags )  
         
-        elif "railway" in tags_keys:
 
-            return Railway_Road(  points, tags ) 
             
         else:
             return Road(  points, tags  )  
@@ -2945,10 +2947,21 @@ if __name__ == '__main__':
     ax = fig.add_subplot(1, 1, 1)
     ax.set_aspect('equal')
     R = 20.0
-    for d in range(400, 600, 20):
-        XY = spiral_interp_centre(d, 50, 100, math.radians(56), 1/R, N=300)
+    for arcLength in range(0, 400, 20):
+        
+        distances = np.linspace(start=-arcLength, stop=arcLength, num=300)
+        XY = spiral_interp_centre(distances,arcLength, 50, 100, np.radians(45), 1/R )
         ax.plot(XY[:, 0], XY[:, 1])
-        print('d={:.3f}, dd={:.3f}, R={:.3f}, RR={:.3f}'.format(d, arcLength(XY), R, 1/getCurvatureUsingTriangle(XY, 299, 298, 297)))
+        #print('d={:.3f}, dd={:.3f}, R={:.3f}, RR={:.3f}'.format(d, arcLength(XY), R, 1/getCurvatureUsingTriangle(XY, 299, 298, 297)))
+        
+    R = -20.0
+    for arcLength in range(0, 400, 20):
+        
+        distances = np.linspace(start=-arcLength, stop=arcLength, num=300)
+        XY = spiral_interp_centre(distances,arcLength, 50, 100, np.radians(45), 1/R )
+        ax.plot(XY[:, 0], XY[:, 1])
+        #print('d={:.3f}, dd={:.3f}, R={:.3f}, RR={:.3f}'.format(d, arcLength(XY), R, 1/getCurvatureUsingTriangle(XY, 299, 298, 297)))        
+
     plt.show()
 
     
