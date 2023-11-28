@@ -143,11 +143,11 @@ def projection_fromGeographic(latitude, longitude, referenceLat = 0 , referenceL
 class Building():
  
     @classmethod
-    def fromOSMdict(cls, dictobj , Building_id):
+    def fromOSMdict(cls, dictobj  ):
  
         Floor_plan = []
         tags = dictobj.get('tags')
-        tags["nodes_info"] = []
+ 
         
         
         
@@ -156,19 +156,17 @@ class Building():
  
             Floor_plan.append((node.get("x") ,node.get("y") ))
             
-            if len(node.get("tags").keys()) > 0:
-                tags["nodes_info"].append(node)
-              
+            if len(node.get("tags") ) > 0:
+                tags = tags +node.get("tags")
+                 
+        dictobj["tags"] = tags
  
          
-        return Building(Building_id, Floor_plan, tags  )  
+        return Building(  Floor_plan, tags  )  
         
-         
- 
-    
-    def __init__(self ,Building_id , Floor_plan =[] , tags = dict() ):
+    def __init__(self ,  Floor_plan =[] , tags = dict() ):
         
-        self.object_id = Building_id
+        #
         self.Floor_plan = Floor_plan 
         
         if self.Floor_plan[0] !=  self.Floor_plan[-1]:
@@ -176,23 +174,40 @@ class Building():
                
         self.tags = tags 
  
-        
-        
+ 
     def draw_building(self, fig , ax ):
         
         xs, ys = zip(* self.Floor_plan ) #create lists of x and y values
         ax.plot(xs,ys)
         
         facecolor = 'gray'
-        if 'roof:colour' in self.tags.keys():
-            facecolor = self.tags.get('roof:colour')
-            
-        elif  'building:colour' in self.tags.keys():
-            facecolor = self.tags.get('building:colour')
-            
-        elif  'colour' in self.tags.keys():
-            facecolor = self.tags.get('colour')        
         
+        # if "lanes" in self.tags:
+        #     index = self.tags.index("lanes")
+        #
+        #     n_lans = int(self.tags[index+1])
+        # else:
+        #     n_lans = 2   
+        
+        if 'roof:colour' in self.tags :
+            index = self.tags.index('roof:colour')
+            facecolor =  self.tags[index+1]             
+            
+ 
+            
+        elif  'building:colour' in self.tags:
+ 
+
+            index = self.tags.index('building:colour')
+        
+            facecolor =  self.tags[index+1]  
+
+            
+        elif  'colour' in self.tags :
+        
+            index = self.tags.index('colour')
+        
+            facecolor =  self.tags[index+1]        
         
         
         try:
@@ -206,11 +221,11 @@ class Building():
 class AreaSpace():
  
     @classmethod
-    def fromOSMdict(cls, dictobj , ParkingSpace_id ,  min_x, min_y ,max_x, max_y):
+    def fromOSMdict(cls, dictobj ,    min_x, min_y ,max_x, max_y):
  
         Floor_plan = []
         tags = dictobj.get('tags')
-        tags["nodes_info"] = []
+ 
         
         for node in dictobj.get('nodes'):
 
@@ -233,18 +248,19 @@ class AreaSpace():
                 
      
                 
-                if len(node.get("tags").keys()) > 0:
-                    tags["nodes_info"].append(node)
-              
+                if len(node.get("tags") ) > 0:
+                    tags = tags + node.get("tags")
+        
+        dictobj['tags']  =   tags
  
-        return AreaSpace(ParkingSpace_id, Floor_plan, tags )  
+        return AreaSpace(  Floor_plan, tags )  
         
          
  
     
-    def __init__(self ,ParkingSpace_id , Floor_plan =[] , tags = dict()  ):
+    def __init__(self ,  Floor_plan =[] , tags = dict()  ):
         
-        self.object_id = ParkingSpace_id
+ 
         self.Floor_plan = Floor_plan 
         
         if self.Floor_plan[0] !=  self.Floor_plan[-1]:
@@ -267,7 +283,7 @@ class AreaSpace():
 class Waterway():
  
     @classmethod
-    def fromOSMdict(cls, dictobj , waterway_id ,  min_x, min_y ,max_x, max_y):
+    def fromOSMdict(cls, dictobj ,    min_x, min_y ,max_x, max_y):
  
         
         
@@ -304,14 +320,14 @@ class Waterway():
  
  
          
-        return Waterway(waterway_id, Floor_plan, tags )  
+        return Waterway(  Floor_plan, tags )  
         
          
  
     
-    def __init__(self ,waterway_id , Floor_plan =[] , tags = dict() ):
+    def __init__(self ,  Floor_plan =[] , tags = dict() ):
         
-        self.object_id = waterway_id
+ 
         self.Floor_plan = Floor_plan 
  
         self.tags = tags 
@@ -360,7 +376,7 @@ class Waterway():
 class Barrier_roadObject():
  
     @classmethod
-    def fromOSMdict(cls, dictobj , barrier_id):
+    def fromOSMdict(cls, dictobj  ):
         # print(" ############## Building #################")
         
         
@@ -368,25 +384,24 @@ class Barrier_roadObject():
         
         Floor_plan = []
         tags = dictobj.get('tags')
-        tags["nodes_info"] = []
+ 
         
         for node in dictobj.get('nodes'):
  
             Floor_plan.append((node.get("x") ,node.get("y") ))
             
-            if len(node.get("tags").keys()) > 0:
-                tags["nodes_info"].append(node)
-              
- 
-         
-        return Barrier_roadObject(barrier_id, Floor_plan, tags )  
+            if len(node.get("tags") ) > 0:
+                tags = tags +node.get("tags")
+                 
+        dictobj["tags"] = tags
+        
+        return Barrier_roadObject(  Floor_plan, tags )  
         
          
  
     
-    def __init__(self ,barrier_id , Floor_plan =[] , tags = dict()   ):
-        
-        self.object_id = barrier_id
+    def __init__(self ,  Floor_plan =[] , tags = dict()   ):
+ 
         self.Floor_plan = Floor_plan 
         
         if self.Floor_plan[0] !=  self.Floor_plan[-1]:
@@ -396,10 +411,18 @@ class Barrier_roadObject():
           
     def draw_Barrier(self, fig , ax ):
         
+
+        # if "lanes" in self.tags:
+        #     index = self.tags.index("lanes")
+        #
+        #     n_lans = int(self.tags[index+1])
+        # else:
+        #     n_lans = 2  
  
         facecolor = 'g'
-        if 'colour' in self.tags.keys():
-            facecolor = self.tags.get('colour')
+        if 'colour' in self.tags :
+            index = self.tags.index("colour")
+            facecolor = self.tags[index+1]
  
         try:
             p = Polygon(self.Floor_plan, facecolor = facecolor, alpha=0.5) 
@@ -1337,12 +1360,12 @@ class Road():
     
  
     @classmethod
-    def fromOSMdict(cls, dictobj , Road_id ,    min_x, min_y ,max_x, max_y):
+    def fromOSMdict(cls, dictobj ,      min_x, min_y ,max_x, max_y):
         #print(" ############## Road #################")
  
         points = []
         tags = dictobj.get('tags')
-        tags["nodes_info"] = []
+        #tags["nodes_info"] = []
         
  
         
@@ -1355,66 +1378,66 @@ class Road():
  
                 points.append((node.get("x") ,node.get("y") ))
                 
-                if len(node.get("tags").keys()) > 0:
-                    tags["nodes_info"].append(node)
+                if len(node.get("tags") ) > 0:
+                    tags = tags + node.get("tags")
                     
- 
+        dictobj['tags'] = tags
               
         # print(Road_id)     
         # print(points) 
         # print(tags) 
         
-        tags_keys =  tags.keys()
-        if ("service" in tags_keys  and  tags.get("service") =="parking_aisle") or (  tags.get("highway") =="pedestrian"   )  or (  tags.get("highway") =="footway"   )  or ( "foot" in tags_keys and  tags.get("foot") =="designated"    )  or (   tags.get("highway") =="path" )  or ( tags.get("highway") =="service"  )  :
+        tags_keys =  tags 
+        if ("service" in tags_keys  and   "parking_aisle" in tags_keys) or (   "pedestrian"  in tags_keys )  or (   "footway" in tags_keys  )  or ( "foot" in tags_keys and   "designated" in tags_keys   )  or (    "path"  in tags_keys)  or (  "service" in tags_keys )  :
             
-            return Footway_Road(Road_id, points, tags )  
+            return Footway_Road(  points, tags )  
         
         
-        elif (tags.get("highway") ==  "steps" ):
-            return Footway_Road(Road_id, points, tags  ) 
+        elif (  "steps" in tags_keys ):
+            return Footway_Road(  points, tags  ) 
         
-        elif ("bicycle" in tags_keys  and  tags.get("bicycle") =="yes")  or ( "highway" in tags_keys  and  tags.get("highway") =="cycleway" ) or ("bicycle" in tags_keys and  tags.get("bicycle") =="designated" ) :
+        elif ("bicycle" in tags_keys  and   "yes" in tags_keys)  or ( "highway" in tags_keys  and   "cycleway" in tags_keys) or ("bicycle" in tags_keys and  "designated" in tags_keys ) :
 
-            return Bicycle_Road(Road_id, points, tags  ) 
+            return Bicycle_Road(  points, tags  ) 
         
         
-        elif "lanes" in tags_keys  or tags.get("highway") =="residential"   or  tags.get("highway") =="living_street"    or  tags.get("highway") == "construction"    :
+        elif "lanes" in tags_keys  or  "residential"  in tags_keys or   "living_street"   in tags_keys or    "construction"  in tags_keys  :
             
             
             
-            return Drivable_Road(Road_id, points, tags )
+            return Drivable_Road(  points, tags )
         
         
         elif "maxspeed" in tags_keys :
-            return Drivable_Road(Road_id, points, tags  )        
+            return Drivable_Road(  points, tags  )        
         
         
-        elif tags.get("highway") =="busway"  :
+        elif  "busway"  in tags_keys:
             
-            return Drivable_Road(Road_id, points, tags )           
+            return Drivable_Road(  points, tags )           
 
-        elif tags.get("highway") =="platform"  :
+        elif  "platform" in tags_keys :
             
-            return Drivable_Road(Road_id, points, tags )  
+            return Drivable_Road(  points, tags )  
 
  
-        elif tags.get("surface") =="asphalt"  :
+        elif  "asphalt" in tags_keys :
             
-            return Drivable_Road(Road_id, points, tags )  
+            return Drivable_Road(  points, tags )  
         
         elif "railway" in tags_keys:
 
-            return Railway_Road(Road_id, points, tags ) 
+            return Railway_Road(  points, tags ) 
             
         else:
-            return Road(Road_id, points, tags  )  
+            return Road(  points, tags  )  
         
          
  
     
-    def __init__(self ,Road_id , points =[] , tags = dict()  ):
+    def __init__(self ,  points =[] , tags = dict()  ):
         
-        self.object_id = Road_id
+ 
         self.points = points        
         self.tags = tags 
    
@@ -1434,7 +1457,7 @@ class Road():
          
         
         
-        self.tags = {**self.tags, **other.tags}  #+ other.tags
+        self.tags =  self.tags + other.tags  #+ other.tags
         
         self.update_ReferenceLine()
         
@@ -1509,8 +1532,8 @@ class Road():
 class Footway_Road(Road):
     
     
-    def __init__(self, Road_id, points=[], tags=dict() ):
-        Road.__init__(self, Road_id, points=points, tags=tags )
+    def __init__(self,   points=[], tags=dict() ):
+        Road.__init__(self,   points=points, tags=tags )
     
   
     
@@ -1572,15 +1595,25 @@ class Footway_Road(Road):
   
 class Bicycle_Road(Road):
     
-    def __init__(self, Road_id, points=[], tags=dict() ):
-        Road.__init__(self, Road_id, points=points, tags=tags )    
+    def __init__(self,   points=[], tags=dict() ):
+        Road.__init__(self,   points=points, tags=tags )    
     
     
     def draw_Road(self, fig , ax ):    
     
         n_lans = 1
-        lane_width  =   float(self.tags.get("cycleway:width" , 2.5 ) )
+ 
         
+        if "cycleway:width" in self.tags:
+            index = self.tags.index("cycleway:width")
+        
+            lane_width =  self.tags[index+1]  
+        else:
+            lane_width =  2.5 
+ 
+ 
+
+
         
                         
         for index , point in enumerate(self.points):
@@ -1634,8 +1667,8 @@ class Bicycle_Road(Road):
 class Drivable_Road(Road):
     
     
-    def __init__(self, Road_id, points=[], tags=dict() ):
-        Road.__init__(self, Road_id, points=points, tags=tags )   
+    def __init__(self,  points=[], tags=dict() ):
+        Road.__init__(self,   points=points, tags=tags )   
         
         # print("New Drivable_Road")
         # if len(points ) >=2:
@@ -1650,9 +1683,17 @@ class Drivable_Road(Road):
         # print("New Drivable_Road OK")
     def draw_Road(self, fig , ax ):   
         
+        #print( self.tags)
+        if "lanes" in self.tags:
+            index = self.tags.index("lanes")
         
+            n_lans =  int(self.tags[index+1])  
+        else:
+            n_lans =  2  
+            
+                    
                 
-        n_lans = int(self.tags.get("lanes" , 2))
+        #n_lans = int(self.tags.get("lanes" , 2))
         lane_width  = 3.5
         #coler = random.choice(["b" , "y" , "k" , "r"  ]) 
         for index , point in enumerate(self.points):
@@ -1717,8 +1758,15 @@ class Drivable_Road(Road):
             
             length = 0
             planView = None 
+        
+
+        if "lanes" in self.tags:
+            index = self.tags.index("lanes")
+ 
+            n_lans = int(self.tags[index+1])
+        else:
+            n_lans = 2            
             
-        n_lans = int(self.tags.get("lanes" , 2))
         lane_width  = 3.5           
         laneSection = [] 
         color = opendrive.e_roadMarkColor.WHITE
@@ -1763,15 +1811,19 @@ class Drivable_Road(Road):
         laneOffset = [opendrive.t_road_lanes_laneOffset(a = 0, b= 0, c = 0, d = 0, s = 0)    ]  
         lanes = opendrive.t_road_lanes(laneOffset = laneOffset, laneSection  =laneSection)
         
-        lateralProfile = None
-        elevationProfile = None
-        return opendrive.t_road(id = self.object_id, junction = junction, length = length,   planView = planView , lanes = lanes , elevationProfile= elevationProfile ,  lateralProfile = lateralProfile )          
+        superelevation = [opendrive.t_road_lateralProfile_superelevation(a= 0, b= 0, c= 0, d = 0, s = 0)]
+        shape = [opendrive.t_road_lateralProfile_shape(a= 0, b= 0, c= 0, d= 0, s= 0, t = 0)]
+        lateralProfile = opendrive.t_road_lateralProfile(superelevation, shape )
+        
+        elevation = [ opendrive.t_road_elevationProfile_elevation(a= 0, b= 0, c= 0, d= 0, s = 0)]
+        elevationProfile = opendrive.t_road_elevationProfile(elevation )
+        return opendrive.t_road(id = None, junction = junction, length = length,   planView = planView , lanes = lanes , elevationProfile= elevationProfile ,  lateralProfile = lateralProfile )          
    
 class Railway_Road(Road):
     
     
-    def __init__(self, Road_id, points=[], tags=dict() ):
-        Road.__init__(self, Road_id, points=points, tags=tags )
+    def __init__(self,   points=[], tags=dict() ):
+        Road.__init__(self,  points=points, tags=tags )
     
     
     def draw_Road(self, fig , ax ):   
@@ -1877,11 +1929,13 @@ class Scenery():
             longitude = float( node.lon )
             x ,y = projection_fromGeographic(latitude, longitude, minlat ,minlon )
         
-            tags = dict()
+            tags = []#dict()
         
             for tag  in node.tag:
-                tags[tag.k] = tag.v
-        
+                #tags[tag.k] = tag.v
+                tags.append(tag.k)
+                tags.append(tag.v)                
+                
             nodsdict[node_id] = {"x": x , "y" : y , "tags" : tags  ,"latitude":latitude  , "longitude":longitude , "node_id" : node_id}
             #print(node)
             #print(nodsdict[node_id])
@@ -1898,122 +1952,134 @@ class Scenery():
             for nd in way.nd:
                 nodes.append(nodsdict.get(nd.ref, None))
                 
-            tags = dict()
+            tags = []# dict()
         
             for tag  in way.tag:
-                tags[tag.k] = tag.v            
-            
+                #tags[tag.k] = tag.v            
+                tags.append(tag.k)
+                tags.append(tag.v)
+                
+                
             waysdict[way_id] = {"visible": visible , "nodes" : nodes , "tags" : tags}            
             
             #t(waysdict[way_id])
             
-            tagkeys =  tags.keys()
+            tagkeys =  tags#.keys()
             
             
-            if "historic" in tagkeys  or "roof:edge" in tagkeys or "boundary"  in tagkeys or len(tagkeys) == 0 or ( "landuse" in tagkeys   and tags.get("landuse") ==  "retail"   or    tags.get("landuse") ==  "residential"  or    tags.get("landuse") ==  "construction"  or    tags.get("landuse") ==  "industrial"):
-                
-                # area = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y )
-                #
-                # Spaces.append(area)
-                pass
 
-            elif "highway" in tagkeys  and  tags.get("highway") ==  "elevator" :              
                 
-                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+
+            if    "elevator"  in tagkeys   :              
+                
+                building = Building.fromOSMdict(waysdict[way_id] )
                 
                 Buildings.append(building)
 
             
-            elif "highway" in tagkeys   or  "railway" in tagkeys      :
+            elif "highway" in tagkeys         :
                 #print(way)
-                road = Road.fromOSMdict(waysdict[way_id] , way_id ,  min_x, min_y ,max_x, max_y )
+                road = Road.fromOSMdict(waysdict[way_id] ,    min_x, min_y ,max_x, max_y )
                 
                 Roads.append(road)          
     
+    
+            elif "historic" in tagkeys  or "roof:edge" in tagkeys or "boundary"  in tagkeys or len(tagkeys) == 0   or ( "landuse" in tagkeys   and   "retail"  in tagkeys    or       "residential" in tagkeys     or     "construction"  in tagkeys    or      "industrial" in tagkeys   ):
+                
+                #area = AreaSpace.fromOSMdict(waysdict[way_id] ,    min_x, min_y ,max_x, max_y )
+                
+                #Spaces.append(area)
+                pass
+            elif   "railway" in tagkeys      :
+                #print(way)
+                road = Road.fromOSMdict(waysdict[way_id] ,    min_x, min_y ,max_x, max_y )
+                
+                Roads.append(road)    
             
-            elif "building" in tagkeys   or  "building:material" in tagkeys  or  "demolished:building" in tagkeys   or  "building:levels" in tagkeys  or "building:part" in tagkeys or ( "amenity" in tagkeys   and tags.get("amenity") ==  "kindergarten"   or tags.get("amenity") ==  "school"    ):
-                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+            
+            elif "building" in tagkeys   or  "building:material" in tagkeys  or  "demolished:building" in tagkeys   or  "building:levels" in tagkeys  or "building:part" in tagkeys or ( "amenity" in tagkeys    and   "kindergarten"  in tagkeys    or   "school"  in tagkeys     ):
+                building = Building.fromOSMdict(waysdict[way_id]  )
                 
                 Buildings.append(building)
                 
                 
             elif "power" in tagkeys   :              
                 
-                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                building = Building.fromOSMdict(waysdict[way_id]  )
                 
                 Buildings.append(building)                  
                 
             elif "roof:ridge" in tagkeys   :              
                 
-                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                building = Building.fromOSMdict(waysdict[way_id]  )
                 
                 Buildings.append(building)      
                 
                 
             elif "roof:shape" in tagkeys   :              
                 
-                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                building = Building.fromOSMdict(waysdict[way_id] )
                 
                 Buildings.append(building)            
 
             elif "indoor" in tagkeys   :              
                 
-                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                building = Building.fromOSMdict(waysdict[way_id]  )
                 
                 Buildings.append(building)
                 
                 
                 
  
-            elif "man_made" in tagkeys  and  tags.get("man_made") ==  "bridge" :              
+            elif "man_made" in tagkeys  and     "bridge" in tagkeys    :              
                 
-                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                building = Building.fromOSMdict(waysdict[way_id]  )
                 
                 Buildings.append(building)  
  
                 
             elif "source" in tagkeys   :              
             
-                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                building = Building.fromOSMdict(waysdict[way_id]  )
                 
                 Buildings.append(building) 
 
-            elif "amenity" in tagkeys and  tags.get("amenity") ==  "college"   :              
+            elif "amenity" in tagkeys and    "college"  in tagkeys     :              
                 
-                building = Building.fromOSMdict(waysdict[way_id] , way_id)
-                
-                Buildings.append(building)
-                
-                
-            elif "amenity" in tagkeys and  tags.get("amenity") ==  "hospital"   :              
-                
-                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                building = Building.fromOSMdict(waysdict[way_id]  )
                 
                 Buildings.append(building)
                 
                 
-            elif "landuse" in tagkeys  and tags.get("landuse") ==  "railway":                  
+            elif "amenity" in tagkeys and     "hospital"  in tagkeys     :              
                 
-                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                building = Building.fromOSMdict(waysdict[way_id]  )
+                
+                Buildings.append(building)
+                
+                
+            elif "landuse" in tagkeys  and   "railway" in tagkeys   :                  
+                
+                building = Building.fromOSMdict(waysdict[way_id]  )
                 
                 Buildings.append(building) 
  
-            elif "leisure" in tagkeys  and tags.get("leisure") ==  "swimming_pool":                  
+            elif "leisure" in tagkeys  and   "swimming_pool" in tagkeys   :                  
                 
-                building = Building.fromOSMdict(waysdict[way_id] , way_id)
+                building = Building.fromOSMdict(waysdict[way_id]  )
                 
                 Buildings.append(building)
  
  
-            elif "parking" in tagkeys   or ("leisure"  in tagkeys  and  tags.get("leisure") ==  "park"  )   or ("area" in tagkeys and  tags.get("area") ==  "yes")   or  ("amenity"  in tagkeys  and  tags.get("amenity") ==  "bicycle_parking")   :
+            elif "parking" in tagkeys   or ("leisure"  in tagkeys  and    "park"  in tagkeys    )   or ("area" in tagkeys and     "yes" in tagkeys   )   or  ("amenity"  in tagkeys  and     "bicycle_parking" in tagkeys   )   :
  
-                parking = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
+                parking = AreaSpace.fromOSMdict(waysdict[way_id]   ,  min_x, min_y ,max_x, max_y  )
                 
                 Spaces.append(parking)
                 
             elif "motor_vehicle:conditional" in tagkeys:
             
-                parking = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
+                parking = AreaSpace.fromOSMdict(waysdict[way_id]    ,  min_x, min_y ,max_x, max_y  )
             
                 Spaces.append(parking)
                 
@@ -2021,8 +2087,8 @@ class Scenery():
                 
                                 
                 
-            elif "amenity" in tagkeys  and ( tags.get("amenity") ==  "parking" or tags.get("amenity") ==  "parking_space")   or  "parking_space" in tagkeys :                 
-                parking = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
+            elif "amenity" in tagkeys  and (   "parking" in tagkeys    or   "parking_space" in tagkeys     or  "parking_space" in tagkeys ):                 
+                parking = AreaSpace.fromOSMdict(waysdict[way_id]    ,  min_x, min_y ,max_x, max_y  )
                 
                 Spaces.append(parking)
                 
@@ -2031,15 +2097,15 @@ class Scenery():
                 
             elif "name" in tagkeys  and  "public_transport" in tagkeys  :                
                 
-                area = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
+                area = AreaSpace.fromOSMdict(waysdict[way_id]    ,  min_x, min_y ,max_x, max_y  )
                 
                 Spaces.append(area) 
                 
 
 
-            elif "man_made" in tagkeys  and tags.get("man_made") ==  "courtyard" :                
+            elif "man_made" in tagkeys  and    "courtyard"  in tagkeys   :                
                 
-                area = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
+                area = AreaSpace.fromOSMdict(waysdict[way_id]   ,  min_x, min_y ,max_x, max_y  )
                 
                 Spaces.append(area)
 
@@ -2048,7 +2114,7 @@ class Scenery():
                 
             elif "man_made" in tagkeys  and  "public_transport" in tagkeys  :                
                 
-                area = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
+                area = AreaSpace.fromOSMdict(waysdict[way_id]   ,  min_x, min_y ,max_x, max_y  )
                 
                 Spaces.append(area) 
                 
@@ -2056,51 +2122,51 @@ class Scenery():
                 
             elif "leisure" in tagkeys    :                
                 
-                area = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
+                area = AreaSpace.fromOSMdict(waysdict[way_id]  ,  min_x, min_y ,max_x, max_y  )
                 
                 Spaces.append(area)                
 
  
 
 
-            elif "landuse" in tagkeys  and  tags.get("landuse") ==  "brownfield"   :                
+            elif "landuse" in tagkeys  and  "brownfield"  in tagkeys     :                
                 
-                area = AreaSpace.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
+                area = AreaSpace.fromOSMdict(waysdict[way_id]    ,  min_x, min_y ,max_x, max_y  )
                 
                 Spaces.append(area)  
                                
                 
-            elif ( "landuse" in tagkeys   and tags.get("landuse") ==  "grass" )   or ( "landuse" in tagkeys   and tags.get("landuse") ==  "greenfield" )   or   ( "leisure" in tagkeys   and tags.get("leisure") ==  "playground" ) or ("leisure"  in tagkeys  and  tags.get("leisure") ==  "garden"  )   :
+            elif ( "landuse" in tagkeys   and   "grass"  in tagkeys   )   or ( "landuse" in tagkeys   and   "greenfield" in tagkeys    )   or   ( "leisure" in tagkeys   and   "playground" in tagkeys    ) or ("leisure"  in tagkeys  and    "garden"  in tagkeys    )   :
                 
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]     )
                 
                 Barriers.append(barrier)
                 
                 
                 
-            elif ( "landuse" in tagkeys   and tags.get("landuse") ==  "orchard" ) :                
+            elif ( "landuse" in tagkeys   and    "orchard"  in tagkeys   ) :                
                 
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]    )
                 
                 Barriers.append(barrier)                
                 
 
 
-            elif ( "landuse" in tagkeys   and tags.get("landuse") ==  "cemetery" ) :                
+            elif ( "landuse" in tagkeys   and   "cemetery"  in tagkeys   ) :                
                 
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]     )
                 
                 Barriers.append(barrier)     
                 
-            elif ( "leisure" in tagkeys   and tags.get("leisure") ==  "outdoor_seating" ) :                
+            elif ( "leisure" in tagkeys   and   "outdoor_seating" in tagkeys    ) :                
                 
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]    )
                 
                 Barriers.append(barrier)                  
 
             elif ( "bench" in tagkeys    ) :                
                 
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]     )
                 
                 Barriers.append(barrier)
 
@@ -2108,42 +2174,42 @@ class Scenery():
 
             elif ( "attraction" in tagkeys   ) :                
                 
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]    )
                 
                 Barriers.append(barrier)
 
 
                 
             elif ( "stairwell" in tagkeys     ) :               
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]   )
                 
                 Barriers.append(barrier) 
 
 
-            elif "man_made" in tagkeys  and  tags.get("man_made") ==  "pier"   :
+            elif "man_made" in tagkeys  and    "pier"  in tagkeys     :
    
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]   )
                 
                 Barriers.append(barrier) 
                 
                 
-            elif "shelter" in tagkeys  and  "public_transport" in tagkeys  :
+            elif "shelter" in tagkeys  and   tagkeys in tagkeys    :
    
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]   )
                 
                 Barriers.append(barrier)  
                 
                 
-            elif "amenity" in tagkeys  and  tags.get("amenity") ==  "shelter"    :
+            elif "amenity" in tagkeys  and   "shelter"  in tagkeys     :
    
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]     )
                 
                 Barriers.append(barrier)  
                                                                               
    
             elif "playground" in tagkeys    :
    
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]    )
                 
                 Barriers.append(barrier)     
 
@@ -2151,9 +2217,9 @@ class Scenery():
 
 
    
-            elif "amenity" in tagkeys  and  tags.get("amenity") ==  "bench"  :
+            elif "amenity" in tagkeys  and    "bench" in tagkeys    :
    
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]    )
                 
                 Barriers.append(barrier) 
                 
@@ -2163,13 +2229,13 @@ class Scenery():
                                 
  
                 
-                waterway = Waterway.fromOSMdict(waysdict[way_id] , way_id  ,  min_x, min_y ,max_x, max_y  )
+                waterway = Waterway.fromOSMdict(waysdict[way_id] ,    min_x, min_y ,max_x, max_y  )
                 
                 Spaces.append(waterway)
 
-            elif "barrier" in tagkeys   or ( "landuse" in tagkeys   and tags.get("landuse") ==  "village_green" ) or "natural" in tagkeys   or ( "amenity" in tagkeys   and tags.get("amenity") ==  "fountain" ) : #  or "natural" in tagkeys   or "amenity" in tagkeys 
+            elif "barrier" in tagkeys   or ( "landuse" in tagkeys   and   "village_green"  in tagkeys   ) or "natural" in tagkeys   or ( "amenity" in tagkeys   and    "fountain"  in tagkeys   ) : #  or "natural" in tagkeys   or "amenity" in tagkeys 
  
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id] , way_id   )
+                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]     )
                 
                 Barriers.append(barrier)
                 
@@ -2209,7 +2275,7 @@ class Scenery():
         for road in Roads:
             class_name= str(road.__class__.__name__)
             
-            rods_iD_dict[road.object_id] = road
+            rods_iD_dict[str(road)] = road
             
             if rods_dict.get(class_name, None) is None:
                 rods_dict[class_name] = []
@@ -2235,7 +2301,7 @@ class Scenery():
             
             for road in class_name_roads_list:
                 
-                Road_id = road.object_id
+                Road_id = str(road)#.object_id
                 
                 start = road.points[0]
                 
@@ -2247,7 +2313,7 @@ class Scenery():
                     
                     if other_road != road:
                     
-                        other_Road_id = other_road.object_id
+                        other_Road_id = str(other_road)#.object_id
                         
                         other_start = other_road.points[0]
                         
@@ -2580,14 +2646,16 @@ class Scenery():
         
         
         road = []
-        
+        i= 0
         for roadObj in self.Roads:
             
             if isinstance(roadObj, Drivable_Road):
+                
+                roadXml = roadObj.export2opendrive()
+                roadXml.id = i
+                road.append( roadXml)
             
-                road.append(roadObj.export2opendrive() )
-            
-        
+                i = i+1
         
         
         
@@ -2604,6 +2672,9 @@ class Scenery():
         
   
         with open(save_path, 'w') as outfile:
+            
+            
+            outfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             opendrive_object.export(outfile = outfile ,  level = 0 ,  pretty_print  =True)
  
              
