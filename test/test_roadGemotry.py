@@ -140,7 +140,7 @@ class TestArc(unittest.TestCase):
         
         Radius = 15
         L = 2*np.pi*Radius
-        arc = Arc(L ,Radius) 
+        arc = Arc(L ,1/Radius) 
     
         # Test ST2XY method with some sample input
         x0, y0, hdg = 0, 0,  0  #np.pi / 4  # Example values
@@ -193,7 +193,7 @@ class TestArc(unittest.TestCase):
         
         Radius = 15
         L = 2*np.pi*Radius
-        arc = Arc(L ,Radius) 
+        arc = Arc(L ,1/Radius) 
     
         # Test ST2XY method with some sample input
         x0, y0, hdg = 0, 0,  0  #np.pi / 4  # Example values
@@ -248,7 +248,7 @@ class TestArc(unittest.TestCase):
         
         Radius = 15
         L = 2*np.pi*Radius+0.1
-        arc = Arc(L ,Radius) 
+        arc = Arc(L ,1/Radius) 
     
         # Test ST2XY method with some sample input
         x0, y0, hdg = 0, 0,  0  #np.pi / 4  # Example values
@@ -320,7 +320,7 @@ class TestArc(unittest.TestCase):
         
         Radius = 15
         L = 2*np.pi*Radius 
-        arc = Arc(L ,Radius) 
+        arc = Arc(L ,1/Radius) 
     
         # Test ST2XY method with some sample input
         x0, y0, hdg = 0, 0,  0  #np.pi / 4  # Example values
@@ -393,7 +393,7 @@ class TestArc(unittest.TestCase):
         L = 10
         R = 10
     
-        arc = Arc(L ,R) 
+        arc = Arc(L ,1/R) 
         # Test get_endPoint method with some sample input
         x0, y0, hdg = 0, 0, np.pi / 4  # Example values
     
@@ -408,7 +408,7 @@ class TestArc(unittest.TestCase):
         L = 10
         R = 10
     
-        arc = Arc(L ,R) 
+        arc = Arc(L ,1.0/R) 
         # Test XY2ST method with some sample input
         x0, y0, hdg = 0, 0, np.pi / 4  # Example values
         X, Y, S0 = 1, 1, 0  # Example values
@@ -424,7 +424,7 @@ class TestArc(unittest.TestCase):
     
         Radius = 15
         L = 2*np.pi*Radius
-        arc = Arc(L ,Radius)
+        arc = Arc(L ,1/Radius)
         T = 0
         S0 = 0
         for S in np.arange(0,10,1):
@@ -433,16 +433,16 @@ class TestArc(unittest.TestCase):
                     # Test XY2ST method with some sample input
                     x0, y0 = 0, 0 #, np.pi / 4  # Example values
                     
-                    print("hdg" , hdg)
-                    print("S",S,"T", T)
+                    #print("hdg" , hdg)
+                    #print("S",S,"T", T)
                     X, Y  = arc.ST2XY(x0, y0, hdg, S, S0, T)
                     
-                    print("X",X,"Y", Y)
+                    #print("X",X,"Y", Y)
                     
-                    print(X, Y)
+                    #print(X, Y)
                     S2, T2 = arc.XY2ST(x0, y0, hdg, X, Y, S0)
     
-                    print("S2",S2,"T2", T2)
+                    #print("S2",S2,"T2", T2)
     
                     # Assert the expected values based on calculations or known answers
                     self.assertAlmostEqual(S, S2, places=3)  # Example expected value of S, rounded to 3 decimal places
@@ -464,23 +464,23 @@ class TestArc(unittest.TestCase):
                     # Test XY2ST method with some sample input
                     #x0, y0, hdg = 0, 0, 0# np.pi / 4  # Example values
                     
-                    print("X0",x0,"y", y0)
+                    #print("X0",x0,"y", y0)
                     
                     X, Y, S0 = 1 + x0  , 1 +y0  , 0  # Example values
 
-                    print("X",X,"Y", Y)
+                    #print("X",X,"Y", Y)
 
                     
                     S, T = arc.XY2ST(x0, y0, hdg, X, Y, S0)
-                    print("S",S,"T", T)
+                    #print("S",S,"T", T)
                     
                     
                     X2,Y2 = arc.ST2XY(x0, y0, hdg, S, S0, T)
                     
-                    print("hdg" , hdg)
+                    #print("hdg" , hdg)
                     
 
-                    print("X2",X2,"Y2", Y2)
+                    #print("X2",X2,"Y2", Y2)
                     
                     # Assert the expected values based on calculations or known answers
                     self.assertAlmostEqual(X, X2, places=3)  # Example expected value of S, rounded to 3 decimal places
@@ -496,7 +496,7 @@ class TestArc(unittest.TestCase):
         
         Radius = -15
         L = np.abs(2*np.pi*Radius)
-        arc = Arc(L ,Radius) 
+        arc = Arc(L ,1/Radius) 
     
         # Test ST2XY method with some sample input
         x0, y0, hdg = 0, 0,  0  #np.pi / 4  # Example values
@@ -551,7 +551,7 @@ class TestArc(unittest.TestCase):
         
         Radius = -15
         L = np.abs(2*np.pi*Radius)
-        arc = Arc(L ,Radius) 
+        arc = Arc(L ,1/Radius) 
     
         # Test ST2XY method with some sample input
         x0, y0, hdg = 0, 0,  0  #np.pi / 4  # Example values
@@ -606,7 +606,7 @@ class TestArc(unittest.TestCase):
         
         Radius = -15
         L = np.abs(2*np.pi*Radius+0.1)
-        arc = Arc(L ,Radius) 
+        arc = Arc(L ,1/Radius) 
     
         # Test ST2XY method with some sample input
         x0, y0, hdg = 0, 0,  0  #np.pi / 4  # Example values
@@ -678,7 +678,7 @@ class TestArc(unittest.TestCase):
         
         Radius = -15
         L = np.abs( 2*np.pi*Radius )
-        arc = Arc(L ,Radius) 
+        arc = Arc(L ,1/Radius) 
     
         # Test ST2XY method with some sample input
         x0, y0, hdg = 0, 0,  0  #np.pi / 4  # Example values
@@ -754,7 +754,7 @@ class TestArc(unittest.TestCase):
         L = 10
         R = -10
     
-        arc = Arc(L ,R) 
+        arc = Arc(L ,1/R) 
         # Test get_endPoint method with some sample input
         x0, y0, hdg = 0, 0, np.pi / 4  # Example values
     
@@ -769,7 +769,7 @@ class TestArc(unittest.TestCase):
         L = 10
         R = -10
     
-        arc = Arc(L ,R) 
+        arc = Arc(L ,1/R) 
         # Test XY2ST method with some sample input
         x0, y0, hdg = 0, 0, np.pi / 4  # Example values
         X, Y, S0 = 1, 1, 0  # Example values
@@ -794,16 +794,16 @@ class TestArc(unittest.TestCase):
     #                 # Test XY2ST method with some sample input
     #                 x0, y0 = 0, 0 #, np.pi / 4  # Example values
     #
-    #                 print("hdg" , hdg)
-    #                 print("S",S,"T", T)
+    #                 #print("hdg" , hdg)
+    #                 #print("S",S,"T", T)
     #                 X, Y  = arc.ST2XY(x0, y0, hdg, S, S0, T)
     #
-    #                 print("X",X,"Y", Y)
+    #                 #print("X",X,"Y", Y)
     #
-    #                 print(X, Y)
+    #                 #print(X, Y)
     #                 S2, T2 = arc.XY2ST(x0, y0, hdg, X, Y, S0)
     #
-    #                 print("S2",S2,"T2", T2)
+    #                 #print("S2",S2,"T2", T2)
     #
     #                 # Assert the expected values based on calculations or known answers
     #                 self.assertAlmostEqual(S, S2, places=3)  # Example expected value of S, rounded to 3 decimal places
@@ -825,23 +825,23 @@ class TestArc(unittest.TestCase):
     #                 # Test XY2ST method with some sample input
     #                 #x0, y0, hdg = 0, 0, 0# np.pi / 4  # Example values
     #
-    #                 print("X0",x0,"y", y0)
+    #                 #print("X0",x0,"y", y0)
     #
     #                 X, Y, S0 = 1 + x0  , 1 +y0  , 0  # Example values
     #
-    #                 print("X",X,"Y", Y)
+    #                 #print("X",X,"Y", Y)
     #
     #
     #                 S, T = arc.XY2ST(x0, y0, hdg, X, Y, S0)
-    #                 print("S",S,"T", T)
+    #                 #print("S",S,"T", T)
     #
     #
     #                 X2,Y2 = arc.ST2XY(x0, y0, hdg, S, S0, T)
     #
-    #                 print("hdg" , hdg)
+    #                 #print("hdg" , hdg)
     #
     #
-    #                 print("X2",X2,"Y2", Y2)
+    #                 #print("X2",X2,"Y2", Y2)
     #
     #                 # Assert the expected values based on calculations or known answers
     #                 self.assertAlmostEqual(X, X2, places=3)  # Example expected value of S, rounded to 3 decimal places
