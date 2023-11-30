@@ -729,10 +729,6 @@ class RoadReferenceLine():
         else:
         
             hdg0 =  np.arctan2( deltay0 ,deltax0 )
-            
-            
-        if hdg0 < 0 :
-            hdg0 = 2*np.pi + hdg0
                     
         
         deltax1 = x_end - x_midel
@@ -751,8 +747,7 @@ class RoadReferenceLine():
             hdg1 =  np.arctan2( deltay1 ,deltax1 ) 
             
             
-        if hdg1 < 0 :
-            hdg1 = 2*np.pi + hdg1            
+            
  
         
         if  isclose(hdg0, hdg1, abs_tol=1e-6)   : #  or   or 
@@ -802,29 +797,15 @@ class RoadReferenceLine():
             
             
  
-            
+            alfa =   np.pi/2  - hed_arc_start
+            theta =  hed_arc_start - hed_arc_end  
             
  
- 
-            if hed_arc_start > hed_arc_end:
-                alfa =   np.pi/2  - hed_arc_start
             
-                theta =  hed_arc_start - hed_arc_end  
-                
-                arc_Radius =  (x_arc_End - x_arc_start)/ ( np.sin( np.pi- hed_arc_start) +  np.cos(np.pi - alfa -theta ) ) 
-                
-            else:
-                alfa =   np.pi/2   -hed_arc_start
-                theta =  hed_arc_start - hed_arc_end  
-                if theta < 0:
-                    theta = theta + 2*np.pi  
-                arc_Radius =  (x_arc_End - x_arc_start)/ ( np.sin( np.pi- hed_arc_start) +  np.cos(np.pi - alfa -theta ) )
-                
-                theta =   hed_arc_end  -hed_arc_start 
-                if theta < 0:
-                    theta = theta + 2*np.pi  
-                
-                
+            arc_Radius =  (x_arc_End - x_arc_start)/ ( np.sin( np.pi- hed_arc_start) +  np.cos(np.pi - alfa -theta ) ) 
+        
+            
+            
             arc_length =  np.abs( theta  * arc_Radius  ) 
             
             
@@ -3134,7 +3115,7 @@ if __name__ == '__main__':
     
     
     x_start = 10
-    y_start = -10  
+    y_start = 10  
 
 
     x_midel = 0
