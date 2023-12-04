@@ -507,10 +507,7 @@ class Spiral():
         return (S,T)
 
 class Arc():
-
-
-
-
+ 
     
     def __init__(self, length=1 , Curvatur = 1 ):
         
@@ -544,7 +541,7 @@ class Arc():
             hdg_end =    hdg + theta 
               
         else:
-            deltay = - deltay 
+            deltay  = - deltay 
             hdg_end =  hdg - theta 
             
 
@@ -661,61 +658,142 @@ class Arc():
         
  
     def XY2ST(self, x0 , y0 ,hdg , X ,Y, S0):
+        
+        
+        print(f"############ XY2ST {x0} , {y0} , {hdg} ")
+        Radius = 1.0/ (self.Curvatur  )
+        
+         
+        print("Radius"  , Radius)    
+        
+        deltaX= np.abs(np.array(X - x0 ).astype(float))
+        deltaY= np.abs(np.array(Y - y0 ).astype(float)) 
+        
+        print("deltaX"  , deltaX) 
+        print("deltaY"  , deltaY) 
+        
+                
+        deltax_rot = deltaX * np.cos(2*np.pi- hdg) - deltaY * np.sin( 2*np.pi - hdg)
+        deltay_rot = deltaX * np.sin(2*np.pi- hdg) + deltaY * np.cos( 2*np.pi - hdg)
 
-        Radius = 1.0/ (self.Curvatur +  np.finfo(float).eps)
+        print("deltax_rot"  , deltax_rot) 
+        print("deltay_rot"  , deltay_rot) 
         
-        try:
-            hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi        
-        except:
-            pass
-        x_center = x0 + Radius*np.sin( np.pi- hdg)
-        y_center = y0 + Radius*np.cos( np.pi-  hdg)
+        deltax_rot =  np.abs(deltax_rot)
         
-        #print("x_center" , x_center)
-        #print("y_center" , y_center)   
+        print("deltax_rot"  , deltax_rot) 
         
-             
-        deltaX= np.array( X - x_center ).astype(float)
-        deltaY= np.array( Y - y_center ).astype(float)
-        L = np.sqrt(  deltaX * deltaX    + deltaY *deltaY  )  
+        deltay_rot =  np.abs(deltay_rot)
         
-        #print("L" ,L)
-        if Radius >   0:
+        print("deltay_rot"  , deltay_rot) 
+        Radius_abs = np.abs(Radius)
+        x_center = 0
+        y_center = Radius_abs       
+
+
+        print("x_center"  , x_center) 
+        print("y_center"  , y_center) 
+
+
+        deltaXPointCenter= np.array( deltax_rot - x_center ).astype(float)
+        deltaYPointCenter= np.array( deltay_rot - y_center ).astype(float)
+        
+        print("deltaXPointCenter"  , deltaXPointCenter) 
+        print("deltaYPointCenter"  , deltaYPointCenter)  
+                                            
+        
+        L = np.sqrt(  deltaXPointCenter * deltaXPointCenter    + deltaYPointCenter *deltaYPointCenter  )  
+
+        print("L"  , L)  
  
-            T =    Radius -L      
-            
-            alfa =   np.pi/2  - hdg
-            
-            gama  =  np.arctan2(deltaY ,deltaX ) 
-     
-            theta =      (np.pi  -  alfa   -  gama  )
-            
-            try:
-            
-                theta  = theta - int(theta/(2*np.pi) ) *2*np.pi
-            except:
-                pass
-            
-            
+        
+        if deltaXPointCenter  == 0:
+        
+            if  deltaYPointCenter > 0:
+                theta = np.pi/2
+            else:
+                theta = 2*np.pi-np.pi/2                    
+        
         else:
-            T =   Radius +L      
-            
-            alfa =     hdg
-            
-            gama  =  np.pi/2  -np.arctan2( deltaY ,deltaX ) 
-     
-            theta =     (np.pi  -  alfa   -  gama  ) 
- 
-            try:       
-                theta  = np.abs(theta) - int(theta/(2*np.pi) ) *2*np.pi
         
-            except:
-                pass 
-        
-        L_circl = theta   *np.abs(  Radius)
- 
+            theta  =    np.arctan2( deltaYPointCenter,deltaXPointCenter   )          
             
-        S =  L_circl+ S0
+        theta = np.pi/2 + theta
+        
+        print("theta"  ,theta)
+        
+        
+        L_circl = np.abs(  theta )  *Radius_abs
+        
+        print("L_circl"  ,L_circl)
+        
+        S =  L_circl + S0
+        
+        print("S"  ,S)
+        
+        print(Radius_abs )  
+        print(L )  
+        
+        if Radius >   0:                     
+            T =   Radius_abs - L 
+        else:
+            T =    L  - Radius_abs     
+                 
+        
+        # Radius = 1.0/ (self.Curvatur +  np.finfo(float).eps)
+        #
+        # try:
+        #     hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi        
+        # except:
+        #     pass
+        # x_center = x0 + Radius*np.sin( np.pi- hdg)
+        # y_center = y0 + Radius*np.cos( np.pi-  hdg)
+        #
+        # #print("x_center" , x_center)
+        # #print("y_center" , y_center)   
+        #
+        #
+        # deltaX= np.array( X - x_center ).astype(float)
+        # deltaY= np.array( Y - y_center ).astype(float)
+        # L = np.sqrt(  deltaX * deltaX    + deltaY *deltaY  )  
+        #
+        # #print("L" ,L)
+        # if Radius >   0:
+        #
+        #     T =    Radius -L      
+        #
+        #     alfa =   np.pi/2  - hdg
+        #
+        #     gama  =  np.arctan2(deltaY ,deltaX ) 
+        #
+        #     theta =      (np.pi  -  alfa   -  gama  )
+        #
+        #     try:
+        #
+        #         theta  = theta - int(theta/(2*np.pi) ) *2*np.pi
+        #     except:
+        #         pass
+        #
+        #
+        # else:
+        #     T =   Radius +L      
+        #
+        #     alfa =     hdg
+        #
+        #     gama  =  np.pi/2  -np.arctan2( deltaY ,deltaX ) 
+        #
+        #     theta =     (np.pi  -  alfa   -  gama  ) 
+        #
+        #     try:       
+        #         theta  = np.abs(theta) - int(theta/(2*np.pi) ) *2*np.pi
+        #
+        #     except:
+        #         pass 
+        #
+        # L_circl = theta   *np.abs(  Radius)
+        #
+        #
+        # S =  L_circl+ S0
  
         return (S,T)
 
@@ -3121,8 +3199,8 @@ if __name__ == '__main__':
     #     plt.show()
     
     
-    x_start = 10
-    y_start = 10  
+    x_start = -10
+    y_start =  15  
 
 
     x_midel = 0
@@ -3160,91 +3238,91 @@ if __name__ == '__main__':
 
     
     
-    filepath = os.path.abspath("..\\OSM_Interface\\paderborn_waterway.osm")
-    sceneryObj = Scenery.from_Osm(filepath)    
+    # filepath = os.path.abspath("..\\OSM_Interface\\paderborn_waterway.osm")
+    # sceneryObj = Scenery.from_Osm(filepath)    
     # sceneryObj.export2opendrive("..\\OSM_Interface\\paderborn_waterway.xodr")
     # sceneryObj.draw_scenery()
-    
-    
- 
-    
-    i= 0
-    
-    for road in sceneryObj.Roads:
-        i = i +1
-        fig, ax = plt.subplots(figsize=(10, 10))
-        #road.draw_Road(  fig , ax )
-    
-        points = road.points
-    
-    
-    
-    
-    
-    
-    
-        new_points = points.copy()
-        #points = new_points
-    
-        Y = []
-        X = []
-    
-        for point in points:
-            x, y = point
-    
-            if y != None:
-                Y.append(y)
-                X.append(x)
-    
-    
-        plt.scatter(X,Y) 
-    
-        opt_points_X = X
-        opt_points_Y = Y
-    
-        ax.plot(X , Y , color="k")
-    
-        #points.reverse()
-        print(points)
-    
-        #new_points.remove(new_points[7])
-        #new_points.remove(new_points[8])
-    
-        ReferenceLine =   RoadReferenceLine.fitRoadReferenceLine(new_points  )
-    
-    
-        print("#############################################  " , i)
-        for ele in ReferenceLine.geometry_elements:
-            print("ele : " , ele.__class__.__name__)
-            print("length", ele.length )
-    
-            try:
-                print("Curvatur" , ele.Curvatur )
-    
-            except:
-                pass
-    
-            try:
-                print("CurvaturStart" , ele.CurvaturStart )
-                print("CurvaturEnd" , ele.CurvaturEnd )
-            except:
-                pass
-    
-    
-        #F_end = ReferenceLine.optimize(opt_points_X, opt_points_Y)
-    
-        #print(F_end)
-    
-        S = ReferenceLine.getLength()
-    
-        xy = []
-        for ele in np.arange(0,S  +0.1,0.1):
-            xy.append(ReferenceLine.ST2XY(ele,0))
-        plt.plot(*zip(*xy))
-    
-    
-        #plt.show()
-        plt.savefig(f"./road_{i}.png")
+    #
+    #
+    #
+    #
+    # i= 0
+    #
+    # for road in sceneryObj.Roads:
+    #     i = i +1
+    #     fig, ax = plt.subplots(figsize=(10, 10))
+    #     #road.draw_Road(  fig , ax )
+    #
+    #     points = road.points
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #     new_points = points.copy()
+    #     #points = new_points
+    #
+    #     Y = []
+    #     X = []
+    #
+    #     for point in points:
+    #         x, y = point
+    #
+    #         if y != None:
+    #             Y.append(y)
+    #             X.append(x)
+    #
+    #
+    #     plt.scatter(X,Y) 
+    #
+    #     opt_points_X = X
+    #     opt_points_Y = Y
+    #
+    #     ax.plot(X , Y , color="k")
+    #
+    #     #points.reverse()
+    #     print(points)
+    #
+    #     #new_points.remove(new_points[7])
+    #     #new_points.remove(new_points[8])
+    #
+    #     ReferenceLine =   RoadReferenceLine.fitRoadReferenceLine(new_points  )
+    #
+    #
+    #     print("#############################################  " , i)
+    #     for ele in ReferenceLine.geometry_elements:
+    #         print("ele : " , ele.__class__.__name__)
+    #         print("length", ele.length )
+    #
+    #         try:
+    #             print("Curvatur" , ele.Curvatur )
+    #
+    #         except:
+    #             pass
+    #
+    #         try:
+    #             print("CurvaturStart" , ele.CurvaturStart )
+    #             print("CurvaturEnd" , ele.CurvaturEnd )
+    #         except:
+    #             pass
+    #
+    #
+    #     #F_end = ReferenceLine.optimize(opt_points_X, opt_points_Y)
+    #
+    #     #print(F_end)
+    #
+    #     S = ReferenceLine.getLength()
+    #
+    #     xy = []
+    #     for ele in np.arange(0,S  +0.1,0.1):
+    #         xy.append(ReferenceLine.ST2XY(ele,0))
+    #     plt.plot(*zip(*xy))
+    #
+    #
+    #     #plt.show()
+    #     plt.savefig(f"./road_{i}.png")
     
     
     
