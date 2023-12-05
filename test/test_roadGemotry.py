@@ -151,7 +151,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, 0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y, -2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y, 2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         
         
@@ -161,7 +161,7 @@ class TestArc(unittest.TestCase):
         x, y =  arc.ST2XY(x0, y0, hdg, S, S0, T)
     
         # Assert the expected values based on calculations or known answers
-        self.assertAlmostEqual(x, 2* Radius  , places=3)  # Example expected value of x, rounded to 3 decimal places
+        self.assertAlmostEqual(x, -2* Radius  , places=3)  # Example expected value of x, rounded to 3 decimal places
         self.assertAlmostEqual(y,  0    , places=3)  # Example expected value of y, rounded to 3 decimal places
 
 
@@ -174,7 +174,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, 0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y,  2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y, - 2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         hdg = 2*np.pi    
 
@@ -186,7 +186,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, 0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y, -2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y, 2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
  
     def test_ST2XY_1(self):
     
@@ -204,7 +204,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x,  0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y, -2* Radius     , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y, 2* Radius     , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         
         
@@ -214,7 +214,7 @@ class TestArc(unittest.TestCase):
         x, y =  arc.ST2XY(x0, y0, hdg, S, S0, T)
     
         # Assert the expected values based on calculations or known answers
-        self.assertAlmostEqual(x, 2* Radius   , places=3)  # Example expected value of x, rounded to 3 decimal places
+        self.assertAlmostEqual(x,- 2* Radius   , places=3)  # Example expected value of x, rounded to 3 decimal places
         self.assertAlmostEqual(y,  0   , places=3)  # Example expected value of y, rounded to 3 decimal places
 
 
@@ -227,7 +227,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, 0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y,  2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y,  -2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         hdg = 2*np.pi    
 
@@ -239,7 +239,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x,  0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y, -2* Radius      , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y, 2* Radius      , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         
  
@@ -259,7 +259,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, 0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y, -2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y, 2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         S2 ,T2 = arc.XY2ST(x0, y0, hdg, x, y, S0)
 
@@ -273,7 +273,7 @@ class TestArc(unittest.TestCase):
         x, y =  arc.ST2XY(x0, y0, hdg, S, S0, T)
     
         # Assert the expected values based on calculations or known answers
-        self.assertAlmostEqual(x, 2* Radius  , places=3)  # Example expected value of x, rounded to 3 decimal places
+        self.assertAlmostEqual(x, -2* Radius  , places=3)  # Example expected value of x, rounded to 3 decimal places
         self.assertAlmostEqual(y,  0    , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         S2 ,T2 = arc.XY2ST(x0, y0, hdg, x, y, S0)
@@ -292,7 +292,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, 0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y,  2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y, - 2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
         S2 ,T2 = arc.XY2ST(x0, y0, hdg, x, y, S0)
 
 
@@ -309,7 +309,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, 0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y, -2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places       
+        self.assertAlmostEqual(y, 2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places       
         S2 ,T2 = arc.XY2ST(x0, y0, hdg, x, y, S0)
 
         self.assertAlmostEqual(S, S2  , places=3)  # Example expected value of x, rounded to 3 decimal places
@@ -332,7 +332,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, Radius  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y, -1* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y,  Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         S2 ,T2 = arc.XY2ST(x0, y0, hdg, x, y, S0)
 
@@ -346,7 +346,7 @@ class TestArc(unittest.TestCase):
         x, y =  arc.ST2XY(x0, y0, hdg, S, S0, T)
     
         # Assert the expected values based on calculations or known answers
-        self.assertAlmostEqual(x,   Radius  , places=3)  # Example expected value of x, rounded to 3 decimal places
+        self.assertAlmostEqual(x,  - Radius  , places=3)  # Example expected value of x, rounded to 3 decimal places
         self.assertAlmostEqual(y,  Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         S2 ,T2 = arc.XY2ST(x0, y0, hdg, x, y, S0)
@@ -365,7 +365,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, -1* Radius   , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y,    Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y,   - Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
         S2 ,T2 = arc.XY2ST(x0, y0, hdg, x, y, S0)
 
         self.assertAlmostEqual(S, S2  , places=3)  # Example expected value of x, rounded to 3 decimal places
@@ -381,7 +381,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, Radius  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y, -1* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places       
+        self.assertAlmostEqual(y,  Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places       
         S2 ,T2 = arc.XY2ST(x0, y0, hdg, x, y, S0)
 
         self.assertAlmostEqual(S, S2  , places=3)  # Example expected value of x, rounded to 3 decimal places
@@ -391,34 +391,35 @@ class TestArc(unittest.TestCase):
 
                 
     def test_get_endPoint(self):
-        L = 10
-        R = 10
-    
-        arc = Arc(L ,1/R) 
-        # Test get_endPoint method with some sample input
-        x0, y0, hdg = 0, 0, np.pi / 4  # Example values
-    
-        x_end, y_end, hdg_end =  arc.get_endPoint(x0, y0, hdg)
-    
-        # Assert the expected values based on calculations or known answers
-        self.assertAlmostEqual(x_end, 9.200651963458439, places=3)  # Example expected value of x_end, rounded to 3 decimal places
-        self.assertAlmostEqual(y_end, 2.699544827129283, places=3)  # Example expected value of y_end, rounded to 3 decimal places
-        self.assertAlmostEqual(hdg_end, -0.21460183660255172, places=3)  # Example expected value of hdg_end, rounded to 3 decimal places
-    
-    def test_XY2ST_3(self):
-        L = 10
+        L = 2*np.pi*10
         R = 10
     
         arc = Arc(L ,1.0/R) 
         # Test XY2ST method with some sample input
-        x0, y0, hdg = 0, 0, np.pi / 4  # Example values
-        X, Y, S0 = 1, 1, 0  # Example values
+        x0, y0, hdg = 0, 0, 0  # Example values
+        X, Y, S0 = 0, 20, 0  # Example values
+    
+        x_end, y_end, hdg_end =  arc.get_endPoint(x0, y0, hdg)
+    
+        # Assert the expected values based on calculations or known answers
+        self.assertAlmostEqual(x_end, 0, places=3)  # Example expected value of x_end, rounded to 3 decimal places
+        self.assertAlmostEqual(y_end, 0, places=3)  # Example expected value of y_end, rounded to 3 decimal places
+        self.assertAlmostEqual(hdg_end, 0, places=3)  # Example expected value of hdg_end, rounded to 3 decimal places
+    
+    def test_XY2ST_3(self):
+        L = 2*np.pi*10
+        R = 10
+    
+        arc = Arc(L ,1.0/R) 
+        # Test XY2ST method with some sample input
+        x0, y0, hdg = 0, 0, 0  # Example values
+        X, Y, S0 = 0, 20, 0  # Example values
     
         S, T =  arc.XY2ST(x0, y0, hdg, X, Y, S0)
     
         # Assert the expected values based on calculations or known answers
-        self.assertAlmostEqual(S, 1.4048970175352027, places=3)  # Example expected value of S, rounded to 3 decimal places
-        self.assertAlmostEqual(T, -0.09950493836207741, places=3)  # Example expected value of T, rounded to 3 decimal places
+        self.assertAlmostEqual(S, np.pi*10, places=3)  # Example expected value of S, rounded to 3 decimal places
+        self.assertAlmostEqual(T, 0, places=3)  # Example expected value of T, rounded to 3 decimal places
 
 
     def test_ST2XY_XY2ST(self):
@@ -430,20 +431,21 @@ class TestArc(unittest.TestCase):
         S0 = 0
         for S in np.arange(0,10,1):
             for T in np.arange(-1,1,0.1):
+  
                 for hdg in np.arange(0,2*np.pi,.1):  
                     # Test XY2ST method with some sample input
                     x0, y0 = 0, 0 #, np.pi / 4  # Example values
                     
-                    print("hdg" , hdg)
-                    print("S",S,"T", T)
+                    #print("hdg" , hdg)
+                    #print("S",S,"T", T)
                     X, Y  = arc.ST2XY(x0, y0, hdg, S, S0, T)
                     
-                    print("X",X,"Y", Y)
+                    #print("X",X,"Y", Y)
 
-                    #print(X, Y)
+                    ##print(X, Y)
                     S2, T2 = arc.XY2ST(x0, y0, hdg, X, Y, S0)
     
-                    print("S2",S2,"T2", T2)
+                    #print("S2",S2,"T2", T2)
     
                     # Assert the expected values based on calculations or known answers
                     self.assertAlmostEqual(S, S2, places=3)  # Example expected value of S, rounded to 3 decimal places
@@ -465,11 +467,11 @@ class TestArc(unittest.TestCase):
                     # Test XY2ST method with some sample input
                     #x0, y0, hdg = 0, 0, 0# np.pi / 4  # Example values
                     
-                    #print("X0",x0,"y", y0)
+                    ##print("X0",x0,"y", y0)
                     
-                    X, Y, S0 = 1 + x0  , 1 +y0  , 0  # Example values
+                    X, Y, S0 = x0  +5 ,  y0 +5 , 0  # Example values
 
-                    #print("X",X,"Y", Y)
+                    ##print("X",X,"Y", Y)
 
                     
                     S, T = arc.XY2ST(x0, y0, hdg, X, Y, S0)
@@ -478,41 +480,46 @@ class TestArc(unittest.TestCase):
                     
                     X2,Y2 = arc.ST2XY(x0, y0, hdg, S, S0, T)
                     
-                    #print("hdg" , hdg)
-                    print("**************************************")
-                    print("X",X,"Y", Y)
-                    print("S",S,"T", T)
-                    print("X2",X2,"Y2", Y2)
                     
+                    S2, T2 = arc.XY2ST(x0, y0, hdg, X2, Y2, S0)                    
+                    
+                    ##print("hdg" , hdg)
+                    #print("**************************************")
+                    #print("X",X,"Y", Y)
+                    #print("S",S,"T", T)
+                    #print("X2",X2,"Y2", Y2)
+                    #print("S2",S2,"T2", T2)                    
                     # Assert the expected values based on calculations or known answers
                     self.assertAlmostEqual(X, X2, places=3)  # Example expected value of S, rounded to 3 decimal places
                     self.assertAlmostEqual(Y, Y2, places=3)  # Example expected value of T, rounded to 3 decimal places 
-
+                    self.assertAlmostEqual(S, S2, places=3)  # Example expected value of S, rounded to 3 decimal places
+                    self.assertAlmostEqual(T, T2, places=3)  # Example expected value of T, rounded to 3 decimal places 
 
 
     def test_ST2XY_XY2ST_negR(self):
     
         Radius = -15
-        L = 2*np.pi*Radius
+        L = np.abs(2*np.pi*Radius)
         arc = Arc(L ,1/Radius)
         T = 0
         S0 = 0
-        for S in np.arange(0,10,1):
+        for S in np.arange(0,L,1):
             for T in np.arange(0,10,1):
                 for hdg in np.arange(0,2*np.pi,.1):  
                     # Test XY2ST method with some sample input
                     x0, y0 = 0, 0 #, np.pi / 4  # Example values
                     
-                    print("hdg" , hdg)
-                    print("S",S,"T", T)
+                    #print("hdg" , hdg)
+                    #print("S",S,"T", T)
                     X, Y  = arc.ST2XY(x0, y0, hdg, S, S0, T)
                     
-                    print("X",X,"Y", Y)
+                    #print("X",X,"Y", Y)
 
-                    #print(X, Y)
+                    ##print(X, Y)
                     S2, T2 = arc.XY2ST(x0, y0, hdg, X, Y, S0)
-    
-                    print("S2",S2,"T2", T2)
+                    
+                    
+                    #print("S2",S2,"T2", T2)
     
                     # Assert the expected values based on calculations or known answers
                     self.assertAlmostEqual(S, S2, places=3)  # Example expected value of S, rounded to 3 decimal places
@@ -522,7 +529,7 @@ class TestArc(unittest.TestCase):
     def test_XY2ST_ST2XY_negativeR(self):
     
         Radius = -15
-        L = 2*np.pi*Radius
+        L = np.abs(2*np.pi*Radius)
         arc = Arc(L ,1.0/Radius)
     
  
@@ -534,28 +541,28 @@ class TestArc(unittest.TestCase):
                     # Test XY2ST method with some sample input
                     #x0, y0, hdg = 0, 0, 0# np.pi / 4  # Example values
                     
-                    #print("X0",x0,"y", y0)
+                    ##print("X0",x0,"y", y0)
                     
                     X, Y, S0 = 1 + x0  , 1 +y0  , 0  # Example values
 
-                    #print("X",X,"Y", Y)
+                    ##print("X",X,"Y", Y)
 
                     
                     S, T = arc.XY2ST(x0, y0, hdg, X, Y, S0)
                     
+                    if S is not None:
                     
-                    
-                    X2,Y2 = arc.ST2XY(x0, y0, hdg, S, S0, T)
-                    
-                    #print("hdg" , hdg)
-                    print("**************************************")
-                    print("X",X,"Y", Y)
-                    print("S",S,"T", T)
-                    print("X2",X2,"Y2", Y2)
-                    
-                    # Assert the expected values based on calculations or known answers
-                    self.assertAlmostEqual(X, X2, places=3)  # Example expected value of S, rounded to 3 decimal places
-                    self.assertAlmostEqual(Y, Y2, places=3)  # Example expected value of T, rounded to 3 decimal places 
+                        X2,Y2 = arc.ST2XY(x0, y0, hdg, S, S0, T)
+                        
+                        ##print("hdg" , hdg)
+                        #print("**************************************")
+                        #print("X",X,"Y", Y)
+                        #print("S",S,"T", T)
+                        #print("X2",X2,"Y2", Y2)
+                        
+                        # Assert the expected values based on calculations or known answers
+                        self.assertAlmostEqual(X, X2, places=3)  # Example expected value of S, rounded to 3 decimal places
+                        self.assertAlmostEqual(Y, Y2, places=3)  # Example expected value of T, rounded to 3 decimal places 
 
 
 
@@ -578,7 +585,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, 0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y, -2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y, -2*np.abs( Radius)    , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         
         
@@ -588,7 +595,7 @@ class TestArc(unittest.TestCase):
         x, y =  arc.ST2XY(x0, y0, hdg, S, S0, T)
     
         # Assert the expected values based on calculations or known answers
-        self.assertAlmostEqual(x, 2* Radius  , places=3)  # Example expected value of x, rounded to 3 decimal places
+        self.assertAlmostEqual(x, 2* np.abs( Radius)   , places=3)  # Example expected value of x, rounded to 3 decimal places
         self.assertAlmostEqual(y,  0    , places=3)  # Example expected value of y, rounded to 3 decimal places
 
 
@@ -601,7 +608,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, 0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y,  2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y,  2* np.abs( Radius)     , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         hdg = 2*np.pi    
 
@@ -613,7 +620,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, 0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y, -2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y, -2* np.abs( Radius)     , places=3)  # Example expected value of y, rounded to 3 decimal places
     
     
 
@@ -621,6 +628,8 @@ class TestArc(unittest.TestCase):
     
         
         Radius = -15
+        radiosabs = np.abs(Radius)
+        
         L = np.abs(2*np.pi*Radius)
         arc = Arc(L ,1/Radius) 
     
@@ -633,7 +642,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x,  0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y, -2* Radius     , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y, -2* radiosabs     , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         
         
@@ -643,7 +652,7 @@ class TestArc(unittest.TestCase):
         x, y =  arc.ST2XY(x0, y0, hdg, S, S0, T)
     
         # Assert the expected values based on calculations or known answers
-        self.assertAlmostEqual(x, 2* Radius   , places=3)  # Example expected value of x, rounded to 3 decimal places
+        self.assertAlmostEqual(x, 2* radiosabs   , places=3)  # Example expected value of x, rounded to 3 decimal places
         self.assertAlmostEqual(y,  0   , places=3)  # Example expected value of y, rounded to 3 decimal places
 
 
@@ -656,7 +665,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, 0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y,  2* Radius     , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y,  2* radiosabs     , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         hdg = 2*np.pi    
 
@@ -668,7 +677,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x,  0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y, -2* Radius      , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y, -2* radiosabs      , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         
 
@@ -676,7 +685,7 @@ class TestArc(unittest.TestCase):
     
         
         Radius = -15
-        L = np.abs(2*np.pi*Radius+0.1)
+        L = np.abs(2*np.pi*Radius )
         arc = Arc(L ,1/Radius) 
     
         # Test ST2XY method with some sample input
@@ -688,7 +697,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, 0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y, -2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y, -2* np.abs(Radius)    , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         S2 ,T2 = arc.XY2ST(x0, y0, hdg, x, y, S0)
 
@@ -702,7 +711,7 @@ class TestArc(unittest.TestCase):
         x, y =  arc.ST2XY(x0, y0, hdg, S, S0, T)
     
         # Assert the expected values based on calculations or known answers
-        self.assertAlmostEqual(x, 2* Radius  , places=3)  # Example expected value of x, rounded to 3 decimal places
+        self.assertAlmostEqual(x, 2* np.abs(Radius)  , places=3)  # Example expected value of x, rounded to 3 decimal places
         self.assertAlmostEqual(y,  0    , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         S2 ,T2 = arc.XY2ST(x0, y0, hdg, x, y, S0)
@@ -721,7 +730,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, 0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y,  2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y,  2* np.abs(Radius)    , places=3)  # Example expected value of y, rounded to 3 decimal places
         S2 ,T2 = arc.XY2ST(x0, y0, hdg, x, y, S0)
 
         self.assertAlmostEqual(S, S2  , places=3)  # Example expected value of x, rounded to 3 decimal places
@@ -737,7 +746,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x, 0  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y, -2* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places       
+        self.assertAlmostEqual(y, -2* np.abs(Radius)    , places=3)  # Example expected value of y, rounded to 3 decimal places       
         S2 ,T2 = arc.XY2ST(x0, y0, hdg, x, y, S0)
 
         self.assertAlmostEqual(S, S2  , places=3)  # Example expected value of x, rounded to 3 decimal places
@@ -760,7 +769,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x,np.abs( Radius)  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y, -1* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y, -1* np.abs( Radius)     , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         S2 ,T2 = arc.XY2ST(x0, y0, hdg, x, y, S0)
         
@@ -776,7 +785,7 @@ class TestArc(unittest.TestCase):
         x, y =  arc.ST2XY(x0, y0, hdg, S, S0, T)
     
         # Assert the expected values based on calculations or known answers
-        self.assertAlmostEqual(x,   Radius  , places=3)  # Example expected value of x, rounded to 3 decimal places
+        self.assertAlmostEqual(x,   np.abs( Radius)   , places=3)  # Example expected value of x, rounded to 3 decimal places
         self.assertAlmostEqual(y,  np.abs( Radius )   , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         S2 ,T2 = arc.XY2ST(x0, y0, hdg, x, y, S0)
@@ -794,8 +803,8 @@ class TestArc(unittest.TestCase):
         x, y =  arc.ST2XY(x0, y0, hdg, S, S0, T)
     
         # Assert the expected values based on calculations or known answers
-        self.assertAlmostEqual(x,   Radius   , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y,    Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(x,  -1* np.abs( Radius)    , places=3)  # Example expected value of x, rounded to 3 decimal places
+        self.assertAlmostEqual(y,    np.abs( Radius)     , places=3)  # Example expected value of y, rounded to 3 decimal places
         S2 ,T2 = arc.XY2ST(x0, y0, hdg, x, y, S0)
 
         self.assertAlmostEqual(S, S2  , places=3)  # Example expected value of x, rounded to 3 decimal places
@@ -811,7 +820,7 @@ class TestArc(unittest.TestCase):
     
         # Assert the expected values based on calculations or known answers
         self.assertAlmostEqual(x,np.abs( Radius)  , places=3)  # Example expected value of x, rounded to 3 decimal places
-        self.assertAlmostEqual(y, -1* Radius    , places=3)  # Example expected value of y, rounded to 3 decimal places
+        self.assertAlmostEqual(y, -1* np.abs( Radius)     , places=3)  # Example expected value of y, rounded to 3 decimal places
         
         S2 ,T2 = arc.XY2ST(x0, y0, hdg, x, y, S0)
 
@@ -822,19 +831,20 @@ class TestArc(unittest.TestCase):
 
                 
     def test_get_endPoint_negativR(self):
-        L = 10
-        R = -10
+ 
+        Radius = -10
     
-        arc = Arc(L ,1/R) 
+        L = np.abs( 2*np.pi*Radius )
+        arc = Arc(L ,1/Radius) 
         # Test get_endPoint method with some sample input
-        x0, y0, hdg = 0, 0, np.pi / 4  # Example values
+        x0, y0, hdg = 0, 0, 0  # Example values
     
         x_end, y_end, hdg_end =  arc.get_endPoint(x0, y0, hdg)
     
         # Assert the expected values based on calculations or known answers
-        self.assertAlmostEqual(x_end, 2.699544827129282, places=3)  # Example expected value of x_end, rounded to 3 decimal places
-        self.assertAlmostEqual(y_end, 9.200651963458435, places=3)  # Example expected value of y_end, rounded to 3 decimal places
-        self.assertAlmostEqual(hdg_end, 1.7853981633974483, places=3)  # Example expected value of hdg_end, rounded to 3 decimal places
+        self.assertAlmostEqual(x_end,  0, places=3)  # Example expected value of x_end, rounded to 3 decimal places
+        self.assertAlmostEqual(y_end, 0, places=3)  # Example expected value of y_end, rounded to 3 decimal places
+        self.assertAlmostEqual(hdg_end, 0, places=3)  # Example expected value of hdg_end, rounded to 3 decimal places
    
     def test_XY2ST_3_negativR(self):
         L = 10
@@ -852,74 +862,7 @@ class TestArc(unittest.TestCase):
         self.assertAlmostEqual(T, 0.09950493836207741, places=3)  # Example expected value of T, rounded to 3 decimal places
 
 
-    # def test_ST2XY_XY2ST_negativR(self):
-    #
-    #     Radius = -15
-    #     L = np.abs(3*np.pi*Radius)
-    #     arc = Arc(L ,Radius)
-    #     T = 0
-    #     S0 = 0
-    #     for S in np.arange(0,10,1):
-    #         for T in np.arange(0,10,1):
-    #             for hdg in np.arange(0,2*np.pi,.1):  
-    #                 # Test XY2ST method with some sample input
-    #                 x0, y0 = 0, 0 #, np.pi / 4  # Example values
-    #
-    #                 #print("hdg" , hdg)
-    #                 #print("S",S,"T", T)
-    #                 X, Y  = arc.ST2XY(x0, y0, hdg, S, S0, T)
-    #
-    #                 #print("X",X,"Y", Y)
-    #
-    #                 #print(X, Y)
-    #                 S2, T2 = arc.XY2ST(x0, y0, hdg, X, Y, S0)
-    #
-    #                 #print("S2",S2,"T2", T2)
-    #
-    #                 # Assert the expected values based on calculations or known answers
-    #                 self.assertAlmostEqual(S, S2, places=3)  # Example expected value of S, rounded to 3 decimal places
-    #                 self.assertAlmostEqual(T, T2, places=3)  # Example expected value of T, rounded to 3 decimal places
-    #
-    #
-    # def test_XY2ST_ST2XY_negativR(self):
-    #
-    #     Radius = -15
-    #     L = np.abs(2*np.pi*Radius)
-    #     arc = Arc(L ,Radius)
-    #
-    #
-    #
-    #
-    #     for x0 in np.arange(-3,3,1):
-    #         for y0 in np.arange(-3,3,1):
-    #             for hdg in np.arange(0, np.pi,.1):  
-    #                 # Test XY2ST method with some sample input
-    #                 #x0, y0, hdg = 0, 0, 0# np.pi / 4  # Example values
-    #
-    #                 #print("X0",x0,"y", y0)
-    #
-    #                 X, Y, S0 = 1 + x0  , 1 +y0  , 0  # Example values
-    #
-    #                 #print("X",X,"Y", Y)
-    #
-    #
-    #                 S, T = arc.XY2ST(x0, y0, hdg, X, Y, S0)
-    #                 #print("S",S,"T", T)
-    #
-    #
-    #                 X2,Y2 = arc.ST2XY(x0, y0, hdg, S, S0, T)
-    #
-    #                 #print("hdg" , hdg)
-    #
-    #
-    #                 #print("X2",X2,"Y2", Y2)
-    #
-    #                 # Assert the expected values based on calculations or known answers
-    #                 self.assertAlmostEqual(X, X2, places=3)  # Example expected value of S, rounded to 3 decimal places
-    #                 self.assertAlmostEqual(Y, Y2, places=3)  # Example expected value of T, rounded to 3 decimal places 
-    #
-
-
+ 
 
 
  
