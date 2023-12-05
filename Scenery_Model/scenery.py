@@ -1009,6 +1009,12 @@ class RoadReferenceLine():
         
             
             
+            # if arc_Radius < Rmin:
+            #     arc_Radius= Rmin
+            # elif  arc_Radius > Rmax:
+            #     arc_Radius= Rmax
+            
+            
             arc_length =  np.abs( theta  * arc_Radius  ) 
             
             
@@ -3315,149 +3321,149 @@ if __name__ == '__main__':
     #     plt.show()
     
     
-    x_start = 10
-    y_start =  10  
-
-
-    x_midel = 0
-    y_midel = 10  
-
-
-    x_end = -10
-    y_end = -20  
-    
-    
-    Rmax  = 15
-    
-    Rmin  = 5
-    
-    ref = RoadReferenceLine.Connect3points(x_start, y_start, x_midel, y_midel, x_end, y_end, Rmax, Rmin)
-
-
-    for ele in ref.geometry_elements:
-        print("ele : " , ele.__class__.__name__)
-        print("length", ele.length )
-
-        try:
-            print("Curvatur" , ele.Curvatur )
-
-        except:
-            pass
-
-        try:
-            print("CurvaturStart" , ele.CurvaturStart )
-            print("CurvaturEnd" , ele.CurvaturEnd )
-        except:
-            pass  
-        
-        
-   
-    
-    fig, ax = plt.subplots(figsize=(10, 10))
-    S = ref.getLength()
-    
-    X =[x_start ,x_midel ,x_end  ]
-    Y =[y_start ,y_midel ,y_end  ]
-    
-    plt.scatter(X,Y) 
-    
-    xy = []
-    for ele in np.arange(0,S  +0.1,0.1):
-        xy.append(ref.ST2XY(ele,0))
-    plt.plot(*zip(*xy))
-
-
-    plt.show()
-    #plt.savefig(f"./road_{i}.png")
+    # x_start = -10
+    # y_start =  10  
+    #
+    #
+    # x_midel = 0
+    # y_midel = 10  
+    #
+    #
+    # x_end = -10
+    # y_end = -20  
+    #
+    #
+    # Rmax  = 15
+    #
+    # Rmin  = 5
+    #
+    # ref = RoadReferenceLine.Connect3points(x_start, y_start, x_midel, y_midel, x_end, y_end, Rmax, Rmin)
+    #
+    #
+    # for ele in ref.geometry_elements:
+    #     print("ele : " , ele.__class__.__name__)
+    #     print("length", ele.length )
+    #
+    #     try:
+    #         print("Curvatur" , ele.Curvatur )
+    #
+    #     except:
+    #         pass
+    #
+    #     try:
+    #         print("CurvaturStart" , ele.CurvaturStart )
+    #         print("CurvaturEnd" , ele.CurvaturEnd )
+    #     except:
+    #         pass  
+    #
+    #
+    #
+    #
+    # fig, ax = plt.subplots(figsize=(10, 10))
+    # S = ref.getLength()
+    #
+    # X =[x_start ,x_midel ,x_end  ]
+    # Y =[y_start ,y_midel ,y_end  ]
+    #
+    # plt.scatter(X,Y) 
+    #
+    # xy = []
+    # for ele in np.arange(0,S  +0.1,0.1):
+    #     xy.append(ref.ST2XY(ele,0))
+    # plt.plot(*zip(*xy))
+    #
+    #
+    # plt.show()
+    # #plt.savefig(f"./road_{i}.png")
 
 
     
     
     filepath = os.path.abspath("..\\OSM_Interface\\paderborn_waterway.osm")
     sceneryObj = Scenery.from_Osm(filepath)    
-    # sceneryObj.export2opendrive("..\\OSM_Interface\\paderborn_waterway.xodr")
+    sceneryObj.export2opendrive("..\\OSM_Interface\\paderborn_waterway.xodr")
     sceneryObj.draw_scenery()
     
     
     
     
-    i= 0
-    
-    for road in sceneryObj.Roads:
-        i = i +1
-        fig, ax = plt.subplots(figsize=(10, 10))
-        #road.draw_Road(  fig , ax )
-    
-        points = road.points
-    
-    
-    
-    
-    
-    
-    
-        new_points = points.copy()
-        #points = new_points
-    
-        Y = []
-        X = []
-    
-        for point in points:
-            x, y = point
-    
-            if y != None:
-                Y.append(y)
-                X.append(x)
-    
-    
-        plt.scatter(X,Y) 
-    
-        opt_points_X = X
-        opt_points_Y = Y
-    
-        ax.plot(X , Y , color="k")
-    
-        #points.reverse()
-        #print(points)
-    
-        #new_points.remove(new_points[7])
-        #new_points.remove(new_points[8])
-    
-        ReferenceLine =   RoadReferenceLine.fitRoadReferenceLine(new_points  )
-    
-    
-        #print("#############################################  " , i)
-        for ele in ReferenceLine.geometry_elements:
-            print("ele : " , ele.__class__.__name__)
-            print("length", ele.length )
-    
-            try:
-                print("Curvatur" , ele.Curvatur )
-    
-            except:
-                pass
-    
-            try:
-                print("CurvaturStart" , ele.CurvaturStart )
-                print("CurvaturEnd" , ele.CurvaturEnd )
-            except:
-                pass
-    
-    
-        #F_end = ReferenceLine.optimize(opt_points_X, opt_points_Y)
-    
-        ##print(F_end)
-    
-        S = ReferenceLine.getLength()
-    
-        xy = []
-        for ele in np.arange(0,S  +0.1,0.1):
-            xy.append(ReferenceLine.ST2XY(ele,0))
-        plt.plot(*zip(*xy))
-    
-    
-        #plt.show()
-        plt.savefig(f"./road_{i}.png")
+    # i= 0
+    #
+    # for road in sceneryObj.Roads:
+    #     i = i +1
+    #     fig, ax = plt.subplots(figsize=(10, 10))
+    #     #road.draw_Road(  fig , ax )
+    #
+    #     points = road.points
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #     new_points = points.copy()
+    #     #points = new_points
+    #
+    #     Y = []
+    #     X = []
+    #
+    #     for point in points:
+    #         x, y = point
+    #
+    #         if y != None:
+    #             Y.append(y)
+    #             X.append(x)
+    #
+    #
+    #     plt.scatter(X,Y) 
+    #
+    #     opt_points_X = X
+    #     opt_points_Y = Y
+    #
+    #     ax.plot(X , Y , color="k")
+    #
+    #     #points.reverse()
+    #     #print(points)
+    #
+    #     #new_points.remove(new_points[7])
+    #     #new_points.remove(new_points[8])
+    #
+    #     ReferenceLine =   RoadReferenceLine.fitRoadReferenceLine(new_points  )
+    #
+    #
+    #     #print("#############################################  " , i)
+    #     for ele in ReferenceLine.geometry_elements:
+    #         print("ele : " , ele.__class__.__name__)
+    #         print("length", ele.length )
+    #
+    #         try:
+    #             print("Curvatur" , ele.Curvatur )
+    #
+    #         except:
+    #             pass
+    #
+    #         try:
+    #             print("CurvaturStart" , ele.CurvaturStart )
+    #             print("CurvaturEnd" , ele.CurvaturEnd )
+    #         except:
+    #             pass
+    #
+    #
+    #     #F_end = ReferenceLine.optimize(opt_points_X, opt_points_Y)
+    #
+    #     ##print(F_end)
+    #
+    #     S = ReferenceLine.getLength()
+    #
+    #     xy = []
+    #     for ele in np.arange(0,S  +0.1,0.1):
+    #         xy.append(ReferenceLine.ST2XY(ele,0))
+    #     plt.plot(*zip(*xy))
+    #
+    #
+    #     #plt.show()
+    #     plt.savefig(f"./road_{i}.png")
     
     
     
