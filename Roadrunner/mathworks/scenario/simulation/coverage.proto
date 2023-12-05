@@ -1,0 +1,42 @@
+// Copyright (c) 2023, The MathWorks, Inc.
+
+syntax = "proto3";
+
+package mathworks.scenario.simulation;
+
+import "mathworks/scenario/simulation/comparison.proto";
+
+////////////////////////////////////////////////////////////////////////////////
+// Coverage data model
+////////////////////////////////////////////////////////////////////////////////
+
+// 
+// A coverage object allows users to set goals for a validation and verification process
+//
+// Coverage can store values that are expected to be observed during a phase in
+// a scenario. It is agnostic to the meaning of the values that are used to be
+// compared against the expected values. A sampling action, defined as a subtype
+// of system action in a phase, exercises such authored coverage statement.
+//
+message Coverage
+{
+  string id = 1;
+  string name = 2;
+  string display_text = 3;
+  
+  // Unit of measurements of entities being measured in coverage, e.g. speed (m/s), distance (m)
+  string unit_of_measurement = 4;
+
+  bool disabled = 5;
+   
+  // Optional field to store a range of values to be observed during the exercising of the coverage statement
+  oneof optional_range {
+    SampleRange sample_range = 6;
+  }
+}
+
+message SampleRange
+{
+  DoubleRange range = 1;
+  double step = 2;
+}

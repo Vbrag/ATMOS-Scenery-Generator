@@ -1,0 +1,275 @@
+// Copyright (c) 2023, The MathWorks, Inc.
+
+syntax = "proto3";
+
+package mathworks.roadrunner;
+
+import "google/protobuf/wrappers.proto";
+import "mathworks/roadrunner/core.proto";
+import "mathworks/scenario/common/geometry.proto";
+
+enum CrgRoadDataFormat
+{
+  CRG_ROAD_DATA_FORMAT_UNSPECIFIED = 0;
+  CRG_ROAD_DATA_FORMAT_LRFI = 1;
+  CRG_ROAD_DATA_FORMAT_LDFI = 2;
+}
+
+message AutoCadExportSettings
+{
+  google.protobuf.BoolValue split_by_segmentation = 1;
+  google.protobuf.BoolValue power_of_two_textures = 2;
+  google.protobuf.BoolValue export_only_highest_lods = 4;
+  ExportToTiles export_to_tiles = 3;
+}
+
+message FilmboxExportSettings
+{
+  google.protobuf.BoolValue split_by_segmentation = 1;
+  google.protobuf.BoolValue power_of_two_textures = 2;
+  google.protobuf.BoolValue embed_textures = 3;
+  google.protobuf.BoolValue export_only_highest_lods = 5;
+  ExportToTiles export_to_tiles = 4;
+}
+
+message GltfExportSettings
+{
+  google.protobuf.BoolValue split_by_segmentation = 1;
+  google.protobuf.BoolValue power_of_two_textures = 2;
+  google.protobuf.BoolValue export_only_highest_lods = 4;
+  ExportToTiles export_to_tiles = 3;
+}
+
+message OpenFlightExportSettings
+{
+  google.protobuf.BoolValue split_by_segmentation = 1;
+  google.protobuf.BoolValue power_of_two_textures = 2;
+  google.protobuf.BoolValue export_only_highest_lods = 4;
+  ExportToTiles export_to_tiles = 3;
+}
+
+message OpenSceneGraphExportSettings
+{
+  google.protobuf.BoolValue split_by_segmentation = 1;
+  google.protobuf.BoolValue power_of_two_textures = 2;
+  google.protobuf.BoolValue embed_textures = 3;
+  google.protobuf.BoolValue export_only_highest_lods = 5;
+  ExportToTiles export_to_tiles = 4;
+}
+
+message UnrealDatasmithExportSettings
+{
+  google.protobuf.BoolValue split_by_segmentation = 1;
+  google.protobuf.BoolValue power_of_two_textures = 2;
+  google.protobuf.BoolValue export_only_highest_lods = 4;
+  ExportToTiles export_to_tiles = 3;
+}
+
+message UsdExportSettings
+{
+  google.protobuf.BoolValue split_by_segmentation = 1;
+  google.protobuf.BoolValue power_of_two_textures = 2;
+  google.protobuf.BoolValue export_only_highest_lods = 4;
+  ExportToTiles export_to_tiles = 3;
+}
+
+message ApolloExportSettings
+{
+  double apollo_version = 1;
+  double database_version = 2;
+  string database_name = 3;
+  DrivingSide driving_side = 4;
+  google.protobuf.BoolValue export_signals = 5;
+  google.protobuf.BoolValue export_objects = 6;
+  google.protobuf.BoolValue clamp_distances = 7;
+}
+
+message GeoJsonExportSettings
+{
+  google.protobuf.BoolValue reduce_file_size = 1;
+}
+
+message OpenDriveExportSettings
+{
+  double open_drive_version = 1;
+  double database_version = 2;
+  string database_name = 3;
+  DrivingSide driving_side = 4;
+  google.protobuf.BoolValue enforce_connected_road_continuity = 14;
+  google.protobuf.BoolValue export_markings_as_line = 5;
+  google.protobuf.BoolValue export_signals = 6;
+  google.protobuf.BoolValue export_objects = 8;
+  google.protobuf.BoolValue apply_parking_slope = 15;
+  google.protobuf.BoolValue export_hoffset_relative_to_orientation = 9;
+  google.protobuf.BoolValue export_conflict_points = 10;
+
+  // Scene origin reference road no longer supported
+  // Import the OpenDRIVE file and 3D model separately instead
+  google.protobuf.BoolValue export_scene_origin_reference = 11 [deprecated=true];
+  google.protobuf.BoolValue clamp_distances = 12;
+  SyntheticOpenCrg synthetic_open_crg = 13;
+  
+  // Use the synthetic_open_crg field instead
+  google.protobuf.BoolValue export_open_crg = 7 [deprecated=true];
+}
+
+message OpenScenarioExportSettings
+{
+  double open_scenario_version = 5;
+  
+  // Generated OpenDRIVE file path (optional)
+  // - Default behavior: generate a new OpenDRIVE file with the same name as the OpenSCENARIO file.
+  // - If the path is provided, a new OpenDRIVE file will be exported to the path (overwriting any existing file at that location). 
+  // - The path can be absolute or relative to the OpenSCENARIO file path
+  string path_to_open_drive = 6;
+
+  // Generated scene graph file (optional)
+  // - This field will be ignored if scene_graph_setting is used.
+  // - Default behavior: generate a new OpenSceneGraph file.
+  // - To generate a new scene graph file, provide the scene format name.
+  //   NOTE: Only "OpenSceneGraph" is supported.
+  // - If a scene graph file has already been exported, provide the file path to speed up 
+  //   export, since it does not need to be regenerated.
+  // - If you want to completely skip scene graph while exporting open scenario, set export_scene_graph to 'false' or '0'
+  oneof new_or_existing_scene_graph
+  {
+	  string scene_graph_format_name = 1 [deprecated=true];
+	  string path_to_existing_scene_graph = 2 [deprecated=true];
+	  google.protobuf.BoolValue export_scene_graph = 7 [deprecated=true];
+  }
+
+  // Export settings for the scene graph file (optional)
+  // - This field will be ignored if scene_graph_setting is used.
+  // - This field cannot be set if path_to_existing_scene_graph is specified, or if export_scene_graph is set to 'false'.
+  OpenSceneGraphExportSettings open_scene_graph_settings = 3[deprecated=true];
+
+  // Control and customize scene graph export using scene_graph_settings
+  SceneGraphSettings scene_graph_settings = 9;
+
+  // Export settings for the generated OpenDRIVE file (optional)
+  OpenDriveExportSettings open_drive_settings = 4;
+
+  // Catalog related export settings (optional)
+  CatalogSettings catalog_settings = 8;
+}
+
+message SceneGraphSettings
+{
+	// This message contains all scene graph related options
+	// Helps to set format type, choose export type and customize scene graph file
+
+	// Specify format for scene graph (optional)
+	// NOTE: Only "OpenSceneGraph" is supported.
+	string format_name = 1;
+	
+	// Generated scene graph file (optional)
+	// - Default behavior: generate a new OpenSceneGraph file with same name as OpenScenario.
+	// - To generate a new scene graph file with custom name and path, provide the path to new scene graph file with extention.
+	// - If a scene graph file has already been exported, provide the file path to speed up 
+	//   export, since it does not need to be regenerated.
+	// - If you want to completely skip scene graph while exporting open scenario, set export to 'false' or '0'
+	oneof export_type
+	{
+		string path_to_new_file = 2;
+		string path_to_existing_file = 3;
+		google.protobuf.BoolValue export = 4;
+	}
+
+	// Specific Export settings for the scene graph file (optional)
+	// - This field cannot be set if path_to_existing_file is specified, or if export is set to 'false'.
+	oneof scene_graph_format
+	{
+		OpenSceneGraphExportSettings open_scene_graph_settings = 5;
+	}
+}
+message CatalogSettings
+{
+  CatalogExportType export_type = 1;
+  
+  // Root directory for the catalog files to be referenced by the exported scenario file.
+  // Relative paths are relative to file_path in the containing ExportRequest.
+  string catalog_root_directory = 2;
+}
+
+enum CatalogExportType
+{
+  CATALOG_EXPORT_TYPE_UNSPECIFIED = 0;
+
+  // To be set when catalog files need not be referenced.
+  CATALOG_EXPORT_TYPE_NONE = 1;
+
+  // To be set when existing catalog files are to be referenced.
+  // To to be used along with catalog_root_directory.
+  CATALOG_EXPORT_TYPE_REFERENCE = 2;
+}
+
+message OpenScenario2ExportSettings
+{
+  // Export settings for the generated OpenDRIVE file (optional)
+  OpenDriveExportSettings open_drive_settings = 1;
+}
+
+message CarlaExportSettings
+{
+  OpenDriveExportSettings open_drive_settings = 2;
+  UnrealDatasmithExportSettings unreal_datasmith_settings = 3;
+
+  // This format no longer supports filmbox_settings. This field will be ignored.
+  // - To export Filmbox to CARLA, use the "CARLA Filmbox" export format.
+  FilmboxExportSettings filmbox_settings = 1 [deprecated=true];
+}
+
+message CarlaFilmboxExportSettings
+{
+  OpenDriveExportSettings open_drive_settings = 1;
+  FilmboxExportSettings filmbox_settings = 2;
+}
+
+message MetamotoExportSettings
+{
+  FilmboxExportSettings filmbox_settings = 1;
+  OpenDriveExportSettings open_drive_settings = 2;
+  GeoJsonExportSettings geo_json_settings = 3;
+}
+
+message RFProExportSettings
+{
+  FilmboxExportSettings filmbox_settings = 1;
+  OpenDriveExportSettings open_drive_settings = 2;
+}
+
+message UnityExportSettings
+{
+  FilmboxExportSettings filmbox_settings = 1;
+  OpenDriveExportSettings open_drive_settings = 2;
+}
+
+message UnrealExportSettings
+{
+  FilmboxExportSettings filmbox_settings = 1;
+  OpenDriveExportSettings open_drive_settings = 2;
+}
+
+message DatasmithRoadExportSettings
+{
+	UnrealDatasmithExportSettings unreal_datasmith_settings = 1;
+	OpenDriveExportSettings open_drive_settings = 2;
+}
+
+message VtdExportSettings
+{
+  OpenSceneGraphExportSettings open_scene_graph_settings = 1;
+  OpenDriveExportSettings open_drive_settings = 2;
+}
+
+message ExportToTiles
+{
+  scenario.common.Vector2 tile_size = 1;
+  scenario.common.Vector2 tile_center = 2;
+  google.protobuf.BoolValue export_individual_tiles = 3;
+}
+
+message SyntheticOpenCrg
+{
+  CrgRoadDataFormat road_data_format = 1;
+}

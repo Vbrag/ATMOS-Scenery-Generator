@@ -21,6 +21,7 @@ from scipy.optimize import minimize
 from pickletools import optimize
 import scipy.special 
 import copy
+from fontTools.varLib.instancer import isInstanceWithinAxisRanges
 
 projection_fromGeographic_cash = dict()
 clear = lambda: os.system('cls')
@@ -493,15 +494,16 @@ class Spiral():
                           
         
         
+        if S_soll > self.length :
         
-        
+            return (None,None)  
+              
+        else:        
  
- 
- 
-            
-        S =  S_soll + S0
- 
-        return (S,T)
+                
+            S =  S_soll + S0
+     
+            return (S,T)
 
 class Arc():
  
@@ -831,77 +833,82 @@ class Arc():
         
         L_circl = np.abs(  theta )  *Radius_abs
         
-        #print("L_circl"  ,L_circl)
+        if L_circl > self.length :
         
-        S =  L_circl + S0
-        
-        #print("S"  ,S)
-        
-        #print(Radius_abs )  
-        #print(L )  
-        
-        if Radius >   0:                     
-            T =    Radius_abs - L  
+            return (None,None)  
+              
         else:
-            T =    L  - Radius_abs  
-                 
-        
-        # Radius = 1.0/ (self.Curvatur +  np.finfo(float).eps)
-        #
-        # try:
-        #     hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi        
-        # except:
-        #     pass
-        # x_center = x0 + Radius*np.sin( np.pi- hdg)
-        # y_center = y0 + Radius*np.cos( np.pi-  hdg)
-        #
-        # ##print("x_center" , x_center)
-        # ##print("y_center" , y_center)   
-        #
-        #
-        # deltaX= np.array( X - x_center ).astype(float)
-        # deltaY= np.array( Y - y_center ).astype(float)
-        # L = np.sqrt(  deltaX * deltaX    + deltaY *deltaY  )  
-        #
-        # ##print("L" ,L)
-        # if Radius >   0:
-        #
-        #     T =    Radius -L      
-        #
-        #     alfa =   np.pi/2  - hdg
-        #
-        #     gama  =  np.arctan2(deltaY ,deltaX ) 
-        #
-        #     theta =      (np.pi  -  alfa   -  gama  )
-        #
-        #     try:
-        #
-        #         theta  = theta - int(theta/(2*np.pi) ) *2*np.pi
-        #     except:
-        #         pass
-        #
-        #
-        # else:
-        #     T =   Radius +L      
-        #
-        #     alfa =     hdg
-        #
-        #     gama  =  np.pi/2  -np.arctan2( deltaY ,deltaX ) 
-        #
-        #     theta =     (np.pi  -  alfa   -  gama  ) 
-        #
-        #     try:       
-        #         theta  = np.abs(theta) - int(theta/(2*np.pi) ) *2*np.pi
-        #
-        #     except:
-        #         pass 
-        #
-        # L_circl = theta   *np.abs(  Radius)
-        #
-        #
-        # S =  L_circl+ S0
- 
-        return (S,T)
+            #print("L_circl"  ,L_circl)
+            
+            S =  L_circl + S0
+            
+            #print("S"  ,S)
+            
+            #print(Radius_abs )  
+            #print(L )  
+            
+            if Radius >   0:                     
+                T =    Radius_abs - L  
+            else:
+                T =    L  - Radius_abs  
+                     
+            
+            # Radius = 1.0/ (self.Curvatur +  np.finfo(float).eps)
+            #
+            # try:
+            #     hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi        
+            # except:
+            #     pass
+            # x_center = x0 + Radius*np.sin( np.pi- hdg)
+            # y_center = y0 + Radius*np.cos( np.pi-  hdg)
+            #
+            # ##print("x_center" , x_center)
+            # ##print("y_center" , y_center)   
+            #
+            #
+            # deltaX= np.array( X - x_center ).astype(float)
+            # deltaY= np.array( Y - y_center ).astype(float)
+            # L = np.sqrt(  deltaX * deltaX    + deltaY *deltaY  )  
+            #
+            # ##print("L" ,L)
+            # if Radius >   0:
+            #
+            #     T =    Radius -L      
+            #
+            #     alfa =   np.pi/2  - hdg
+            #
+            #     gama  =  np.arctan2(deltaY ,deltaX ) 
+            #
+            #     theta =      (np.pi  -  alfa   -  gama  )
+            #
+            #     try:
+            #
+            #         theta  = theta - int(theta/(2*np.pi) ) *2*np.pi
+            #     except:
+            #         pass
+            #
+            #
+            # else:
+            #     T =   Radius +L      
+            #
+            #     alfa =     hdg
+            #
+            #     gama  =  np.pi/2  -np.arctan2( deltaY ,deltaX ) 
+            #
+            #     theta =     (np.pi  -  alfa   -  gama  ) 
+            #
+            #     try:       
+            #         theta  = np.abs(theta) - int(theta/(2*np.pi) ) *2*np.pi
+            #
+            #     except:
+            #         pass 
+            #
+            # L_circl = theta   *np.abs(  Radius)
+            #
+            #
+            # S =  L_circl+ S0
+     
+            return (S,T)
 
 class RoadReferenceLine():
 
@@ -1140,7 +1147,7 @@ class RoadReferenceLine():
             
  
     
-    def __init__(self, x0=0, y0=0 , hdg  = 0 , geometry_elements = [] ):
+    def __init__(self, x0=0, y0=0 , hdg  = 0 , geometry_elements = list() ):
         
         self.x0 = x0 
         self.y0 = y0
@@ -1468,6 +1475,11 @@ class RoadReferenceLine():
         
         (S,_) = self.XY2ST(X_end ,Y_end)
         
+ 
+            
+            
+        
+        
         S0 = 0
          
         indextoremove = []
@@ -1554,6 +1566,10 @@ class RoadReferenceLine():
         S_list =[]
         T_list =[]  
         
+        if len(self.geometry_elements) >1:
+            self.geometry_elements[-1].length = self.geometry_elements[-1].length*1.01
+            
+        
               
         for ele in self.geometry_elements:
             
@@ -1561,15 +1577,20 @@ class RoadReferenceLine():
             
             (S,T)= ele.XY2ST(  x0 , y0 ,hdg , X ,Y, S0)
             
-            if  S is not None:
+            if  S is not None and S > 0:
             
-                if (S >= 0):
+                if (S >= 0)  and (S-S0) < ele.length:
                     S_list.append(S)
                     T_list.append(np.abs( T ))           
     
             x0 , y0 , hdg = ele.get_endPoint(x0 ,y0 , hdg )
 
             S0 = S0 + ele.length
+ 
+ 
+        if len(self.geometry_elements) >1:
+            self.geometry_elements[-1].length = self.geometry_elements[-1].length/1.01
+ 
         
         # #print(S_list)
         # #print(T_list)
@@ -1581,14 +1602,15 @@ class RoadReferenceLine():
         
      
             return (S,T)
-        elif len(self.geometry_elements) > 0:
-            
-            return (S,T)
-            
+        # elif len(self.geometry_elements) > 0:
+        #
+        #     return (S,T)
+        #
+
             
         else:
  
-            return (X , Y)
+            return (None , None)
       
       
       
@@ -1631,7 +1653,71 @@ class RoadReferenceLine():
         
         return planView
 
-class Building():
+
+
+class RoadObject():
+
+    @classmethod
+    def fromOSMdict(cls, dictobj  ):
+        pass
+
+    def __init__(self ,  Floor_plan =list() , tags = dict() ):
+        
+        #
+        self.Floor_plan = Floor_plan 
+     
+        self.tags = tags 
+        
+        
+        Y = []
+        X = []
+    
+        for point in self.Floor_plan:
+            x, y = point
+    
+            if y != None:
+                Y.append(y)
+                X.append(x)
+                
+                
+        self.x_center = np.average(X) 
+        self.y_center = np.average(Y)
+        
+        
+    def draw(self, fig , ax ):
+        
+
+        # if "lanes" in self.tags:
+        #     index = self.tags.index("lanes")
+        #
+        #     n_lans = int(self.tags[index+1])
+        # else:
+        #     n_lans = 2  
+ 
+        facecolor = 'g'
+        if 'colour' in self.tags :
+            index = self.tags.index("colour")
+            facecolor = self.tags[index+1]
+ 
+        try:
+            p = Polygon(self.Floor_plan, facecolor = facecolor, alpha=0.5) 
+            
+        except:
+            facecolor = 'g'
+            p = Polygon(self.Floor_plan, facecolor = facecolor, alpha=0.5)             
+        ax.add_patch(p)        
+
+    
+    
+    def get_Center(self):
+        
+ 
+        
+        return (self.x_center, self.y_center )       
+        
+    
+    
+class Building(RoadObject):
  
     @classmethod
     def fromOSMdict(cls, dictobj  ):
@@ -1655,18 +1741,9 @@ class Building():
          
         return Building(  Floor_plan, tags  )  
         
-    def __init__(self ,  Floor_plan =[] , tags = dict() ):
-        
-        #
-        self.Floor_plan = Floor_plan 
-        
-        if self.Floor_plan[0] !=  self.Floor_plan[-1]:
-            self.Floor_plan.append(self.Floor_plan[0])
-               
-        self.tags = tags 
  
  
-    def draw_building(self, fig , ax ):
+    def draw(self, fig , ax ):
         
         xs, ys = zip(* self.Floor_plan ) #create lists of x and y values
         ax.plot(xs,ys)
@@ -1708,7 +1785,7 @@ class Building():
             p = Polygon(self.Floor_plan, facecolor = 'gray')             
         ax.add_patch(p)
         
-class AreaSpace():
+class AreaSpace(RoadObject):
  
     @classmethod
     def fromOSMdict(cls, dictobj ,    min_x, min_y ,max_x, max_y):
@@ -1748,18 +1825,10 @@ class AreaSpace():
          
  
     
-    def __init__(self ,  Floor_plan =[] , tags = dict()  ):
-        
  
-        self.Floor_plan = Floor_plan 
-        
-        if self.Floor_plan[0] !=  self.Floor_plan[-1]:
-            self.Floor_plan.append(self.Floor_plan[0])
-               
-        self.tags = tags 
        
         
-    def draw_Space(self, fig , ax ):
+    def draw(self, fig , ax ):
         
         xs, ys = zip(* self.Floor_plan ) #create lists of x and y values
         ax.plot(xs,ys)
@@ -1770,7 +1839,7 @@ class AreaSpace():
         p = Polygon(self.Floor_plan, facecolor = facecolor) 
         ax.add_patch(p)
 
-class Waterway():
+class Waterway(RoadObject):
  
     @classmethod
     def fromOSMdict(cls, dictobj ,    min_x, min_y ,max_x, max_y):
@@ -1814,16 +1883,8 @@ class Waterway():
         
          
  
-    
-    def __init__(self ,  Floor_plan =[] , tags = dict() ):
         
- 
-        self.Floor_plan = Floor_plan 
- 
-        self.tags = tags 
-       
-        
-    def draw_Space(self, fig , ax ):
+    def draw(self, fig , ax ):
         
  
         facecolor = 'b'
@@ -1862,14 +1923,11 @@ class Waterway():
             p = Polygon(self.Floor_plan, facecolor = facecolor) 
             ax.add_patch(p)
  
-class Barrier_roadObject():
+class Barrier(RoadObject):
  
     @classmethod
     def fromOSMdict(cls, dictobj  ):
-        # #print(" ############## Building #################")
-        
-        
-        
+ 
         
         Floor_plan = []
         tags = dictobj.get('tags')
@@ -1884,42 +1942,11 @@ class Barrier_roadObject():
                  
         dictobj["tags"] = tags
         
-        return Barrier_roadObject(  Floor_plan, tags )  
+        return Barrier(  Floor_plan, tags )  
         
          
  
-    
-    def __init__(self ,  Floor_plan =[] , tags = dict()   ):
  
-        self.Floor_plan = Floor_plan 
-        
-        if self.Floor_plan[0] !=  self.Floor_plan[-1]:
-            self.Floor_plan.append(self.Floor_plan[0])
-               
-        self.tags = tags 
-          
-    def draw_Barrier(self, fig , ax ):
-        
-
-        # if "lanes" in self.tags:
-        #     index = self.tags.index("lanes")
-        #
-        #     n_lans = int(self.tags[index+1])
-        # else:
-        #     n_lans = 2  
- 
-        facecolor = 'g'
-        if 'colour' in self.tags :
-            index = self.tags.index("colour")
-            facecolor = self.tags[index+1]
- 
-        try:
-            p = Polygon(self.Floor_plan, facecolor = facecolor, alpha=0.5) 
-            
-        except:
-            facecolor = 'g'
-            p = Polygon(self.Floor_plan, facecolor = facecolor, alpha=0.5)             
-        ax.add_patch(p)
  
 class Road():
     
@@ -1962,7 +1989,7 @@ class Road():
 
             return Railway_Road(  points, tags )         
  
-        elif "lanes" in tags_keys  or  "residential"  in tags_keys or   "living_street"   in tags_keys or    "construction"  in tags_keys  :
+        elif "lanes" in tags_keys  or  "residential"  in tags_keys or   "living_street"   in tags_keys or    "construction"  in tags_keys  :#or 'asphalt'  in tags_keys
  
             return Drivable_Road(  points, tags )
         
@@ -2017,7 +2044,7 @@ class Road():
          
  
     
-    def __init__(self ,  points =[] , tags = dict()  ):
+    def __init__(self ,  points =list()  , tags = list()   ):
         
  
         self.points = points        
@@ -2025,7 +2052,12 @@ class Road():
    
         self.ReferenceLine = None 
         
-        self.update_ReferenceLine()    
+        self.update_ReferenceLine()
+        
+        self.Footway_Bicycle_Roads = []
+        self.Buildings = [] 
+        self.Spaces =[] 
+        self.Barriers = []     
         
     def __add__(self, other):
         
@@ -2067,6 +2099,16 @@ class Road():
  
         xs, ys = zip(*self.points) #create lists of x and y values
         ax.plot(xs,ys)
+
+
+        for space in  self.Spaces:
+            space.draw(  fig , ax)
+        
+        for Building in self.Buildings:
+            Building.draw(  fig , ax)
+        
+        for Barrier in self.Barriers:
+            Barrier.draw(  fig , ax)
         
         print("######### draw raod ###########")
         
@@ -2110,14 +2152,22 @@ class Road():
 class Footway_Bicycle_Road(Road):
     
     
-    def __init__(self,   points=[], tags=dict() ):
+    def __init__(self,   points=[], tags = []  ):
         Road.__init__(self,   points=points, tags=tags )
     
   
     
     def draw_Road(self, fig , ax ):
         
- 
+        for space in  self.Spaces:
+            space.draw(  fig , ax)
+        
+        for Building in self.Buildings:
+            Building.draw(  fig , ax)
+        
+        for Barrier in self.Barriers:
+            Barrier.draw(  fig , ax)
+             
         # n_lans = 1
         # lane_width  = 2
         #
@@ -2180,8 +2230,11 @@ class Footway_Bicycle_Road(Road):
 class Drivable_Road(Road):
     
     
-    def __init__(self,  points=[], tags=dict() ):
-        Road.__init__(self,   points=points, tags=tags )   
+    def __init__(self,  points=[], tags=dict()   ):
+        Road.__init__(self,   points=points, tags=tags ) 
+        
+
+          
         
         # #print("New Drivable_Road")
         # if len(points ) >=2:
@@ -2194,7 +2247,27 @@ class Drivable_Road(Road):
         #
         #
         # #print("New Drivable_Road OK")
+
     def draw_Road(self, fig , ax ):   
+ 
+ 
+        for space in  self.Spaces:
+            space.draw(  fig , ax)
+        
+        for Building in self.Buildings:
+            Building.draw(  fig , ax)
+        
+        for Barrier in self.Barriers:
+            Barrier.draw(  fig , ax)
+            
+
+                
+                #plt.show() 
+                
+        for road in self.Footway_Bicycle_Roads:
+ 
+            road.draw_Road(  fig , ax ) 
+ 
         
         # ##print( self.tags)
         # if "lanes" in self.tags:
@@ -2660,7 +2733,7 @@ class Scenery():
                 
             elif ( "landuse" in tagkeys   and   "grass"  in tagkeys   )   or ( "landuse" in tagkeys   and   "greenfield" in tagkeys    )   or   ( "leisure" in tagkeys   and   "playground" in tagkeys    ) or ("leisure"  in tagkeys  and    "garden"  in tagkeys    )   :
                 
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]     )
+                barrier = Barrier.fromOSMdict(waysdict[way_id]     )
                 
                 Barriers.append(barrier)
                 
@@ -2668,7 +2741,7 @@ class Scenery():
                 
             elif ( "landuse" in tagkeys   and    "orchard"  in tagkeys   ) :                
                 
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]    )
+                barrier = Barrier.fromOSMdict(waysdict[way_id]    )
                 
                 Barriers.append(barrier)                
                 
@@ -2676,19 +2749,19 @@ class Scenery():
 
             elif ( "landuse" in tagkeys   and   "cemetery"  in tagkeys   ) :                
                 
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]     )
+                barrier = Barrier.fromOSMdict(waysdict[way_id]     )
                 
                 Barriers.append(barrier)     
                 
             elif ( "leisure" in tagkeys   and   "outdoor_seating" in tagkeys    ) :                
                 
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]    )
+                barrier = Barrier.fromOSMdict(waysdict[way_id]    )
                 
                 Barriers.append(barrier)                  
 
             elif ( "bench" in tagkeys    ) :                
                 
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]     )
+                barrier = Barrier.fromOSMdict(waysdict[way_id]     )
                 
                 Barriers.append(barrier)
 
@@ -2696,42 +2769,42 @@ class Scenery():
 
             elif ( "attraction" in tagkeys   ) :                
                 
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]    )
+                barrier = Barrier.fromOSMdict(waysdict[way_id]    )
                 
                 Barriers.append(barrier)
 
 
                 
             elif ( "stairwell" in tagkeys     ) :               
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]   )
+                barrier = Barrier.fromOSMdict(waysdict[way_id]   )
                 
                 Barriers.append(barrier) 
 
 
             elif "man_made" in tagkeys  and    "pier"  in tagkeys     :
    
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]   )
+                barrier = Barrier.fromOSMdict(waysdict[way_id]   )
                 
                 Barriers.append(barrier) 
                 
                 
             elif "shelter" in tagkeys  and   tagkeys in tagkeys    :
    
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]   )
+                barrier = Barrier.fromOSMdict(waysdict[way_id]   )
                 
                 Barriers.append(barrier)  
                 
                 
             elif "amenity" in tagkeys  and   "shelter"  in tagkeys     :
    
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]     )
+                barrier = Barrier.fromOSMdict(waysdict[way_id]     )
                 
                 Barriers.append(barrier)  
                                                                               
    
             elif "playground" in tagkeys    :
    
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]    )
+                barrier = Barrier.fromOSMdict(waysdict[way_id]    )
                 
                 Barriers.append(barrier)     
 
@@ -2741,7 +2814,7 @@ class Scenery():
    
             elif "amenity" in tagkeys  and    "bench" in tagkeys    :
    
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]    )
+                barrier = Barrier.fromOSMdict(waysdict[way_id]    )
                 
                 Barriers.append(barrier) 
                 
@@ -2757,7 +2830,7 @@ class Scenery():
 
             elif "barrier" in tagkeys   or ( "landuse" in tagkeys   and   "village_green"  in tagkeys   ) or "natural" in tagkeys   or ( "amenity" in tagkeys   and    "fountain"  in tagkeys   ) : #  or "natural" in tagkeys   or "amenity" in tagkeys 
  
-                barrier = Barrier_roadObject.fromOSMdict(waysdict[way_id]     )
+                barrier = Barrier.fromOSMdict(waysdict[way_id]     )
                 
                 Barriers.append(barrier)
                 
@@ -2772,23 +2845,21 @@ class Scenery():
                 # road.draw_Road(  fig , ax )
                 # plt.show() 
             
-        Roads =  Scenery.organize_Roads(Roads)  
+        Roads =  Scenery.organize_Roads(Roads ,  Buildings, Spaces , Barriers)  
  
-        return Scenery(metaData , nodsdict ,Roads, Buildings, Spaces , Barriers)
+        return Scenery(metaData , nodsdict ,Roads)
     
     
-    def __init__(self, metaData = dict(), nodsdict =dict(), Roads = [] ,Buildings = [] ,  Spaces = []  , Barriers = []  , name = "Database name" ):
+    def __init__(self, metaData = dict(), nodsdict =dict(), Roads = list()   , name = "Database name" ):
         
         self.name = name
         self.metaData =metaData
         self.nodsdict =nodsdict
         self.Roads = Roads
-        self.Buildings = Buildings 
-        self.Spaces =Spaces 
-        self.Barriers = Barriers     
+     
         
     @classmethod        
-    def organize_Roads(cls ,Roads ):
+    def organize_Roads(cls ,Roads , Buildings, Spaces , Barriers ):
         
         rods_dict  = dict()
         
@@ -3054,9 +3125,73 @@ class Scenery():
             Roads.remove(Roads[index])
             
                    
-                
- 
         
+        
+        # Buildings, Spaces , Barriers 
+        
+        # Drivable_Road_List= [] 
+        #
+        # for road in  Roads:
+        #
+        #     if isinstance(road, Drivable_Road):
+        #
+        #         Drivable_Road_List.append(road) 
+        #
+        #
+        #
+        #
+
+        
+
+        
+        for  Building in tqdm( Buildings ):
+            xc , yc = Building.get_Center()
+            T_min = 1000
+            RoadNear =None            
+            for road in Roads:
+                
+                S, T = road.ReferenceLine.XY2ST(xc , yc)
+                
+                if S is not None and T is not None  and S < road.ReferenceLine.getLength() and np.abs(T) < T_min:
+                        T_min = np.abs(T) 
+                        RoadNear = road
+ 
+            if RoadNear is not None:
+                RoadNear.Buildings.append(Building)
+            else:
+                raise ValueError("yalahowy")
+                
+                
+            
+        for  Space in tqdm( Spaces ):
+            xc , yc = Space.get_Center()
+            T_min = 1000
+            RoadNear =None            
+            for road in Roads:
+        
+                S, T = road.ReferenceLine.XY2ST(xc , yc)
+        
+                if S is not None and T is not None  and S < road.ReferenceLine.getLength() and np.abs(T) < T_min:
+                        T_min = np.abs(T) 
+                        RoadNear = road
+        
+            if RoadNear is not None:
+                RoadNear.Spaces.append(Space)            
+        
+        for  Barrier in tqdm( Barriers ):
+            xc , yc = Barrier.get_Center()
+            T_min = 50
+            RoadNear =None            
+            for road in Roads:
+        
+                S, T = road.ReferenceLine.XY2ST(xc , yc)
+        
+                if S is not None and T is not None  and S < road.ReferenceLine.getLength() and np.abs(T) < T_min:
+                        T_min = np.abs(T) 
+                        RoadNear = road
+        
+            if RoadNear is not None:
+                RoadNear.Barriers.append(Barrier)        
                                   
         
         return Roads
@@ -3105,9 +3240,9 @@ class Scenery():
         #print( str(closet_node ) )
         
         results = []
-        for space in  self.Spaces:
-            if closet_node in space.Floor_plan:
-                results.append(space)
+        # for space in  self.Spaces:
+        #     if closet_node in space.Floor_plan:
+        #         results.append(space)
                 
             
             # for node in space.nodes: 
@@ -3117,12 +3252,12 @@ class Scenery():
             #             results.append(space)
                     
  
-        for Building in  self.Buildings:
-            
-            
-            
-            if closet_node in Building.Floor_plan:
-                results.append(Building)
+        # for Building in  self.Buildings:
+        #
+        #
+        #
+        #     if closet_node in Building.Floor_plan:
+        #         results.append(Building)
 
 
         for Road in  self.Roads:
@@ -3130,9 +3265,9 @@ class Scenery():
                 results.append(Road)
             
 
-        for Barrier in  self.Barriers:
-            if closet_node in Barrier.Floor_plan:
-                results.append(Barrier)
+        # for Barrier in  self.Barriers:
+        #     if closet_node in Barrier.Floor_plan:
+        #         results.append(Barrier)
              
         
         for result in results:
@@ -3218,33 +3353,10 @@ class Scenery():
         onclick = self.onclick
         cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
-        
-        for space in  self.Spaces:
-            space.draw_Space(  fig , ax)
-        
-        for Building in self.Buildings:
-            Building.draw_building(  fig , ax)
-        
-        for Barrier_roadObject in self.Barriers:
-            Barrier_roadObject.draw_Barrier(  fig , ax)
-            
-
-                
-                #plt.show() 
-                
-        for road in self.Roads:
-        
-            if not isinstance(road ,Drivable_Road):
-        
-                road.draw_Road(  fig , ax ) 
-
-
  
         for road in self.Roads:
-            
-            if isinstance(road ,Drivable_Road):
-            
-                road.draw_Road(  fig , ax )
+
+            road.draw_Road(  fig , ax )
             
         plt.show() 
 
@@ -3370,13 +3482,17 @@ if __name__ == '__main__':
 
     
     
-    filepath = os.path.abspath("..\\OSM_Interface\\Paderborn_inner_ring.osm")
+    filepath = os.path.abspath("..\\OSM_Interface\\WesternTor_2.osm")
     sceneryObj = Scenery.from_Osm(filepath)    
-    sceneryObj.export2opendrive("..\\OSM_Interface\\Paderborn_inner_ring.xodr")
-    sceneryObj.draw_scenery()
+    #sceneryObj.export2opendrive("..\\OSM_Interface\\WesternTor_2.xodr")
+    #sceneryObj.draw_scenery()
     
+    for road in sceneryObj.Roads:
     
-    
+        #if isinstance(road, Drivable_Road):
+        fig, ax = plt.subplots(figsize=(10, 10))
+        road.draw_Road(  fig , ax )    
+        plt.show()
     
     # i= 0
     #
