@@ -183,16 +183,7 @@ clear = lambda: os.system('cls')
 #     y = y_i + dy_rot
 #     return np.concatenate((x[:, np.newaxis], y[:, np.newaxis]), axis=1)
 
-
-     
-        
-        
-
-        
-        
-
-
-
+ 
 
 def projection_fromGeographic(latitude, longitude, referenceLat = 0 , referenceLon = 0):
     
@@ -1622,13 +1613,13 @@ class RoadReferenceLine():
             
             elif  isinstance(geo_ele, Arc):
                 
-                curvature = -geo_ele.Curvatur
+                curvature = geo_ele.Curvatur
                 geometry.append(opendrive.t_road_planView_geometry(hdg, length, s, x, y,   arc = opendrive.t_road_planView_geometry_arc(curvature )) ) 
                 
             elif isinstance(geo_ele, Spiral):
                 
-                curvStart = -geo_ele.CurvaturStart
-                curvEnd = -geo_ele.CurvaturEnd
+                curvStart = geo_ele.CurvaturStart
+                curvEnd = geo_ele.CurvaturEnd
                 geometry.append(opendrive.t_road_planView_geometry(hdg, length, s, x, y,   spiral= opendrive.t_road_planView_geometry_spiral(curvEnd, curvStart) ) ) 
                           
  
@@ -3379,9 +3370,9 @@ if __name__ == '__main__':
 
     
     
-    filepath = os.path.abspath("..\\OSM_Interface\\paderborn_waterway.osm")
+    filepath = os.path.abspath("..\\OSM_Interface\\Paderborn_inner_ring.osm")
     sceneryObj = Scenery.from_Osm(filepath)    
-    sceneryObj.export2opendrive("..\\OSM_Interface\\paderborn_waterway.xodr")
+    sceneryObj.export2opendrive("..\\OSM_Interface\\Paderborn_inner_ring.xodr")
     sceneryObj.draw_scenery()
     
     
