@@ -1476,45 +1476,64 @@ class RoadReferenceLine():
         
  
             
+        if S is not None:   
+        
+            
+            S0 = 0
+             
+            indextoremove = []
+            index = 0
+            
+            allextra = False
+            
+            if len(self.geometry_elements ) > 1:
+                for ele in self.geometry_elements[:-1]:
+                    index = index +1 
+                    if S0 + ele.length < S and not allextra:
+                        
+                        S0 = S0 + ele.length
+                        
+                    else:
+                        indextoremove.append(index)
+                        allextra = True
+                        
+                    
+                    
+                    
+            
+            ##print( S  )
+            indextoremove.sort()
+            indextoremove.reverse()
+            for index in indextoremove:
+                self.geometry_elements.remove(self.geometry_elements[index])
             
         
-        
-        S0 = 0
-         
-        indextoremove = []
-        index = 0
-        
-        allextra = False
-        
-        if len(self.geometry_elements ) > 1:
-            for ele in self.geometry_elements[:-1]:
-                index = index +1 
-                if S0 + ele.length < S and not allextra:
-                    
-                    S0 = S0 + ele.length
-                    
-                else:
-                    indextoremove.append(index)
-                    allextra = True
-                    
+            if S is not None and len(self.geometry_elements ) >= 1 and  (S - S0 ) > 0:
                 
                 
-                
-        
-        ##print( S  )
-        indextoremove.sort()
-        indextoremove.reverse()
-        for index in indextoremove:
-            self.geometry_elements.remove(self.geometry_elements[index])
-            
-        
-        if S is not None and len(self.geometry_elements ) >= 1 and  (S - S0 ) > 0:
-            
-            
-            self.geometry_elements[-1].length = S - S0               
+                self.geometry_elements[-1].length = S - S0               
         
         
+        
+    def set_startPoint(self , xstart , ystart):
+        
+        geometry_elements_save = copy.deepcopy(self.geometry_elements ) 
+        
+        self.set_endPoint(xstart, ystart)
+        
+        xstrat , ystrat ,hed_start = self.get_endPoint()
+        
+        if len(self.geometry_elements) > 1:
+            geometry_elements_save = geometry_elements_save[len(self.geometry_elements)-1:-1]
             
+        geometry_elements_save[0].length = geometry_elements_save[0].length - self.geometry_elements[-1].length
+            
+ 
+        self.x0 = xstrat
+        self.y0 = ystrat 
+        self.hdg = hed_start
+               
+        self.geometry_elements =   geometry_elements_save  
     
     def ST2XY(self, S ,T):
 
@@ -2141,6 +2160,114 @@ class Road():
             planView = None        
         
         return opendrive.t_road(id = self.object_id, junction = junction, length = length,   planView = planView )
+ 
+ 
+class Junction():
+ 
+ 
+    @classmethod
+    def fromRoads(cls, RoadsList , junctionRadius = 50  ):
+        
+        junction = Junction()
+        
+        Y = []
+        X = []
+        
+        for road in RoadsList:
+            if road.ReferenceLine is not None:
+                junctionRadius = min(junctionRadius ,road.ReferenceLine.getLength()/10.0 )
+        
+        for road in RoadsList:
+            for otherRoad in RoadsList:
+                if road != otherRoad :
+ 
+                    if road.ReferenceLine is not None:
+                    
+                        x1 = road.ReferenceLine.x0 
+                        y1 = road.ReferenceLine.y0
+             
+                        x2 , y2 , _ = road.ReferenceLine.get_endPoint()     
+                        
+                    else:
+                        RoadStart = road.points[0]
+                        RoadEnd = road.points[-1]   
+                        x1 , y1 = RoadStart
+                        x2 , y2 = RoadEnd                                       
+
+
+                    if otherRoad.ReferenceLine is not None: 
+                        x3 = otherRoad.ReferenceLine.x0 
+                        y3 = otherRoad.ReferenceLine.y0
+             
+                        x4 , y4 , _ = otherRoad.ReferenceLine.get_endPoint() 
+ 
+                    else:                    
+                        otherRoadStart = otherRoad.points[0]
+                        otherRoadEnd = otherRoad.points[-1] 
+                        x3 , y3 = otherRoadStart
+                        x4 , y4 = otherRoadEnd
+                    
+                    Px = ((x1*y2 - y1*x2)*(x3 - x4) - (x1-x2)*(x3*y4 - y3*x4) ) / ( (x1 - x2)*(y3 -y4) - (y1 -y2)*(x3 -x4) ) 
+                    
+ 
+                    Py = ((x1*y2 - y1*x2)*(y3 - y4) - (y1-y2)*(x3*y4 - y3*x4 )) / ( (x1 - x2)*(y3 -y4) - (y1 -y2)*(x3 -x4) )                
+            
+                    X.append(Px)
+                    Y.append(Py)            
+            
+        x_center = np.average(X) 
+        y_center = np.average(Y)  
+        
+                     
+        
+        print( "Junction center", x_center , y_center)
+        
+        for i in range(0,5):
+
+            for road in RoadsList:
+                
+                RoadStart_X = road.ReferenceLine.x0 
+                RoadStart_Y = road.ReferenceLine.y0
+     
+                RoadEnd_X , RoadEnd_Y , _ = road.ReferenceLine.get_endPoint()
+                
+                
+                deltaX= (RoadStart_X - x_center ).astype(float)
+                deltaY= (RoadStart_Y - y_center ) .astype(float)
+        
+        
+        
+                d1 = np.sqrt( deltaX *deltaX    + deltaY *deltaY )
+                
+                deltaX= (RoadEnd_X - x_center ).astype(float)
+                deltaY= (RoadEnd_Y - y_center ) .astype(float)
+     
+                d2 = np.sqrt( deltaX *deltaX    + deltaY *deltaY ) 
+                road_length = road.ReferenceLine.getLength()
+                
+                if d2 < d1:
+    
+ 
+                    if d2 < junctionRadius   :
+                        xend , yend =  road.ReferenceLine.ST2XY(road_length -junctionRadius , 0 )
+                        road.ReferenceLine.set_endPoint(xend , yend)
+                else:
+          
+                    if d1 < junctionRadius  :
+                        xstart , ystart  =  road.ReferenceLine.ST2XY( junctionRadius , 0 )
+                        road.ReferenceLine.set_startPoint(xstart , ystart)           
+            
+            
+        
+        return junction
+    
+    def __init__(self, JunctionRoads = list() ):
+        
+        self.JunctionRoads = JunctionRoads
+    
+    
+    
+    
           
 class Footway_Bicycle_Road(Road):
     
@@ -2933,70 +3060,21 @@ class Scenery():
                 print(point)
                 
                 junc_list =pints_of_intest[point] 
+                
+                roadlist =[]
                 for road in junc_list:
                     
                     road = rods_iD_dict.get(road)
+                    
+                    roadlist.append(road)
                     start =  road.points[0]
                     end =  road.points[-1]            
                     print("start" , start , "end"  , end)                     
-                # road_Id1 = pints_of_intest[point][0]
-                #
-                # road_Id2 = pints_of_intest[point][1] 
-                #
-                # found = False
-                # for mergelist in mergelists:
-                #     if road_Id1 in mergelist or road_Id2 in mergelist:
-                #         found = True
-                #
-                #         if not road_Id2 in mergelist:
-                #             mergelist.append(road_Id2)
-                #         if not road_Id1 in mergelist:
-                #             mergelist.append(road_Id1)
-                #
-                #         break
-                #
-                # if not  found:
-                #     newlist = [road_Id1 ,road_Id2 ]
-                                                                       
-        #         mergelists.append(pints_of_intest[point])
-        #
-        #
-        # # mergelists_updated= []
-        # #
-        # # removedLists = []
-        # # for mergelist in mergelists: 
-        # #     reultList = mergelist
-        # #
-        # #     for road_id in mergelist:
-        # #
-        # #         for other_mergelist in mergelists: 
-        # #
-        # #             if other_mergelist != mergelist and road_id in other_mergelist:
-        # #                 reultList = reultList + other_mergelist 
-        # #                 removedLists.append(other_mergelist)
-        # #
-        # #     if mergelist not in removedLists:
-        # #
-        # #         reultList = list(set(reultList))
-        # #
-        # #         mergelists_updated.append(reultList)   
-        #
-        #
-        #
-        #
-        # for junc_list in  mergelists:
-        #     print(junc_list)
-        #
-        #     point = None
-        #
-        #     for road in junc_list:
-        #
-        #         road = rods_iD_dict.get(road)
-        #         start =  road.points[0]
-        #         end =  road.points[-1]            
-        #         print("start" , start , "end"  , end)
-        
-        
+                    
+                junction = Junction.fromRoads(roadlist, 5)
+                
+                junctions.append(junction)
+                    
         return Roads , junctions
         
         
@@ -3011,6 +3089,10 @@ class Scenery():
         for road in Roads:
             class_name= str(road.__class__.__name__)
             
+            if class_name == "Drivable_Road"  or class_name == "Footway_Bicycle_Road" :
+                
+                class_name = "Drivable_Road"
+                
             rods_iD_dict[str(road)] = road
             
             if rods_dict.get(class_name, None) is None:
@@ -3634,9 +3716,9 @@ if __name__ == '__main__':
 
     
     
-    filepath = os.path.abspath("..\\OSM_Interface\\WesternTor_2.osm")
+    filepath = os.path.abspath("..\\OSM_Interface\\Paderborn_inner_ring.osm")
     sceneryObj = Scenery.from_Osm(filepath)    
-    sceneryObj.export2opendrive("..\\OSM_Interface\\WesternTor_2.xodr")
+    sceneryObj.export2opendrive("..\\OSM_Interface\\Paderborn_inner_ring.xodr")
     sceneryObj.draw_scenery()
     
     # for road in sceneryObj.Roads:
