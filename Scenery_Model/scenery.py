@@ -17,11 +17,10 @@ import matplotlib as mpl
 import numpy as np
 from math import isclose 
 import random
-from scipy.optimize import minimize
-from pickletools import optimize
-import scipy.special 
+ 
 import copy
-from fontTools.varLib.instancer import isInstanceWithinAxisRanges
+from pickle import NONE
+ 
 
 projection_fromGeographic_cash = dict()
 clear = lambda: os.system('cls')
@@ -1943,9 +1942,6 @@ class Barrier(RoadObject):
         dictobj["tags"] = tags
         
         return Barrier(  Floor_plan, tags )  
-        
-         
- 
  
  
 class Road():
@@ -2054,10 +2050,7 @@ class Road():
         
         self.update_ReferenceLine()
         
-        self.Footway_Bicycle_Roads = []
-        self.Buildings = [] 
-        self.Spaces =[] 
-        self.Barriers = []     
+
         
     def __add__(self, other):
         
@@ -2101,14 +2094,14 @@ class Road():
         ax.plot(xs,ys)
 
 
-        for space in  self.Spaces:
-            space.draw(  fig , ax)
-        
-        for Building in self.Buildings:
-            Building.draw(  fig , ax)
-        
-        for Barrier in self.Barriers:
-            Barrier.draw(  fig , ax)
+        # for space in  self.Spaces:
+        #     space.draw(  fig , ax)
+        #
+        # for Building in self.Buildings:
+        #     Building.draw(  fig , ax)
+        #
+        # for Barrier in self.Barriers:
+        #     Barrier.draw(  fig , ax)
         
         print("######### draw raod ###########")
         
@@ -2159,14 +2152,14 @@ class Footway_Bicycle_Road(Road):
     
     def draw_Road(self, fig , ax ):
         
-        for space in  self.Spaces:
-            space.draw(  fig , ax)
-        
-        for Building in self.Buildings:
-            Building.draw(  fig , ax)
-        
-        for Barrier in self.Barriers:
-            Barrier.draw(  fig , ax)
+        # for space in  self.Spaces:
+        #     space.draw(  fig , ax)
+        #
+        # for Building in self.Buildings:
+        #     Building.draw(  fig , ax)
+        #
+        # for Barrier in self.Barriers:
+        #     Barrier.draw(  fig , ax)
              
         # n_lans = 1
         # lane_width  = 2
@@ -2251,22 +2244,22 @@ class Drivable_Road(Road):
     def draw_Road(self, fig , ax ):   
  
  
-        for space in  self.Spaces:
-            space.draw(  fig , ax)
-        
-        for Building in self.Buildings:
-            Building.draw(  fig , ax)
-        
-        for Barrier in self.Barriers:
-            Barrier.draw(  fig , ax)
+        # for space in  self.Spaces:
+        #     space.draw(  fig , ax)
+        #
+        # for Building in self.Buildings:
+        #     Building.draw(  fig , ax)
+        #
+        # for Barrier in self.Barriers:
+        #     Barrier.draw(  fig , ax)
             
 
                 
                 #plt.show() 
                 
-        for road in self.Footway_Bicycle_Roads:
- 
-            road.draw_Road(  fig , ax ) 
+        # for road in self.Footway_Bicycle_Roads:
+        #
+        #     road.draw_Road(  fig , ax ) 
  
         
         # ##print( self.tags)
@@ -2845,21 +2838,162 @@ class Scenery():
                 # road.draw_Road(  fig , ax )
                 # plt.show() 
             
-        Roads =  Scenery.organize_Roads(Roads ,  Buildings, Spaces , Barriers)  
+        Roads =  Scenery.organize_Roads(Roads )  
+        Roads ,junctions  = Scenery.organize_junctions(Roads)
  
-        return Scenery(metaData , nodsdict ,Roads)
+        return Scenery(metaData , nodsdict ,Roads,   Buildings, Spaces , Barriers)
     
     
-    def __init__(self, metaData = dict(), nodsdict =dict(), Roads = list()   , name = "Database name" ):
+    def __init__(self, metaData = dict(), nodsdict =dict(), Roads = list()  , Buildings = list() , Spaces = list() , Barriers= list() , name = "Database name" ):
         
         self.name = name
         self.metaData =metaData
         self.nodsdict =nodsdict
         self.Roads = Roads
-     
+ 
+        self.Buildings = Buildings 
+        self.Spaces =Spaces 
+        self.Barriers = Barriers          
+
+
+
+    @classmethod        
+    def organize_junctions(cls ,Roads ): #, Buildings, Spaces , Barriers 
+        
+        rods_iD_dict  = dict()
+        
+ 
+        
+        class_name_roads_list = []
+        
+        for road in Roads:
+            
+            if isinstance(road, Drivable_Road):
+                class_name_roads_list.append(road) 
+                rods_iD_dict[str(road)] = road
+ 
+ 
+ 
+        
+        
+        #roads_start_end  = {}
+        pints_of_intest = dict()
+        
+        for road in class_name_roads_list:
+            
+            Road_id = str(road)#.object_id
+            
+            start = road.points[0]
+            
+            end = road.points[-1]
+        
+            
+            
+            for other_road in class_name_roads_list:
+                
+                if other_road != road:
+                
+                    other_Road_id = str(other_road)#.object_id
+                    
+                    other_start = other_road.points[0]
+                    
+                    other_end = other_road.points[-1]
+                    
+                    point = None
+                    if other_start == end:
+                        point = str(end) 
+                        
+                    elif other_end == start: 
+                        point = str(start) 
+                    # elif other_start == start:  
+                    #     point = str(start)  
+                    # elif  other_end == end:
+                    #     point = str( end )  
+                    
+                    
+                    if point is not None:
+                        if pints_of_intest.get(point, None) is None:
+                            pints_of_intest[point] = []
+                            
+                        if not Road_id in pints_of_intest[point]:
+                            pints_of_intest[point].append(Road_id) 
+                            
+                        if not other_Road_id in pints_of_intest[point]:
+                            pints_of_intest[point].append(other_Road_id)
+                        
+        
+        mergelists = []                  
+                            
+        for point in pints_of_intest.keys():
+            
+            pints_of_intest[point] = list(set(pints_of_intest[point]))
+            
+            if len(pints_of_intest[point]) >= 2:
+                       
+                # road_Id1 = pints_of_intest[point][0]
+                #
+                # road_Id2 = pints_of_intest[point][1] 
+                #
+                # found = False
+                # for mergelist in mergelists:
+                #     if road_Id1 in mergelist or road_Id2 in mergelist:
+                #         found = True
+                #
+                #         if not road_Id2 in mergelist:
+                #             mergelist.append(road_Id2)
+                #         if not road_Id1 in mergelist:
+                #             mergelist.append(road_Id1)
+                #
+                #         break
+                #
+                # if not  found:
+                #     newlist = [road_Id1 ,road_Id2 ]
+                                                                       
+                mergelists.append(pints_of_intest[point])
+                
+        
+        # mergelists_updated= []
+        #
+        # removedLists = []
+        # for mergelist in mergelists: 
+        #     reultList = mergelist
+        #
+        #     for road_id in mergelist:
+        #
+        #         for other_mergelist in mergelists: 
+        #
+        #             if other_mergelist != mergelist and road_id in other_mergelist:
+        #                 reultList = reultList + other_mergelist 
+        #                 removedLists.append(other_mergelist)
+        #
+        #     if mergelist not in removedLists:
+        #
+        #         reultList = list(set(reultList))
+        #
+        #         mergelists_updated.append(reultList)   
+ 
+        
+        junctions = []
+        
+        for junc_list in  mergelists:
+            print(junc_list)
+            
+            point = None
+            
+            for road in junc_list:
+                
+                road = rods_iD_dict.get(road)
+                start =  road.points[0]
+                end =  road.points[-1]            
+                print("start" , start , "end"  , end)
+        
+        
+        return Roads , junctions
+        
+        
         
     @classmethod        
-    def organize_Roads(cls ,Roads , Buildings, Spaces , Barriers ):
+    def organize_Roads(cls ,Roads ): #, Buildings, Spaces , Barriers 
         
         rods_dict  = dict()
         
@@ -3144,54 +3278,54 @@ class Scenery():
         
 
         
-        for  Building in tqdm( Buildings ):
-            xc , yc = Building.get_Center()
-            T_min = 1000
-            RoadNear =None            
-            for road in Roads:
-                
-                S, T = road.ReferenceLine.XY2ST(xc , yc)
-                
-                if S is not None and T is not None  and S < road.ReferenceLine.getLength() and np.abs(T) < T_min:
-                        T_min = np.abs(T) 
-                        RoadNear = road
- 
-            if RoadNear is not None:
-                RoadNear.Buildings.append(Building)
-            else:
-                raise ValueError("yalahowy")
-                
-                
-            
-        for  Space in tqdm( Spaces ):
-            xc , yc = Space.get_Center()
-            T_min = 1000
-            RoadNear =None            
-            for road in Roads:
-        
-                S, T = road.ReferenceLine.XY2ST(xc , yc)
-        
-                if S is not None and T is not None  and S < road.ReferenceLine.getLength() and np.abs(T) < T_min:
-                        T_min = np.abs(T) 
-                        RoadNear = road
-        
-            if RoadNear is not None:
-                RoadNear.Spaces.append(Space)            
-        
-        for  Barrier in tqdm( Barriers ):
-            xc , yc = Barrier.get_Center()
-            T_min = 50
-            RoadNear =None            
-            for road in Roads:
-        
-                S, T = road.ReferenceLine.XY2ST(xc , yc)
-        
-                if S is not None and T is not None  and S < road.ReferenceLine.getLength() and np.abs(T) < T_min:
-                        T_min = np.abs(T) 
-                        RoadNear = road
-        
-            if RoadNear is not None:
-                RoadNear.Barriers.append(Barrier)        
+        # for  Building in tqdm( Buildings ):
+        #     xc , yc = Building.get_Center()
+        #     T_min = 1000
+        #     RoadNear =None            
+        #     for road in Roads:
+        #
+        #         S, T = road.ReferenceLine.XY2ST(xc , yc)
+        #
+        #         if S is not None and T is not None  and S < road.ReferenceLine.getLength() and np.abs(T) < T_min:
+        #                 T_min = np.abs(T) 
+        #                 RoadNear = road
+        #
+        #     if RoadNear is not None:
+        #         RoadNear.Buildings.append(Building)
+        #     else:
+        #         raise ValueError("yalahowy")
+        #
+        #
+        #
+        # for  Space in tqdm( Spaces ):
+        #     xc , yc = Space.get_Center()
+        #     T_min = 1000
+        #     RoadNear =None            
+        #     for road in Roads:
+        #
+        #         S, T = road.ReferenceLine.XY2ST(xc , yc)
+        #
+        #         if S is not None and T is not None  and S < road.ReferenceLine.getLength() and np.abs(T) < T_min:
+        #                 T_min = np.abs(T) 
+        #                 RoadNear = road
+        #
+        #     if RoadNear is not None:
+        #         RoadNear.Spaces.append(Space)            
+        #
+        # for  Barrier in tqdm( Barriers ):
+        #     xc , yc = Barrier.get_Center()
+        #     T_min = 50
+        #     RoadNear =None            
+        #     for road in Roads:
+        #
+        #         S, T = road.ReferenceLine.XY2ST(xc , yc)
+        #
+        #         if S is not None and T is not None  and S < road.ReferenceLine.getLength() and np.abs(T) < T_min:
+        #                 T_min = np.abs(T) 
+        #                 RoadNear = road
+        #
+        #     if RoadNear is not None:
+        #         RoadNear.Barriers.append(Barrier)        
                                   
         
         return Roads
@@ -3353,6 +3487,15 @@ class Scenery():
         onclick = self.onclick
         cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
+        for space in  self.Spaces:
+            space.draw(  fig , ax)
+        
+        for Building in self.Buildings:
+            Building.draw(  fig , ax)
+        
+        for Barrier in self.Barriers:
+            Barrier.draw(  fig , ax)
+
  
         for road in self.Roads:
 
@@ -3484,15 +3627,15 @@ if __name__ == '__main__':
     
     filepath = os.path.abspath("..\\OSM_Interface\\WesternTor_2.osm")
     sceneryObj = Scenery.from_Osm(filepath)    
-    #sceneryObj.export2opendrive("..\\OSM_Interface\\WesternTor_2.xodr")
-    #sceneryObj.draw_scenery()
+    sceneryObj.export2opendrive("..\\OSM_Interface\\WesternTor_2.xodr")
+    sceneryObj.draw_scenery()
     
-    for road in sceneryObj.Roads:
-    
-        #if isinstance(road, Drivable_Road):
-        fig, ax = plt.subplots(figsize=(10, 10))
-        road.draw_Road(  fig , ax )    
-        plt.show()
+    # for road in sceneryObj.Roads:
+    #
+    #     #if isinstance(road, Drivable_Road):
+    #     fig, ax = plt.subplots(figsize=(10, 10))
+    #     road.draw_Road(  fig , ax )    
+    #     plt.show()
     
     # i= 0
     #
