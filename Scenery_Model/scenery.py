@@ -2922,14 +2922,23 @@ class Scenery():
                             pints_of_intest[point].append(other_Road_id)
                         
         
-        mergelists = []                  
+        junctions = []                 
                             
         for point in pints_of_intest.keys():
             
             pints_of_intest[point] = list(set(pints_of_intest[point]))
             
             if len(pints_of_intest[point]) >= 2:
-                       
+                
+                print(point)
+                
+                junc_list =pints_of_intest[point] 
+                for road in junc_list:
+                    
+                    road = rods_iD_dict.get(road)
+                    start =  road.points[0]
+                    end =  road.points[-1]            
+                    print("start" , start , "end"  , end)                     
                 # road_Id1 = pints_of_intest[point][0]
                 #
                 # road_Id2 = pints_of_intest[point][1] 
@@ -2949,43 +2958,43 @@ class Scenery():
                 # if not  found:
                 #     newlist = [road_Id1 ,road_Id2 ]
                                                                        
-                mergelists.append(pints_of_intest[point])
-                
-        
-        # mergelists_updated= []
+        #         mergelists.append(pints_of_intest[point])
         #
-        # removedLists = []
-        # for mergelist in mergelists: 
-        #     reultList = mergelist
         #
-        #     for road_id in mergelist:
+        # # mergelists_updated= []
+        # #
+        # # removedLists = []
+        # # for mergelist in mergelists: 
+        # #     reultList = mergelist
+        # #
+        # #     for road_id in mergelist:
+        # #
+        # #         for other_mergelist in mergelists: 
+        # #
+        # #             if other_mergelist != mergelist and road_id in other_mergelist:
+        # #                 reultList = reultList + other_mergelist 
+        # #                 removedLists.append(other_mergelist)
+        # #
+        # #     if mergelist not in removedLists:
+        # #
+        # #         reultList = list(set(reultList))
+        # #
+        # #         mergelists_updated.append(reultList)   
         #
-        #         for other_mergelist in mergelists: 
         #
-        #             if other_mergelist != mergelist and road_id in other_mergelist:
-        #                 reultList = reultList + other_mergelist 
-        #                 removedLists.append(other_mergelist)
         #
-        #     if mergelist not in removedLists:
         #
-        #         reultList = list(set(reultList))
+        # for junc_list in  mergelists:
+        #     print(junc_list)
         #
-        #         mergelists_updated.append(reultList)   
- 
-        
-        junctions = []
-        
-        for junc_list in  mergelists:
-            print(junc_list)
-            
-            point = None
-            
-            for road in junc_list:
-                
-                road = rods_iD_dict.get(road)
-                start =  road.points[0]
-                end =  road.points[-1]            
-                print("start" , start , "end"  , end)
+        #     point = None
+        #
+        #     for road in junc_list:
+        #
+        #         road = rods_iD_dict.get(road)
+        #         start =  road.points[0]
+        #         end =  road.points[-1]            
+        #         print("start" , start , "end"  , end)
         
         
         return Roads , junctions
