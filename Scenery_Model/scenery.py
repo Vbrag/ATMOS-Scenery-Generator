@@ -912,7 +912,7 @@ class Arc():
 class RoadReferenceLine():
 
     @classmethod  
-    def Connect3points(cls, x_start ,y_start , x_midel ,y_midel ,x_end ,y_end , Rmax  , Rmin ): 
+    def Connect3points(cls, x_start ,y_start , x_midel ,y_midel ,x_end ,y_end , R  ): 
         
         
         deltax0 = x_midel - x_start
@@ -974,7 +974,7 @@ class RoadReferenceLine():
 
             
             
-            dist_inarc = min(5 ,length1/5) 
+            dist_inarc = min(R ,length1/5) 
             dist_inarc = min(dist_inarc ,length2/5)             
   
  
@@ -1302,7 +1302,7 @@ class RoadReferenceLine():
             x_start , y_start , hdg0  = self.get_endPoint()
             
                         
-            refnew = RoadReferenceLine.Connect3points(x_start, y_start, x_midel, y_midel, x_end, y_end, Rmax = 10, Rmin =5)
+            refnew = RoadReferenceLine.Connect3points(x_start, y_start, x_midel, y_midel, x_end, y_end, R = 10 )
             
             self.geometry_elements = self.geometry_elements + refnew.geometry_elements
             self.set_endPoint(x_end, y_end)
@@ -2006,6 +2006,15 @@ class Road():
 
             return Railway_Road(  points, tags )         
  
+        elif "maxspeed" in tags_keys :
+            return Drivable_Road(  points, tags  )  
+        
+ 
+
+        elif "driveway" in tags_keys :
+            return Drivable_Road(  points, tags  ) 
+
+
         elif "lanes" in tags_keys  or  "residential"  in tags_keys or   "living_street"   in tags_keys or    "construction"  in tags_keys  :#or 'asphalt'  in tags_keys
  
             return Drivable_Road(  points, tags )
@@ -2030,15 +2039,9 @@ class Road():
         
         
         elif "lanes" in tags_keys  or  "residential"  in tags_keys or   "living_street"   in tags_keys or    "construction"  in tags_keys  :
-            
-            
-            
+      
             return Drivable_Road(  points, tags )
-        
-        
-        elif "maxspeed" in tags_keys :
-            return Drivable_Road(  points, tags  )        
-        
+ 
         
         elif  "busway"  in tags_keys:
             
@@ -2168,7 +2171,7 @@ class Junction():
  
  
     @classmethod
-    def fromRoads(cls, RoadsList , junctionRadius = 20  ):
+    def fromRoads(cls, RoadsList , junctionRadius = 25  ):
         
         junction = Junction(JunctionRoads = list())
         
@@ -2177,7 +2180,7 @@ class Junction():
         
         for road in RoadsList:
             if road.ReferenceLine is not None:
-                junctionRadius = min(junctionRadius ,road.ReferenceLine.getLength()/3 )
+                junctionRadius = min(junctionRadius ,road.ReferenceLine.getLength()/2 )
         
         for road in RoadsList:
             for otherRoad in RoadsList:
@@ -2260,16 +2263,29 @@ class Junction():
  
                     if d2 < junctionRadius   :
                         xend , yend =  road.ReferenceLine.ST2XY(road_length -junctionRadius , 0 )
-                        road.ReferenceLine.set_endPoint(xend , yend)
                         
-                        roadpointdict[str(road)] = (xend , yend)
+                        xmid , ymid =  road.ReferenceLine.ST2XY(road_length -3*junctionRadius/4 , 0 )
+                        
+                        
+                        road.ReferenceLine.set_endPoint(xend , yend)
+                        xend , yend , _ = road.ReferenceLine.get_endPoint()
+                        roadpointdict[str(road)] = [(xmid , ymid ) ,(xend , yend)  ]
+                        roadpointdict[str(road) +"_dir"] =   "End"  
                 else:
           
                     if d1 < junctionRadius  :
                         xstart , ystart  =  road.ReferenceLine.ST2XY( junctionRadius , 0 )
-                        road.ReferenceLine.set_startPoint(xstart , ystart)           
-                        roadpointdict[str(road)] = (xstart , ystart)
-           
+                        
+                        xmid , ymid =  road.ReferenceLine.ST2XY( junctionRadius/4 , 0 )
+                        
+                        road.ReferenceLine.set_startPoint(xstart , ystart) 
+                        
+                        
+                        
+                                  
+                        roadpointdict[str(road)] =   [(xstart , ystart) , (xmid , ymid)  ]
+                         
+                        roadpointdict[str(road) +"_dir"] =   "Strat"
         
         
         #print(roadpointdict.keys())
@@ -2280,66 +2296,31 @@ class Junction():
             for otherRoad in RoadsList[road_index+1:]:
                 if road != otherRoad  and road.ReferenceLine is not None and otherRoad.ReferenceLine is not None:
                     
-                    # x1 = road.ReferenceLine.x0 
-                    # y1 = road.ReferenceLine.y0
-                    #
-                    # x2 , y2 , _ = road.ReferenceLine.get_endPoint()     
-                    #
-                    #
-                    # x3 = otherRoad.ReferenceLine.x0 
-                    # y3 = otherRoad.ReferenceLine.y0
-                    #
-                    # x4 , y4 , _ = otherRoad.ReferenceLine.get_endPoint() 
-                    #
-                    #
-                    # deltaX_d1= (x1 - x_center ).astype(float)
-                    # deltaY_d1= (y1 - y_center ) .astype(float)
-                    #
-                    # d1 = np.sqrt( deltaX_d1 *deltaX_d1    + deltaY_d1 *deltaY_d1)
-                    #
-                    # deltaX_d2= (x2 - x_center ).astype(float)
-                    # deltaY_d2= (y2 - y_center ) .astype(float)
-                    #
-                    # d2 = np.sqrt( deltaX_d2 *deltaX_d2    + deltaY_d2 *deltaY_d2 )                         
-                    #
-                    #
-                    # deltaX_d3= (x3 - x_center ).astype(float)
-                    # deltaY_d3= (y3 - y_center ) .astype(float)
-                    #
-                    # d3 = np.sqrt( deltaX_d3 *deltaX_d3    + deltaY_d3 *deltaY_d3 )
-                    #
-                    # deltaX_d4= (x4 - x_center ).astype(float)
-                    # deltaY_d4= (y4 - y_center ) .astype(float)
-                    #
-                    # d4 = np.sqrt( deltaX_d4*deltaX_d4    + deltaY_d4 *deltaY_d4 )
-                    #
-                    #
-                    # if d1 <   d2:
-                    #     x_start = x1
-                    #     y_start = y1
-                    #
-                    # else:
-                    #
-                    #     x_start = x2
-                    #     y_start = y2
-                    #
-                    #
-                    # if d3 <  d4:
-                    #     x_end = x3
-                    #     y_end = y3
-                    #
-                    # else:
-                    #
-                    #     x_end = x4
-                    #     y_end = y4                         
+                                          
                     
-                    x_start, y_start = roadpointdict[str(road)]
-                    x_end, y_end = roadpointdict[str(otherRoad)]
- 
+                    pointsStart= roadpointdict[str(road)]
+                    
+                    if roadpointdict[str(road) +"_dir"] ==  "End":
+                        pointsStart = copy.deepcopy(pointsStart)
+                        pointsStart.reverse()
+                        
+                    pointsEnd = roadpointdict[str(otherRoad)]
+                    
+                    if roadpointdict[str(otherRoad) +"_dir"] ==  "Strat":
+                        pointsEnd = copy.deepcopy(pointsEnd)
+                        pointsEnd.reverse()
+                                            
+                    #pointsEnd.reverse()
                     #RoadReferenceLine.Connect3points(x_start, y_start, x_midel, y_midel, x_end, y_end, Rmax, Rmin)
-                    points = [(x_start ,y_start) ,(x_center ,y_center ) , (x_end , y_end)]
-                    newroad = Drivable_Road(points = points )
+                    points = pointsStart + [ (x_center ,y_center ) ] + pointsEnd
                     
+                    if isinstance(road, Drivable_Road) and isinstance(otherRoad, Drivable_Road): 
+                    
+                        newroad = Drivable_Road(points = points )
+                    
+                    else:
+                         
+                        newroad = Footway_Bicycle_Road(points = points )                    
                      
                      
                     # fig, ax = plt.subplots(figsize=(10, 10), facecolor='lightskyblue', layout='constrained') 
@@ -2423,7 +2404,10 @@ class Footway_Bicycle_Road(Road):
         #
         #         ax.add_patch(p)  
 
-
+        xs, ys = zip(*self.points) #create lists of x and y values
+    
+        plt.scatter(xs,ys) 
+        
         if self.ReferenceLine is not None:
             
             
@@ -2442,7 +2426,7 @@ class Footway_Bicycle_Road(Road):
                 
                 
                 
-            ax.plot(xs , ys , color="y")   
+            ax.plot(xs , ys , color="g")   
 
             
         else:
@@ -2534,6 +2518,11 @@ class Drivable_Road(Road):
         #coler = random.choice(["b" , "y" , "k" , "r" , "w"]) 
         # xs, ys = zip(*self.points) #create lists of x and y values
         # ax.plot(xs,ys , color="k")    
+ 
+ 
+        xs, ys = zip(*self.points) #create lists of x and y values
+    
+        plt.scatter(xs,ys) 
         
         if self.ReferenceLine is not None:
         
@@ -2548,9 +2537,7 @@ class Drivable_Road(Road):
                 xs.append(x)
                 ys.append(y)
         
-                #xs, ys = zip(*self.points) #create lists of x and y values
-        
-        
+
         
         
             ax.plot(xs , ys, color="k"  )   #
@@ -3102,7 +3089,7 @@ class Scenery():
         
         for road in Roads:
             
-            if isinstance(road, Drivable_Road):
+            if isinstance(road, Drivable_Road) or isinstance(road, Footway_Bicycle_Road):
                 class_name_roads_list.append(road) 
                 rods_iD_dict[str(road)] = road
  
@@ -3181,8 +3168,16 @@ class Scenery():
                     #print("start" , start , "end"  , end)                     
                  
                  
-                #print("N Roads" ,  len(roadlist))   
-                junction = Junction.fromRoads(roadlist, 20)
+                #print("N Roads" ,  len(roadlist))  
+                
+                junctionRadius = 0
+                
+                for road in roadlist:
+                    junctionRadius = junctionRadius + road.ReferenceLine.getLength()/8
+                    
+                junctionRadius = junctionRadius/len(roadlist)   
+                 
+                junction = Junction.fromRoads(roadlist, junctionRadius)
                 #print("N Roads junction" ,  len(junction.JunctionRoads)) 
                 junctions.append(junction)
                     
