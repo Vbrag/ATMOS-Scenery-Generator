@@ -242,24 +242,7 @@ class StraightLine():
                  
     def XY2ST(self, x0 , y0 ,hdg , X , Y ,S0):
         
-        # if hdg <0 :
-        #     hdg = 2*np.pi + hdg 
-        #
-        # elif   hdg >  2*np.pi:
-        #     hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi
-        
  
-        # deltaX= np.array(X - x0 ).astype(float)
-        # deltaY= np.array(Y - y0 ).astype(float)
-        # L = np.sqrt(  deltaX * deltaX    + deltaY *deltaY  ) 
-        # # if L > self.length*2:
-        # #     return (None , None)
-        # # else:
-        # alfa  =  np.arctan2(deltaY ,deltaX )
-        # theta = hdg  - alfa
-        # S = L*np.cos(theta) +S0
-        # T = L*np.sin(theta)  
-        
         
         deltaX= np.array(X - x0 ).astype(float)
         deltaY= np.array(Y - y0 ).astype(float)        
@@ -277,11 +260,7 @@ class StraightLine():
     
     def ST2XY(self, x0 , y0 ,hdg,  S , S0 , T):
         
-        # if hdg <0 :
-        #     hdg = 2*np.pi + hdg 
-        #
-        # elif   hdg >  2*np.pi:
-        #     hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi
+ 
             
         delta_s = S - S0
         
@@ -289,13 +268,7 @@ class StraightLine():
             return (None ,None)
         
         else: 
-            # alfa = np.pi/2.0  - hdg  
-            #
-            # x =  x0 + delta_s*np.cos(hdg)  
-            # y =  y0 + delta_s*np.sin(hdg)     
-            #
-            # x = x + T*np.cos(alfa )
-            # y = y - T*np.sin(alfa )
+ 
                      
             deltaS= np.array(S - S0 ).astype(float)
             deltaT= np.array(T - 0 ).astype(float)        
@@ -307,11 +280,7 @@ class StraightLine():
     
     
     def get_endPoint(self, x0 , y0 ,hdg):
-        # if hdg <0 :
-        #     hdg = 2*np.pi + hdg 
-        #
-        # elif   hdg >  2*np.pi:
-        #     hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi
+ 
         
         x_end = x0 + self.length* np.cos( hdg)
         y_end = y0 + self.length* np.sin( hdg)        
@@ -321,30 +290,7 @@ class StraightLine():
      
 class Spiral():
 
-    
-    
-    # @classmethod
-    # def fitSpiral(cls , CurvaturStart   ,  CurvaturEnd   , hedStart , hedEnd_soll , maxlenght ):
-    #
-    #     eror = 10000
-    #
-    #     lsoll = 0
-    #
-    #     for length in np.arange(0, maxlenght , 0.001):
-    #
-    #         gamma = 1.0 * (-1*CurvaturEnd - -1*CurvaturStart) / length
-    #
-    #         kappa0 =  CurvaturStart
-    #         x, y, theta = Spiral._calc(gamma, s, x0, y0, kappa0, hedStart)
-    #
-    #         new_eror = (theta - hedEnd_soll ) * (theta - hedEnd_soll )
-    #
-    #         if new_eror < eror:
-    #             eror = new_eror
-    #             lsoll = length
-    #
-    #
-    #     return lsoll
+ 
 
 
     
@@ -361,13 +307,7 @@ class Spiral():
     @classmethod
     def _calc(cls,gamma, s, x0=0, y0=0, kappa0=0, theta0=0 ):
 
-        # if theta0 <0 :
-        #     theta0 = 2*np.pi + theta0 
-        #
-        # elif   theta0 >  2*np.pi:
-        #     theta0 = theta0 - int(theta0/(2*np.pi) ) *2*np.pi
-
-
+ 
 
         # Start
         C0 = x0 + 1j * y0
@@ -400,14 +340,7 @@ class Spiral():
  
     def ST2XY(self, x0 , y0 ,hdg, S ,S0 ,T):
         
-        
-        # if hdg <0 :
-        #     hdg = 2*np.pi + hdg 
-        #
-        # elif   hdg >  2*np.pi:
-        #     hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi
-                
-        
+ 
         
         theta0 = hdg  
  
@@ -436,13 +369,6 @@ class Spiral():
     
     def get_endPoint(self, x0 , y0 ,hdg):
 
-        # if hdg <0 :
-        #     hdg = 2*np.pi + hdg 
-        #
-        # elif   hdg >  2*np.pi:
-        #     hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi
-
-
  
         theta0 = hdg
         
@@ -458,13 +384,6 @@ class Spiral():
  
     def XY2ST(self, x0 , y0 ,hdg , X ,Y, S0):
  
- 
-        # if hdg <0 :
-        #     hdg = 2*np.pi + hdg 
-        #
-        # elif   hdg >  2*np.pi:
-        #     hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi
-        
  
         theta0 = hdg  
  
@@ -553,78 +472,43 @@ class Arc():
                 deltay  = - deltay 
                 hdg_end =  hdg - theta 
     
-            ##print("deltax ", deltax )
-            ##print("deltay ", deltay )            
-            
-            ##print("hdg_end ", hdg_end )
+ 
     
             # deltax and deltay give coordinates for theta=0
             deltax_rot = deltax * np.cos(hdg) - deltay * np.sin(hdg)
             deltay_rot = deltax * np.sin(hdg) + deltay * np.cos(hdg)
     
-    
-            ##print("deltax_rot ", deltax_rot )
-            ##print("deltay_rot ", deltay_rot ) 
+ 
         
             # Spiral is relative to the starting coordinates
             xs = x0 + deltax_rot
             ys = y0 + deltay_rot
      
-            ##print("xs ", xs )
-            ##print("ys ", ys ) 
-     
+ 
                 
             xs = xs - T*np.sin(   hdg_end )
             ys = ys + T*np.cos(   hdg_end )     
                
-            # alfa =   np.pi/2  - hdg
-            #
-            # x_center = x0 + Radius*np.sin( np.pi- hdg)
-            # y_center = y0 + Radius*np.cos( np.pi-  hdg)
-            #
-            # delta_s = S - S0 
-            #
-            #
-            # theta =  delta_s /  Radius     
-            #
-            #
-            # hdg_end =    hdg-theta
-            #
-            # xs =  x_center +  Radius*np.cos( np.pi-  alfa - theta )    
-            # ys =  y_center +  Radius*np.sin( np.pi-  alfa - theta )   
-            #
-            #
-            # xs = xs + T*np.sin(np.pi  - hdg_end )
-            # ys = ys + T*np.cos(np.pi  - hdg_end )  
-            
-            ##print("xs t", xs )
-            ##print("ys t", ys )         
-               
-            
+ 
             return (xs , ys) 
     
     def get_endPoint(self, x0 , y0 ,hdg):
 
-
-        ##print("============= ST2XY")
-        
+ 
         Radius = 1.0/ (self.Curvatur )
         
-        ##print("Radius ", Radius )
+ 
         Radius_abs = np.abs(Radius)
-        ##print("Radius ", Radius_abs )
+ 
         x_center = 0
         y_center = Radius_abs
         
         delta_s = self.length
         
-        ##print("delta_s ", delta_s )
+ 
         
         theta =  delta_s /  Radius_abs 
-        
-        ##print("theta ", theta )
-
-
+ 
         deltax =  x_center  +  Radius_abs*np.sin(  theta )    
         deltay =  y_center  -  Radius_abs*np.cos(  theta ) 
 
@@ -639,27 +523,17 @@ class Arc():
             hdg_end =  hdg - theta        
 
 
-        ##print("deltax ", deltax )
-        ##print("deltay ", deltay )            
-        
-        ##print("hdg_end ", hdg_end )
-
+ 
         # deltax and deltay give coordinates for theta=0
         deltax_rot = deltax * np.cos(hdg) - deltay * np.sin(hdg)
         deltay_rot = deltax * np.sin(hdg) + deltay * np.cos(hdg)
 
-
-        ##print("deltax_rot ", deltax_rot )
-        ##print("deltay_rot ", deltay_rot ) 
-    
+ 
         # Spiral is relative to the starting coordinates
         xs = x0 + deltax_rot
         ys = y0 + deltay_rot
  
-        ##print("xs ", xs )
-        ##print("ys ", ys ) 
  
-            
         x_end = xs  
         y_end = ys   
 
@@ -673,125 +547,36 @@ class Arc():
         if   hdg_end >=  2*np.pi:   
             hdg_end  = hdg_end - int(hdg_end/(2*np.pi) ) *2*np.pi  
         
-        # Radius = 1.0/ (self.Curvatur )
-        #
-        # Radius_abs = np.abs(Radius)
-        #
-        # x_center = 0
-        # y_center = Radius_abs
-        #
-        # delta_s = self.length
-        #
-        # theta =  delta_s /  Radius_abs 
-        #
-        # deltax =  x_center +  Radius_abs*np.cos(np.pi/2 -  theta )    
-        # deltay =  y_center -  Radius_abs*np.sin(np.pi/2 -  theta )  
-        #
-        # if   Radius < 0 :
-        #
-        #     hdg_end =    hdg + theta 
-        #
-        # else:
-        #     deltay = - deltay 
-        #     hdg_end =  hdg - theta 
-        #
-        #
-        #
-        # # deltax and deltay give coordinates for theta=0
-        # deltax_rot = deltax * np.cos(hdg) - deltay * np.sin(hdg)
-        # deltay_rot = deltax * np.sin(hdg) + deltay * np.cos(hdg)
-        #
-        # # Spiral is relative to the starting coordinates
-        # x_end = x0 + deltax_rot
-        # y_end = y0 + deltay_rot
-
  
-        # Radius = 1.0/ (self.Curvatur +  np.finfo(float).eps)
-        #
-        # #if self.Radius > 0:
-        # # if hdg <0 :
-        # #     hdg = 2*np.pi + hdg 
-        # #
-        # # elif   hdg >  2*np.pi:
-        # #     hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi
-        #
-        # alfa =   np.pi/2  - hdg
-        #
-        # x_center = x0 +  Radius*np.sin( np.pi- hdg)
-        # y_center = y0 +  Radius*np.cos( np.pi-  hdg)
-        #
-        #
-        # delta_s = self.length
-        #
-        #
-        # theta =  (delta_s /( Radius  )) 
-        #
-        # try: 
-        #     if   theta >  2*np.pi:   
-        #
-        #         theta  = theta - int(theta/(2*np.pi) ) *2*np.pi
-        #
-        # except:
-        #     ##print(theta)
-        #     theta  = theta 
-        #
-        #
-        # x_end =  x_center +  Radius*np.cos(np.pi - alfa -theta )   
-        # y_end =  y_center +  Radius*np.sin(np.pi - alfa -theta)
-        #
-        # hdg_end =    hdg-theta
-    
         return (x_end ,y_end , hdg_end )
         
  
     def XY2ST(self, x0 , y0 ,hdg , X ,Y, S0):
-        
-        
-        ##print(f"############ XY2ST {x0} , {y0} , {hdg} ")
+ 
         Radius = 1.0/ (self.Curvatur  )
         
-         
-        ##print("Radius"  , Radius)    
+ 
         
         deltaX=  np.array(X - x0 ).astype(float) 
         deltaY=  np.array(Y - y0 ).astype(float) 
         
-        ##print("deltaX"  , deltaX) 
-        ##print("deltaY"  , deltaY) 
-        
-                
+ 
         deltax_rot = deltaX * np.cos(2*np.pi- hdg) - deltaY * np.sin( 2*np.pi - hdg)
         deltay_rot = deltaX * np.sin(2*np.pi- hdg) + deltaY * np.cos( 2*np.pi - hdg)
 
-        ##print("deltax_rot"  , deltax_rot) 
-        ##print("deltay_rot"  , deltay_rot) 
  
         Radius_abs = np.abs(Radius)
         x_center = 0
         y_center = Radius#Radius_abs       
-
-
-        ##print("x_center"  , x_center) 
-        ##print("y_center"  , y_center) 
-
+ 
 
         deltaXPointCenter= np.array( deltax_rot - x_center ).astype(float)
         deltaYPointCenter= np.array( deltay_rot - y_center ).astype(float)
         
-        ##print("deltaXPointCenter"  , deltaXPointCenter) 
-        ##print("deltaYPointCenter"  , deltaYPointCenter)  
-                                            
-        
+ 
         L = np.sqrt(  deltaXPointCenter * deltaXPointCenter    + deltaYPointCenter *deltaYPointCenter  )  
 
-        ##print("L"  , L)  
  
-        
-        
-        
-        
-        
-        #theta = np.pi/2 + theta
         
         if Radius > 0:
             if deltaXPointCenter  == 0:
@@ -817,17 +602,13 @@ class Arc():
             else:
             
                 theta  =  np.arctan2( deltaXPointCenter , deltaYPointCenter    )      
-            ##print("theta"  ,theta)  
-            
-                     
-            
-        ##print("theta"  ,theta)
+ 
         if theta < 0:
             theta = np.pi*2 + theta
-        ##print("theta"  ,theta)
+ 
         if   theta >=  2*np.pi:   
             theta  = theta - int(theta/(2*np.pi) ) *2*np.pi        
-        ##print("theta"  ,theta)
+ 
         
         
         L_circl = np.abs(  theta )  *Radius_abs
@@ -837,75 +618,17 @@ class Arc():
             return (None,None)  
               
         else:
-            ##print("L_circl"  ,L_circl)
+ 
             
             S =  L_circl + S0
             
-            ##print("S"  ,S)
-            
-            ##print(Radius_abs )  
-            ##print(L )  
-            
+ 
             if Radius >   0:                     
                 T =    Radius_abs - L  
             else:
                 T =    L  - Radius_abs  
                      
-            
-            # Radius = 1.0/ (self.Curvatur +  np.finfo(float).eps)
-            #
-            # try:
-            #     hdg = hdg - int(hdg/(2*np.pi) ) *2*np.pi        
-            # except:
-            #     pass
-            # x_center = x0 + Radius*np.sin( np.pi- hdg)
-            # y_center = y0 + Radius*np.cos( np.pi-  hdg)
-            #
-            # ###print("x_center" , x_center)
-            # ###print("y_center" , y_center)   
-            #
-            #
-            # deltaX= np.array( X - x_center ).astype(float)
-            # deltaY= np.array( Y - y_center ).astype(float)
-            # L = np.sqrt(  deltaX * deltaX    + deltaY *deltaY  )  
-            #
-            # ###print("L" ,L)
-            # if Radius >   0:
-            #
-            #     T =    Radius -L      
-            #
-            #     alfa =   np.pi/2  - hdg
-            #
-            #     gama  =  np.arctan2(deltaY ,deltaX ) 
-            #
-            #     theta =      (np.pi  -  alfa   -  gama  )
-            #
-            #     try:
-            #
-            #         theta  = theta - int(theta/(2*np.pi) ) *2*np.pi
-            #     except:
-            #         pass
-            #
-            #
-            # else:
-            #     T =   Radius +L      
-            #
-            #     alfa =     hdg
-            #
-            #     gama  =  np.pi/2  -np.arctan2( deltaY ,deltaX ) 
-            #
-            #     theta =     (np.pi  -  alfa   -  gama  ) 
-            #
-            #     try:       
-            #         theta  = np.abs(theta) - int(theta/(2*np.pi) ) *2*np.pi
-            #
-            #     except:
-            #         pass 
-            #
-            # L_circl = theta   *np.abs(  Radius)
-            #
-            #
-            # S =  L_circl+ S0
+ 
      
             return (S,T)
 
@@ -1005,24 +728,16 @@ class RoadReferenceLine():
             arc_Radius =   (x_arc_End - x_arc_start)/ ( np.sin( np.pi- hed_arc_start) +  np.cos(np.pi - alfa -theta ) ) 
         
             
-            
-            # if arc_Radius < Rmin:
-            #     arc_Radius= Rmin
-            # elif  arc_Radius > Rmax:
-            #     arc_Radius= Rmax
-            
+ 
             
             arc_length =  np.abs( theta  * arc_Radius  ) 
             
-            
-            
-            #if arc_Radius != 0:
+ 
  
             ref.addArc(arc_length  , 1.0/- arc_Radius)
-        
-            ##print(ref.get_endPoint())
+ 
             ref.set_endPoint(x_arc_End, y_arc_End)
-            ##print(x_arc_End , y_arc_End)
+ 
             ref.addStraightLine(length2)
 
                  
@@ -1039,33 +754,6 @@ class RoadReferenceLine():
         y0_start = y0        
         
         points = copy.deepcopy(points)
-        #points.reverse()
-        # avrag_dist_soll = 1
-        #
-        # for index in range(len(points)-2,-1 ,-1): 
-        #
-        #     x_start , y_start  = points[index+1]
-        #     x_end   , y_end    = points[index]
-        #
-        #     deltaX= (x_end -x_start ).astype(float)
-        #     deltaY= (y_end -y_start ) .astype(float)
-        #
-        #
-        #     segmant_lenght = np.sqrt( deltaX *deltaX    + deltaY*deltaY  )
-        #
-        #
-        #
-        #     if segmant_lenght > avrag_dist_soll:
-        #
-        #
-        #
-        #         angle= np.arctan2(deltaY ,deltaX)
-        #
-        #         x_new = x_start +  segmant_lenght/2.0*np.cos(angle) 
-        #         y_new = y_start +  segmant_lenght/2.0*np.sin(angle) 
-        #
-        #         points.insert(index+1, (x_new ,y_new ))  
- 
  
     
         if x0 is None or y0 is None:
@@ -1085,9 +773,7 @@ class RoadReferenceLine():
             else:
                 hdg_start = hdg                
             return RoadReferenceLine(x0_start, y0_start, hdg_start, geometry_elements)    
-        #ls_error_max_error = 1.0/1000000 
-
-    
+ 
         x1, y1 = points[1] 
     
     
@@ -1108,9 +794,7 @@ class RoadReferenceLine():
     
         hdg_start = hdg
     
-    
-        ###print("points ....")
-    
+ 
         geometry_elements =[]
     
     
@@ -1140,7 +824,7 @@ class RoadReferenceLine():
         endpoint = points[-1] 
         x_end  , y_end   = endpoint
         #referenceLine.cleanUp()
-        #referenceLine.set_endPoint(x_end, y_end)
+        referenceLine.set_endPoint(x_end, y_end)
         
         return referenceLine
             
@@ -1166,11 +850,7 @@ class RoadReferenceLine():
                 self.geometry_elements.append(StraightLine(length)) 
                 
             elif  isinstance(self.geometry_elements[-1], Arc):
-                
-                #xend , yend , hdgend  = self.get_endPoint()
-                
-                
-                
+ 
                 newline = StraightLine(length)
                 
                 self.geometry_elements.append(newline) 
@@ -1306,71 +986,7 @@ class RoadReferenceLine():
             
             self.geometry_elements = self.geometry_elements + refnew.geometry_elements
             self.set_endPoint(x_end, y_end)
-            # #arc
-            # length = np.sqrt( deltax1*deltax1   +  deltay1 *deltay1  ) 
-            # #referenceLine.addStraightLine(length) 
-            #
-            # x_arc_start = x0
-            # y_arc_start = y0
-            # hed_arc_start = hdg0
-            #
-            #
-            # dist_inarc = min(5 ,length/5) 
-            #
-            # if len(self.geometry_elements) > 0 :
-            #
-            #     dist_inarc = min(dist_inarc ,self.geometry_elements[-1].length/5)
-            #
-            #     self.geometry_elements[-1].length = self.geometry_elements[-1].length - dist_inarc
-            #
-            #
-            #     x_arc_start, y_arc_start , hed_arc_start  = self.get_endPoint()
-            #
-            #
-            #
-            # x_arc_End = x0 + dist_inarc * np.cos(hdg1)
-            # y_arc_End = y0 + dist_inarc * np.sin(hdg1)
-            # hed_arc_end= hdg1
-            #
-            #
-            #
-            #
-            # ##################################################################
-            # #hed_arc_start = hed_arc_start - int(hed_arc_start/(2*np.pi) ) *2*np.pi
-            # #hed_arc_end = hed_arc_end - int(hed_arc_end/(2*np.pi) ) *2*np.pi
-            # alfa =   np.pi/2  - hed_arc_start
-            # theta =    hed_arc_start - hed_arc_end  
-            #
-            #
-            # #theta = theta - int(theta/(2*np.pi) ) *2*np.pi
-            #
-            #
-            #
-            #
-            # #x_arc_End =  x_arc_start +arc_Radius ( np.sin( np.pi- hed_arc_start) +  np.cos(np.pi - alfa -theta ) )   
-            # #y_arc_End =  y_arc_start +arc_Radius*np.cos( np.pi-  hed_arc_start) + arc_Radius*np.sin(np.pi - alfa -theta)
-            #
-            # arc_Radius =  (x_arc_End - x_arc_start)/ ( np.sin( np.pi- hed_arc_start) +  np.cos(np.pi - alfa -theta ) ) 
-            #
-            #
-            #
-            # arc_length =  np.abs( theta  * arc_Radius  ) 
-            #
-            #
-            #
-            # if arc_Radius != 0:
-            #
-            #     self.addArc(arc_length  , 1.0/ arc_Radius)
-            #
-            #     self.set_endPoint(x_arc_End, y_arc_End)
-            #
-            #
-            #
-            # length =   length - dist_inarc
-            #
-            # self.addStraightLine(length)
-            #
-            # self.set_endPoint(x_end, y_end)
+ 
 
  
     
@@ -1594,8 +1210,11 @@ class RoadReferenceLine():
         for ele in self.geometry_elements:
             
  
-            
-            (S,T)= ele.XY2ST(  x0 , y0 ,hdg , X ,Y, S0)
+            try:
+                (S,T)= ele.XY2ST(  x0 , y0 ,hdg , X ,Y, S0)
+            except:
+                S = None
+                T = None
             
             if  S is not None and S > 0:
             
@@ -1673,8 +1292,6 @@ class RoadReferenceLine():
         
         return planView
 
-
-
 class RoadObject():
 
     @classmethod
@@ -1705,14 +1322,7 @@ class RoadObject():
         
         
     def draw(self, fig , ax ):
-        
-
-        # if "lanes" in self.tags:
-        #     index = self.tags.index("lanes")
-        #
-        #     n_lans = int(self.tags[index+1])
-        # else:
-        #     n_lans = 2  
+ 
  
         facecolor = 'g'
         if 'colour' in self.tags :
@@ -1734,9 +1344,7 @@ class RoadObject():
  
         
         return (self.x_center, self.y_center )       
-        
-    
-    
+            
 class Building(RoadObject):
  
     @classmethod
@@ -1769,14 +1377,7 @@ class Building(RoadObject):
         ax.plot(xs,ys)
         
         facecolor = 'gray'
-        
-        # if "lanes" in self.tags:
-        #     index = self.tags.index("lanes")
-        #
-        #     n_lans = int(self.tags[index+1])
-        # else:
-        #     n_lans = 2   
-        
+ 
         if 'roof:colour' in self.tags :
             index = self.tags.index('roof:colour')
             facecolor =  self.tags[index+1]             
@@ -1964,7 +1565,6 @@ class Barrier(RoadObject):
         
         return Barrier(  Floor_plan, tags )  
  
- 
 class Road():
     
     
@@ -2066,8 +1666,16 @@ class Road():
     
     def __init__(self ,  points =list()  , tags = list()   ):
         
- 
-        self.points = points        
+        self.points = []
+        for point in points:
+            x ,y = point
+            if x is not None and y is not None:
+                self.points.append(point)
+                
+            
+        
+            
+                
         self.tags = tags 
    
         self.ReferenceLine = None 
@@ -2166,7 +1774,6 @@ class Road():
         
         return opendrive.t_road(id = self.object_id, junction = junction, length = length,   planView = planView )
  
- 
 class Junction():
  
  
@@ -2175,12 +1782,34 @@ class Junction():
         
         junction = Junction(JunctionRoads = list())
         
+        RoadsList = copy.copy(RoadsList)
+        
         Y = []
         X = []
         
-        for road in RoadsList:
-            if road.ReferenceLine is not None:
-                junctionRadius = min(junctionRadius ,road.ReferenceLine.getLength()/2 )
+        # for road in RoadsList:
+        #     if road.ReferenceLine is not None:
+        #         junctionRadius = min(junctionRadius ,road.ReferenceLine.getLength()/2 )
+                
+ 
+ 
+        # for road in RoadsList:
+        #
+        #     if "lanes" in road.tags:
+        #         index = road.tags.index("lanes")
+        #
+        #         n_lans = int(road.tags[index+1])
+        #     else:
+        #         n_lans = 2 
+        #
+        #     if n_lans <2:
+        #         n_lans = 2            
+        #
+        #     lane_width  = 3.5 
+        #
+        #     roadwidth = lane_width*n_lans
+        #     junctionRadius = max(junctionRadius , roadwidth *1.5)                
+        
         
         for road in RoadsList:
             for otherRoad in RoadsList:
@@ -2231,6 +1860,21 @@ class Junction():
         
         
         roadpointdict = dict()
+        
+        # for index in range( len(RoadsList)-1 , -1 , -1):
+        #     road = RoadsList[index]
+        #     road_length = road.ReferenceLine.getLength()
+        #
+        #     if road_length <  junctionRadius :
+        #         RoadsList.remove(road)
+                
+                
+                
+            
+            
+            
+            
+        
 
         for road in RoadsList:
             
@@ -2260,11 +1904,11 @@ class Junction():
                 
                 if d2 < d1:
     
- 
-                    if d2 < junctionRadius   :
-                        xend , yend =  road.ReferenceLine.ST2XY(road_length -junctionRadius , 0 )
+                    junctionRadiussub = min(junctionRadius ,road.ReferenceLine.getLength()/2 )
+                    if d2 < junctionRadiussub   :
+                        xend , yend =  road.ReferenceLine.ST2XY(road_length -junctionRadiussub , 0 )
                         
-                        xmid , ymid =  road.ReferenceLine.ST2XY(road_length -3*junctionRadius/4 , 0 )
+                        xmid , ymid =  road.ReferenceLine.ST2XY(road_length -3*junctionRadiussub/4 , 0 )
                         
                         
                         road.ReferenceLine.set_endPoint(xend , yend)
@@ -2272,11 +1916,11 @@ class Junction():
                         roadpointdict[str(road)] = [(xmid , ymid ) ,(xend , yend)  ]
                         roadpointdict[str(road) +"_dir"] =   "End"  
                 else:
-          
-                    if d1 < junctionRadius  :
-                        xstart , ystart  =  road.ReferenceLine.ST2XY( junctionRadius , 0 )
+                    junctionRadiussub = min(junctionRadius ,road.ReferenceLine.getLength()/2 )
+                    if d1 < junctionRadiussub  :
+                        xstart , ystart  =  road.ReferenceLine.ST2XY( junctionRadiussub , 0 )
                         
-                        xmid , ymid =  road.ReferenceLine.ST2XY( junctionRadius/4 , 0 )
+                        xmid , ymid =  road.ReferenceLine.ST2XY( junctionRadiussub/4 , 0 )
                         
                         road.ReferenceLine.set_startPoint(xstart , ystart) 
                         
@@ -2296,48 +1940,37 @@ class Junction():
             for otherRoad in RoadsList[road_index+1:]:
                 if road != otherRoad  and road.ReferenceLine is not None and otherRoad.ReferenceLine is not None:
                     
-                                          
+                                                                    
                     
-                    pointsStart= roadpointdict[str(road)]
+                    pointsStart= roadpointdict.get(str(road), None ) 
+                    pointsEnd = roadpointdict.get(str(otherRoad) , None )
                     
-                    if roadpointdict[str(road) +"_dir"] ==  "End":
-                        pointsStart = copy.deepcopy(pointsStart)
-                        pointsStart.reverse()
-                        
-                    pointsEnd = roadpointdict[str(otherRoad)]
+                    if pointsStart is not None and pointsEnd is not None:
                     
-                    if roadpointdict[str(otherRoad) +"_dir"] ==  "Strat":
-                        pointsEnd = copy.deepcopy(pointsEnd)
-                        pointsEnd.reverse()
-                                            
-                    #pointsEnd.reverse()
-                    #RoadReferenceLine.Connect3points(x_start, y_start, x_midel, y_midel, x_end, y_end, Rmax, Rmin)
-                    points = pointsStart + [ (x_center ,y_center ) ] + pointsEnd
-                    
-                    if isinstance(road, Drivable_Road) and isinstance(otherRoad, Drivable_Road): 
-                    
-                        newroad = Drivable_Road(points = points )
-                    
-                    else:
+                        if roadpointdict[str(road) +"_dir"] ==  "End":
+                            pointsStart = copy.deepcopy(pointsStart)
+                            pointsStart.reverse()
+                            
                          
-                        newroad = Footway_Bicycle_Road(points = points )                    
-                     
-                     
-                    # fig, ax = plt.subplots(figsize=(10, 10), facecolor='lightskyblue', layout='constrained') 
-                    # road.draw_Road(  fig , ax )
-                    # plt.show()
-                    #road.ReferenceLine.add_New_Point(  ) 
-                    
-                junction.JunctionRoads.append(newroad) 
+                        
+                        if roadpointdict[str(otherRoad) +"_dir"] ==  "Strat":
+                            pointsEnd = copy.deepcopy(pointsEnd)
+                            pointsEnd.reverse()
+                                                
+ 
+                        points = pointsStart + [ (x_center ,y_center ) ] + pointsEnd
+                        
+                        if isinstance(road, Drivable_Road) and isinstance(otherRoad, Drivable_Road): 
+                        
+                            newroad = Drivable_Road(points = points )
+                        
+                        else:
+                             
+                            newroad = Footway_Bicycle_Road(points = points )                    
+ 
+                        junction.JunctionRoads.append(newroad) 
                 
-   
-        # fig, ax = plt.subplots(figsize=(10, 10), facecolor='lightskyblue', layout='constrained') 
-        #
-        # for road in junction.JunctionRoads:
-        #
-        #     road.draw_Road(  fig , ax )
-        # plt.show()
-        #road.Refere                                         
+                                      
                                 
         
         return junction
@@ -2439,6 +2072,10 @@ class Drivable_Road(Road):
     
     
     def __init__(self,  points=[], tags=dict()   ):
+        
+        
+        
+        
         Road.__init__(self,   points=points, tags=tags ) 
         
 
@@ -2563,6 +2200,9 @@ class Drivable_Road(Road):
         
 
         if "lanes" in self.tags:
+            
+            #print(self.tags)
+            
             index = self.tags.index("lanes")
  
             n_lans = int(self.tags[index+1])
@@ -2572,23 +2212,66 @@ class Drivable_Road(Road):
         if n_lans <2:
             n_lans = 2            
             
-        lane_width  = 3.5           
+        lane_width  = 3.5  
+        
+        roadwidth = lane_width*n_lans 
+                 
         laneSection = [] 
-        color = opendrive.e_roadMarkColor.WHITE
-        roadMark_center_lane = opendrive.t_road_lanes_laneSection_lcr_lane_roadMark(color = color )
-        center_lane = opendrive.t_road_lanes_laneSection_center_lane(level = "false", type_ = "none",   id = 0 , roadMark = [roadMark_center_lane])
+ 
+        roadMark_lane = opendrive.t_road_lanes_laneSection_lcr_lane_roadMark(color = opendrive.e_roadMarkColor.WHITE,
+                                                                                    laneChange = opendrive.e_road_lanes_laneSection_lcr_lane_roadMark_laneChange.NONE, 
+                                                                                    material = "standard",
+                                                                                    sOffset = "0",
+                                                                                    type__attr = opendrive.e_roadMarkType.BROKEN ,
+                                                                                    weight = opendrive.e_roadMarkWeight.STANDARD,
+                                                                                    width = "1.1999999731779099e-01"  )
+        
+        
+        center_lane = opendrive.t_road_lanes_laneSection_center_lane(level = "false", type_ = "none",   id = 0 , roadMark = [roadMark_lane])
         center = opendrive.t_road_lanes_laneSection_center([center_lane])
         left_lane = []
         
         nleft = int(n_lans/2)
+
+        roadMark_sidewalk_curb = opendrive.t_road_lanes_laneSection_lcr_lane_roadMark(color = opendrive.e_roadMarkColor.STANDARD,
+                                                                                    laneChange = opendrive.e_road_lanes_laneSection_lcr_lane_roadMark_laneChange.NONE, 
+                                                                                    material = "standard",
+                                                                                    sOffset = "0",
+                                                                                    type__attr = opendrive.e_roadMarkType.NONE ,
+                                                                                    weight = opendrive.e_roadMarkWeight.STANDARD,
+                                                                                    width = "0"  )        
+        
+        
+        #sidewalk        
+        width = [opendrive.t_road_lanes_laneSection_lr_lane_width(a = 2, b = 0, c = 0, d  =0 ) ]
+        link = None#opendrive.t_road_link( successor  =  opendrive.t_road_lanes_laneSection_lcr_lane_link_predecessorSuccessor(id = nleft+2))
+        
+        lanetype = opendrive.e_laneType.SIDEWALK
+        level = "false"
+        
+        left_lane.append(opendrive.t_road_lanes_laneSection_left_lane(level = level, type_ = lanetype, link = link,   width = width ,  id = nleft+2 , roadMark = [roadMark_sidewalk_curb]))
+        #curb
+        
+        width = [opendrive.t_road_lanes_laneSection_lr_lane_width(a = "1.5239999999999998e-01", b = 0, c = 0, d  =0 ) ]
+        link = None#opendrive.t_road_link( successor  =  opendrive.t_road_lanes_laneSection_lcr_lane_link_predecessorSuccessor(id = nleft+1))
+        
+        lanetype = opendrive.e_laneType.CURB
+        level = "false"
+        left_lane.append(opendrive.t_road_lanes_laneSection_left_lane(level = level, type_ = lanetype, link = link,   width = width ,  id = nleft+1 , roadMark = [roadMark_sidewalk_curb]))
+        
+        
+        
         
         for i in range(nleft,0,-1):
              
             level = "false"
             width = [opendrive.t_road_lanes_laneSection_lr_lane_width(a = lane_width, b = 0, c = 0, d  =0 ) ]
-            link = opendrive.t_road_link( )
+            link = None#opendrive.t_road_link( successor  =  opendrive.t_road_lanes_laneSection_lcr_lane_link_predecessorSuccessor(id = i))
             lanetype="driving"
-            left_lane.append(opendrive.t_road_lanes_laneSection_left_lane(level = level, type_ = lanetype, link = link,   width = width ,  id = i))
+            left_lane.append(opendrive.t_road_lanes_laneSection_left_lane(level = level, type_ = lanetype, link = link,   width = width ,  id = i , roadMark = [roadMark_lane]))
+        
+        
+        
         
         
         left = opendrive.t_road_lanes_laneSection_left(left_lane )
@@ -2598,15 +2281,35 @@ class Drivable_Road(Road):
         
         right_lane = []
         
-        for i in range( -1,-1*nright,-1):
+        for i in range( -1,-1*nright-1,-1):
              
             level = "false"
             width = [opendrive.t_road_lanes_laneSection_lr_lane_width(a = lane_width, b = 0, c = 0, d  =0 ) ]
-            link = opendrive.t_road_link( )
+            link = None#opendrive.t_road_link( )
             lanetype="driving"
-            right_lane.append(opendrive.t_road_lanes_laneSection_right_lane(level = level, type_ = lanetype, link = link,   width = width ,  id = i))
+            right_lane.append(opendrive.t_road_lanes_laneSection_right_lane(level = level, type_ = lanetype, link = link,   width = width ,  id = i , roadMark = [roadMark_lane]))
+        
+        #curb
+        
+        width = [opendrive.t_road_lanes_laneSection_lr_lane_width(a = "1.5239999999999998e-01", b = 0, c = 0, d  =0 ) ]
+        link = None#opendrive.t_road_link( successor  =  opendrive.t_road_lanes_laneSection_lcr_lane_link_predecessorSuccessor(id =-( nleft+1)))
+        
+        lanetype = opendrive.e_laneType.CURB
+        level = "false"
+        right_lane.append(opendrive.t_road_lanes_laneSection_left_lane(level = level, type_ = lanetype, link = link,   width = width ,  id =   i-1 , roadMark = [roadMark_sidewalk_curb]))
         
        
+        #sidewalk
+        width = [opendrive.t_road_lanes_laneSection_lr_lane_width(a = 2, b = 0, c = 0, d  =0 ) ]
+        link = None#opendrive.t_road_link( successor  =  opendrive.t_road_lanes_laneSection_lcr_lane_link_predecessorSuccessor(id = -(nleft+2)))
+        
+        lanetype = opendrive.e_laneType.SIDEWALK
+        level = "false"
+        
+        right_lane.append(opendrive.t_road_lanes_laneSection_left_lane(level = level, type_ = lanetype, link = link,   width = width ,  id = i-2 , roadMark = [roadMark_sidewalk_curb]))
+
+
+
 
 
         right = opendrive.t_road_lanes_laneSection_right(right_lane )        
@@ -2617,12 +2320,34 @@ class Drivable_Road(Road):
         lanes =  opendrive.t_road_lanes(laneOffset = laneOffset, laneSection  =laneSection)
         
         superelevation = [opendrive.t_road_lateralProfile_superelevation(a= 0, b= 0, c= 0, d = 0, s = 0)]
-        shape = [opendrive.t_road_lateralProfile_shape(a= 0, b= 0, c= 0, d= 0, s= 0, t = 0)]
+        
+        
+        shape = [opendrive.t_road_lateralProfile_shape(a= 0, b= 0, c= 0, d= 0, s= 0, t = -roadwidth)]
         lateralProfile = opendrive.t_road_lateralProfile(superelevation, shape )
         
         elevation = [ opendrive.t_road_elevationProfile_elevation(a= 0, b= 0, c= 0, d= 0, s = 0)]
         elevationProfile = opendrive.t_road_elevationProfile(elevation )
-        return opendrive.t_road(id = None, junction = junction, length = length,   planView = planView , lanes = lanes , elevationProfile= elevationProfile ,  lateralProfile = lateralProfile )          
+        
+        rule = opendrive.e_trafficRule.RHT
+        type_ = opendrive.e_roadType.TOWN
+        country = opendrive.e_countryCode_deprecated.GERMANY
+        
+        
+ 
+        if "maxspeed" in self.tags:
+            index = self.tags.index("maxspeed")
+ 
+            maxspeed = int(self.tags[index+1])
+        else:
+            maxspeed = 35       
+        
+        
+        
+        
+        speed = opendrive.t_road_type_speed(max = maxspeed, unit  =  opendrive.e_unitSpeed.KMH)
+        s = 0
+        type_ = [opendrive.t_road_type(country, s   , type_, speed )]
+        return opendrive.t_road(id = None, junction = junction, length = length,   planView = planView , lanes = lanes , elevationProfile= elevationProfile ,  lateralProfile = lateralProfile , rule = rule , type_ = type_ )          
    
 class Railway_Road(Road):
     
@@ -3060,8 +2785,18 @@ class Scenery():
                 # plt.show() 
    
         Roads =  Scenery.organize_Roads(Roads )  
-        Roads ,Junctions  = Scenery.organize_junctions(Roads )         
- 
+        Roads ,Junctions  = Scenery.organize_junctions(Roads ) 
+        
+        toremove = []
+        for road in Roads:
+            if road.ReferenceLine.getLength() < 1 :
+                toremove.append(road)
+                
+        for road in   toremove:
+            Roads.remove(road)
+            
+                
+        
         return Scenery(metaData , nodsdict ,Roads,   Buildings, Spaces , Barriers , Junctions)
     
     
@@ -3149,7 +2884,7 @@ class Scenery():
             
             pints_of_intest[point] = list(set(pints_of_intest[point]))
             
-            if len(pints_of_intest[point]) >  2:
+            if len(pints_of_intest[point]) >=  2:
                 
                 #print(point)
                 
@@ -3173,9 +2908,28 @@ class Scenery():
                 junctionRadius = 0
                 
                 for road in roadlist:
-                    junctionRadius = junctionRadius + road.ReferenceLine.getLength()/8
+                    junctionRadius = junctionRadius + road.ReferenceLine.getLength()/4
                     
                 junctionRadius = junctionRadius/len(roadlist)   
+                
+                for road in roadlist:
+                
+                    if "lanes" in road.tags:
+                        index = road.tags.index("lanes")
+                
+                        n_lans = int(road.tags[index+1])
+                    else:
+                        n_lans = 2 
+                
+                    if n_lans <2:
+                        n_lans = 2            
+                
+                    lane_width  = 3.5 
+                
+                    roadwidth = lane_width*n_lans
+                    junctionRadius = max(junctionRadius , roadwidth *1.5)  
+                
+                
                  
                 junction = Junction.fromRoads(roadlist, junctionRadius)
                 #print("N Roads junction" ,  len(junction.JunctionRoads)) 
@@ -3539,8 +3293,9 @@ class Scenery():
         ##print("***********************************************************")
         ##print("***********************************************************")
         ##print("***********************************************************")
+        
         clear()
-        ##print (f'x = {ix}, y = {iy}')
+ 
         try:
         
             dist = 1000
@@ -3571,16 +3326,17 @@ class Scenery():
             ##print( str(closet_node ) )
             
             results = []
+            
             # for space in  self.Spaces:
             #     if closet_node in space.Floor_plan:
             #         results.append(space)
                     
                 
-                # for node in space.nodes: 
-                #     if node["node_id"]  in closet_node:
-                #
-                #         if space not in results:
-                #             results.append(space)
+            # for node in space.nodes: 
+            #     if node["node_id"]  in closet_node:
+            #
+            #         if space not in results:
+            #             results.append(space)
                         
      
             # for Building in  self.Buildings:
@@ -3643,7 +3399,7 @@ class Scenery():
         i= 0
         for roadObj in self.Roads:
             
-            if isinstance(roadObj, Drivable_Road):
+            if isinstance(roadObj, Drivable_Road)  :
                  
                 roadXml = roadObj.export2opendrive()
                 roadXml.id = i
@@ -3707,14 +3463,7 @@ class Scenery():
         plt.show() 
 
 
-
-    # global coords
-    # coords.append((ix, iy))
-    #
-    # if len(coords) == 2:
-    #     fig.canvas.mpl_disconnect(cid)
-    #
-    # return coords
+ 
 
 
 if __name__ == '__main__':
@@ -3738,7 +3487,6 @@ if __name__ == '__main__':
     # plt.show()
     #
 
-
     # fig = plt.figure()
     # ax = fig.add_subplot(1, 1, 1)
     # ax.set_aspect('equal')
@@ -3759,7 +3507,6 @@ if __name__ == '__main__':
     #     ###print('d={:.3f}, dd={:.3f}, R={:.3f}, RR={:.3f}'.format(d, arcLength(XY), R, 1/getCurvatureUsingTriangle(XY, 299, 298, 297)))        
     #
     # plt.show()
-
     
     #
     # center, radius = define_circle((0,1), (1,0), (0,-1))
@@ -3828,9 +3575,9 @@ if __name__ == '__main__':
 
     
     
-    filepath = os.path.abspath("..\\OSM_Interface\\WesternTor_2.osm")
+    filepath = os.path.abspath("..\\OSM_Interface\\Paderborn_inner_ring.osm")
     sceneryObj = Scenery.from_Osm(filepath)    
-    sceneryObj.export2opendrive("..\\OSM_Interface\\WesternTor_2.xodr")
+    sceneryObj.export2opendrive("..\\OSM_Interface\\Paderborn_inner_ring.xodr")
     sceneryObj.draw_scenery()
     
     # for road in sceneryObj.Roads:
