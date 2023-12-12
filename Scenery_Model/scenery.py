@@ -186,24 +186,7 @@ clear = lambda: os.system('cls')
  
 
 def projection_fromGeographic(latitude, longitude, referenceLat = 0 , referenceLon = 0):
-    
-    # see conversion formulas at
-    # http://en.wikipedia.org/wiki/Transverse_Mercator_projection
-    # and
-    # http://mathworld.wolfram.com/MercatorProjection.html
-    
-    # radius = 6378137
-    # k = 1
-    #
-    # self_lon =   referenceLon
-    # self_lat =   referenceLat
-    # self_latInRadians = math.radians(self_lat)
-    # lat = math.radians(latitude)
-    # lon = math.radians(longitude-self_lon)
-    # B = math.sin(lon) * math.cos(lat)
-    # x1 = 0.5 * k * radius * math.log((1+B)/(1-B))
-    # y1 = k * radius * ( math.atan(math.tan(lat)/math.cos(lon)) - self_latInRadians )
-    
+
  
         # crs_4326  = CRS.from_epsg(4326) # epsg 4326 is wgs84
         #
@@ -213,7 +196,12 @@ def projection_fromGeographic(latitude, longitude, referenceLat = 0 , referenceL
         # x,y = next(transformer.itransform([(latitude,longitude)]))
         #
         #     # radius = 6378137
- 
+    
+    # see conversion formulas at
+    # http://en.wikipedia.org/wiki/Transverse_Mercator_projection
+    # and
+    # http://mathworld.wolfram.com/MercatorProjection.html
+     
     radius = 6378137
     k = 1
     
@@ -1323,19 +1311,19 @@ class RoadObject():
         
     def draw(self, fig , ax ):
  
- 
-        facecolor = 'g'
-        if 'colour' in self.tags :
-            index = self.tags.index("colour")
-            facecolor = self.tags[index+1]
- 
-        try:
-            p = Polygon(self.Floor_plan, facecolor = facecolor, alpha=0.5) 
-            
-        except:
+        if len(self.Floor_plan ) > 0: 
             facecolor = 'g'
-            p = Polygon(self.Floor_plan, facecolor = facecolor, alpha=0.5)             
-        ax.add_patch(p)        
+            if 'colour' in self.tags :
+                index = self.tags.index("colour")
+                facecolor = self.tags[index+1]
+     
+            try:
+                p = Polygon(self.Floor_plan, facecolor = facecolor, alpha=0.5) 
+                
+            except:
+                facecolor = 'g'
+                p = Polygon(self.Floor_plan, facecolor = facecolor, alpha=0.5)             
+            ax.add_patch(p)        
 
     
     
@@ -1372,39 +1360,41 @@ class Building(RoadObject):
  
  
     def draw(self, fig , ax ):
-        
-        xs, ys = zip(* self.Floor_plan ) #create lists of x and y values
-        ax.plot(xs,ys)
-        
-        facecolor = 'gray'
- 
-        if 'roof:colour' in self.tags :
-            index = self.tags.index('roof:colour')
-            facecolor =  self.tags[index+1]             
-            
- 
-            
-        elif  'building:colour' in self.tags:
- 
 
-            index = self.tags.index('building:colour')
-        
-            facecolor =  self.tags[index+1]  
 
+        if len(self.Floor_plan ) > 0:        
+            xs, ys = zip(* self.Floor_plan ) #create lists of x and y values
+            ax.plot(xs,ys)
             
-        elif  'colour' in self.tags :
-        
-            index = self.tags.index('colour')
-        
-            facecolor =  self.tags[index+1]        
-        
-        
-        try:
-            p = Polygon(self.Floor_plan, facecolor = facecolor) 
+            facecolor = 'gray'
+     
+            if 'roof:colour' in self.tags :
+                index = self.tags.index('roof:colour')
+                facecolor =  self.tags[index+1]             
+                
+     
+                
+            elif  'building:colour' in self.tags:
+     
+    
+                index = self.tags.index('building:colour')
             
-        except:
-            p = Polygon(self.Floor_plan, facecolor = 'gray')             
-        ax.add_patch(p)
+                facecolor =  self.tags[index+1]  
+    
+                
+            elif  'colour' in self.tags :
+            
+                index = self.tags.index('colour')
+            
+                facecolor =  self.tags[index+1]        
+            
+            
+            try:
+                p = Polygon(self.Floor_plan, facecolor = facecolor) 
+                
+            except:
+                p = Polygon(self.Floor_plan, facecolor = 'gray')             
+            ax.add_patch(p)
         
 class AreaSpace(RoadObject):
  
@@ -1451,14 +1441,16 @@ class AreaSpace(RoadObject):
         
     def draw(self, fig , ax ):
         
-        xs, ys = zip(* self.Floor_plan ) #create lists of x and y values
-        ax.plot(xs,ys)
+        if len(self.Floor_plan ) > 0:
         
-        facecolor = 'y'
- 
-        
-        p = Polygon(self.Floor_plan, facecolor = facecolor) 
-        ax.add_patch(p)
+            xs, ys = zip(* self.Floor_plan ) #create lists of x and y values
+            ax.plot(xs,ys)
+            
+            facecolor = 'y'
+     
+            
+            p = Polygon(self.Floor_plan, facecolor = facecolor) 
+            ax.add_patch(p)
 
 class Waterway(RoadObject):
  
@@ -1507,42 +1499,42 @@ class Waterway(RoadObject):
         
     def draw(self, fig , ax ):
         
- 
-        facecolor = 'b'
- 
-            
-        for index , point in enumerate(self.Floor_plan):
-        
-            if index <  len(self.Floor_plan) -1:
-        
-                x_start , y_start  = point
-                x_end   , y_end    = self.Floor_plan[index+1]
-                
-                deltaX= (x_end -x_start ).astype(float)
-                deltaY= (y_end -y_start ) .astype(float)
-                
-        
-                Road_lenght = np.sqrt( deltaX*deltaX   + deltaY *deltaY  )
-        
-                Road_width = 2
-        
-        
-                angle= np.arctan2((y_end -y_start ) ,(x_end -x_start ) )
-        
-                t2 = mpl.transforms.Affine2D().rotate_around(x_start, y_start, angle) + ax.transData
-        
-                p = Rectangle((x_start  ,y_start - Road_width / 2.0 ), Road_lenght, Road_width, color="b", alpha= 1)
-        
-                p.set_transform(t2)
-        
-                ax.add_patch(p) 
-                
-                
-        if self.Floor_plan[0] ==  self.Floor_plan[-1]:
+        if len(self.Floor_plan ) > 0: 
             facecolor = 'b'
- 
-            p = Polygon(self.Floor_plan, facecolor = facecolor) 
-            ax.add_patch(p)
+     
+                
+            for index , point in enumerate(self.Floor_plan):
+            
+                if index <  len(self.Floor_plan) -1:
+            
+                    x_start , y_start  = point
+                    x_end   , y_end    = self.Floor_plan[index+1]
+                    
+                    deltaX= (x_end -x_start ).astype(float)
+                    deltaY= (y_end -y_start ) .astype(float)
+                    
+            
+                    Road_lenght = np.sqrt( deltaX*deltaX   + deltaY *deltaY  )
+            
+                    Road_width = 2
+            
+            
+                    angle= np.arctan2((y_end -y_start ) ,(x_end -x_start ) )
+            
+                    t2 = mpl.transforms.Affine2D().rotate_around(x_start, y_start, angle) + ax.transData
+            
+                    p = Rectangle((x_start  ,y_start - Road_width / 2.0 ), Road_lenght, Road_width, color="b", alpha= 1)
+            
+                    p.set_transform(t2)
+            
+                    ax.add_patch(p) 
+                    
+                    
+            if self.Floor_plan[0] ==  self.Floor_plan[-1]:
+                facecolor = 'b'
+     
+                p = Polygon(self.Floor_plan, facecolor = facecolor) 
+                ax.add_patch(p)
  
 class Barrier(RoadObject):
  
@@ -1721,27 +1713,27 @@ class Road():
         
     def draw_Road(self, fig , ax ):
         
- 
-        xs, ys = zip(*self.points) #create lists of x and y values
-        ax.plot(xs,ys)
-
-
-        # for space in  self.Spaces:
-        #     space.draw(  fig , ax)
-        #
-        # for Building in self.Buildings:
-        #     Building.draw(  fig , ax)
-        #
-        # for Barrier in self.Barriers:
-        #     Barrier.draw(  fig , ax)
-        
-        #print("######### draw raod ###########")
-        
-        #print(self.points)
-        
-        for key in self.tags:
-            print(key , " ---> ",self.tags.get(key))
-        
+        if len(self.points ) > 0: 
+            xs, ys = zip(*self.points) #create lists of x and y values
+            ax.plot(xs,ys)
+    
+    
+            # for space in  self.Spaces:
+            #     space.draw(  fig , ax)
+            #
+            # for Building in self.Buildings:
+            #     Building.draw(  fig , ax)
+            #
+            # for Barrier in self.Barriers:
+            #     Barrier.draw(  fig , ax)
+            
+            #print("######### draw raod ###########")
+            
+            #print(self.points)
+            
+            for key in self.tags:
+                print(key , " ---> " )
+            
         return False
         # facecolor = 'k'
         # if 'roof:colour' in self.tags.keys():
@@ -2036,35 +2028,36 @@ class Footway_Bicycle_Road(Road):
         #         p.set_transform(t2)
         #
         #         ax.add_patch(p)  
-
-        xs, ys = zip(*self.points) #create lists of x and y values
-    
-        plt.scatter(xs,ys) 
         
-        if self.ReferenceLine is not None:
+        if len(self.points ) > 0: 
+            xs, ys = zip(*self.points) #create lists of x and y values
+        
+            plt.scatter(xs,ys) 
             
-            
-            xs = []
-            ys = []
-            for s in np.arange(0, self.ReferenceLine.getLength(),.1):
+            if self.ReferenceLine is not None:
                 
                 
+                xs = []
+                ys = []
+                for s in np.arange(0, self.ReferenceLine.getLength(),.1):
+                    
+                    
+                    
+                    x, y = self.ReferenceLine.ST2XY(s, 0)
+                    xs.append(x)
+                    ys.append(y)
+     
+                    #xs, ys = zip(*self.points) #create lists of x and y values
+                    
+                    
+                    
+                    
+                ax.plot(xs , ys , color="g")   
+    
                 
-                x, y = self.ReferenceLine.ST2XY(s, 0)
-                xs.append(x)
-                ys.append(y)
- 
-                #xs, ys = zip(*self.points) #create lists of x and y values
-                
-                
-                
-                
-            ax.plot(xs , ys , color="g")   
-
-            
-        else:
-            raise ValueError("wtf")
-            #print("wtf")
+            else:
+                raise ValueError("wtf")
+                #print("wtf")
             #print(self) 
             #print(self.points)   
  
@@ -2156,33 +2149,34 @@ class Drivable_Road(Road):
         # xs, ys = zip(*self.points) #create lists of x and y values
         # ax.plot(xs,ys , color="k")    
  
- 
-        xs, ys = zip(*self.points) #create lists of x and y values
-    
-        plt.scatter(xs,ys) 
         
-        if self.ReferenceLine is not None:
+        if len(self.points ) > 0:  
+            xs, ys = zip(*self.points) #create lists of x and y values
         
-            ##print("Length:" , self.ReferenceLine.getLength())
-            xs = []
-            ys = []
-            for s in np.arange(0, self.ReferenceLine.getLength(),.1):
-        
-        
-        
-                x, y = self.ReferenceLine.ST2XY(s, 0)
-                xs.append(x)
-                ys.append(y)
-        
-
-        
-        
-            ax.plot(xs , ys, color="k"  )   #
-        
-
+            plt.scatter(xs,ys) 
             
-        else:
-            raise ValueError("wtf")
+            if self.ReferenceLine is not None:
+            
+                ##print("Length:" , self.ReferenceLine.getLength())
+                xs = []
+                ys = []
+                for s in np.arange(0, self.ReferenceLine.getLength(),.1):
+            
+            
+            
+                    x, y = self.ReferenceLine.ST2XY(s, 0)
+                    xs.append(x)
+                    ys.append(y)
+            
+    
+            
+            
+                ax.plot(xs , ys, color="k"  )   #
+            
+    
+                
+            else:
+                raise ValueError("wtf")
             
             
     def export2opendrive(self):        
@@ -2333,11 +2327,21 @@ class Drivable_Road(Road):
         country = opendrive.e_countryCode_deprecated.GERMANY
         
         
- 
+        
         if "maxspeed" in self.tags:
+            
+            
             index = self.tags.index("maxspeed")
- 
-            maxspeed = int(self.tags[index+1])
+            try:
+                maxspeed = int(self.tags[index+1])
+            except:
+                
+                if self.tags[index+1] == 'none':
+                
+                    maxspeed =  130
+                else:
+                    maxspeed =  35
+                               
         else:
             maxspeed = 35       
         
@@ -2359,57 +2363,58 @@ class Railway_Road(Road):
     def draw_Road(self, fig , ax ):   
                 
  
-         
-        # for index , point in enumerate(self.points):
-        #
-        #     if index <  len(self.points) -1:
-        #
-        #         x_start , y_start  = point
-        #         x_end   , y_end    = self.points[index+1]
-        #
-        #         deltaX= (x_end -x_start ).astype(float)
-        #         deltaY= (y_end -y_start ) .astype(float)
-        #
-        #
-        #         Road_lenght = np.sqrt( deltaX *deltaX    + deltaY*deltaY  )
-        #
-        #         Road_width = 6
-        #
-        #
-        #         angle= np.arctan2(deltaY ,deltaX)
-        #
-        #         t2 = mpl.transforms.Affine2D().rotate_around(x_start, y_start, angle) + ax.transData
-        #
-        #         p = Rectangle((x_start  ,y_start - Road_width / 2.0 ), Road_lenght, Road_width, color="r", alpha= .5)
-        #
-        #         p.set_transform(t2)
-        #
-        #         ax.add_patch(p)
-
-        # xs, ys = zip(*self.points) #create lists of x and y values
-        # ax.plot(xs,ys , color="r")               
-        if self.ReferenceLine is not None:
-            
-            
-            xs = []
-            ys = []
-            for s in np.arange(0, self.ReferenceLine.getLength(),.1):
+        
+        if len(self.points ) > 0:          
+            # for index , point in enumerate(self.points):
+            #
+            #     if index <  len(self.points) -1:
+            #
+            #         x_start , y_start  = point
+            #         x_end   , y_end    = self.points[index+1]
+            #
+            #         deltaX= (x_end -x_start ).astype(float)
+            #         deltaY= (y_end -y_start ) .astype(float)
+            #
+            #
+            #         Road_lenght = np.sqrt( deltaX *deltaX    + deltaY*deltaY  )
+            #
+            #         Road_width = 6
+            #
+            #
+            #         angle= np.arctan2(deltaY ,deltaX)
+            #
+            #         t2 = mpl.transforms.Affine2D().rotate_around(x_start, y_start, angle) + ax.transData
+            #
+            #         p = Rectangle((x_start  ,y_start - Road_width / 2.0 ), Road_lenght, Road_width, color="r", alpha= .5)
+            #
+            #         p.set_transform(t2)
+            #
+            #         ax.add_patch(p)
+    
+            xs, ys = zip(*self.points) #create lists of x and y values
+            ax.plot(xs,ys , color="r")               
+            if self.ReferenceLine is not None:
                 
                 
+                xs = []
+                ys = []
+                for s in np.arange(0, self.ReferenceLine.getLength(),.1):
+                    
+                    
+                    
+                    x, y = self.ReferenceLine.ST2XY(s, 0)
+                    xs.append(x)
+                    ys.append(y)
+     
+                    #xs, ys = zip(*self.points) #create lists of x and y values
+                    
+                    
+                    
+                    
+                ax.plot(xs , ys , color="r") 
                 
-                x, y = self.ReferenceLine.ST2XY(s, 0)
-                xs.append(x)
-                ys.append(y)
- 
-                #xs, ys = zip(*self.points) #create lists of x and y values
-                
-                
-                
-                
-            ax.plot(xs , ys , color="r") 
-            
-        else:
-            raise ValueError ("wtf")                 
+            else:
+                raise ValueError ("wtf")                 
 
 class Scenery():
     
@@ -2516,6 +2521,13 @@ class Scenery():
                 road = Road.fromOSMdict(waysdict[way_id] ,    min_x, min_y ,max_x, max_y )
                 
                 Roads.append(road)          
+
+            elif "cycleway" in tagkeys         :
+                ###print(way)
+                road = Road.fromOSMdict(waysdict[way_id] ,    min_x, min_y ,max_x, max_y )
+                
+                Roads.append(road) 
+
     
     
             elif "historic" in tagkeys  or "roof:edge" in tagkeys or "boundary"  in tagkeys or len(tagkeys) == 0   or ( "landuse" in tagkeys   and   "retail"  in tagkeys    or       "residential" in tagkeys     or     "construction"  in tagkeys    or      "industrial" in tagkeys   ):
@@ -2778,6 +2790,8 @@ class Scenery():
             else:
                 print("***********************************************************************")
                 print(way)
+                area = AreaSpace.fromOSMdict(waysdict[way_id]    ,  min_x, min_y ,max_x, max_y  )
+                Spaces.append(area)  
                 # road = Road.fromOSMdict(waysdict[way_id] , way_id ,  min_x, min_y ,max_x, max_y )
                 # fig, ax = plt.subplots(figsize=(1, 1), facecolor='lightskyblue', layout='constrained')
                 # plt.axis('equal')
@@ -2785,7 +2799,7 @@ class Scenery():
                 # plt.show() 
    
         Roads =  Scenery.organize_Roads(Roads )  
-        Roads ,Junctions  = Scenery.organize_junctions(Roads ) 
+        Junctions = []#Roads ,Junctions  = Scenery.organize_junctions(Roads ) 
         
         toremove = []
         for road in Roads:
@@ -2979,45 +2993,48 @@ class Scenery():
             
             for road in class_name_roads_list:
                 
-                Road_id = str(road)#.object_id
                 
-                start = road.points[0]
+                if len(road.points) > 2:
                 
-                end = road.points[-1]
- 
-                
-                
-                for other_road in class_name_roads_list:
+                    Road_id = str(road)#.object_id
                     
-                    if other_road != road:
+                    start = road.points[0]
                     
-                        other_Road_id = str(other_road)#.object_id
+                    end = road.points[-1]
+     
+                    
+                    
+                    for other_road in class_name_roads_list:
                         
-                        other_start = other_road.points[0]
+                        if other_road != road  and len(other_road.points) > 2:
                         
-                        other_end = other_road.points[-1]
-                        
-                        point = None
-                        if other_start == end:
-                            point = str(end) 
+                            other_Road_id = str(other_road)#.object_id
                             
-                        elif other_end == start: 
-                            point = str(start) 
-                        # elif other_start == start:  
-                        #     point = str(start)  
-                        # elif  other_end == end:
-                        #     point = str( end )  
-                        
-                        
-                        if point is not None:
-                            if pints_of_intest.get(point, None) is None:
-                                pints_of_intest[point] = []
+                            other_start = other_road.points[0]
+                            
+                            other_end = other_road.points[-1]
+                            
+                            point = None
+                            if other_start == end:
+                                point = str(end) 
                                 
-                            if not Road_id in pints_of_intest[point]:
-                                pints_of_intest[point].append(Road_id) 
-                                
-                            if not other_Road_id in pints_of_intest[point]:
-                                pints_of_intest[point].append(other_Road_id)
+                            elif other_end == start: 
+                                point = str(start) 
+                            # elif other_start == start:  
+                            #     point = str(start)  
+                            # elif  other_end == end:
+                            #     point = str( end )  
+                            
+                            
+                            if point is not None:
+                                if pints_of_intest.get(point, None) is None:
+                                    pints_of_intest[point] = []
+                                    
+                                if not Road_id in pints_of_intest[point]:
+                                    pints_of_intest[point].append(Road_id) 
+                                    
+                                if not other_Road_id in pints_of_intest[point]:
+                                    pints_of_intest[point].append(other_Road_id)
                             
  
             mergelists = []                  
@@ -3191,7 +3208,9 @@ class Scenery():
                 
                 if road1 != other_road:
                     
-                    if road1.points[0] in other_road.points and  road1.points[-1] in other_road.points:
+                    
+                    
+                    if len(road1.points) > 2 and len(other_road.points) > 2 and  road1.points[0] in other_road.points and  road1.points[-1] in other_road.points:
                         indextoremove.append(index)
                         
                     elif len(road1.points) <2:
@@ -3225,10 +3244,7 @@ class Scenery():
         #
         #
         #
-
-        
-
-        
+ 
         # for  Building in tqdm( Buildings ):
         #     xc , yc = Building.get_Center()
         #     T_min = 1000
@@ -3433,16 +3449,17 @@ class Scenery():
     
     
     
-    def draw_scenery(self):
+    def draw_scenery(self, savepath = None , size = (25,25)):
         
 
         #for road in self.Roads:
-        fig, ax = plt.subplots(figsize=(10, 10), facecolor='lightskyblue', layout='constrained')
+        fig, ax = plt.subplots(figsize=size, facecolor='lightskyblue', layout='constrained')
         plt.axis('equal')
         onclick = self.onclick
         cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
         for space in  self.Spaces:
+ 
             space.draw(  fig , ax)
         
         for Building in self.Buildings:
@@ -3460,8 +3477,12 @@ class Scenery():
         
             road.draw_Road(  fig , ax )
             
-        plt.show() 
-
+        #plt.show() 
+        if savepath is NONE:
+            savepath = f"..\\Data\\scenery.png"
+            
+        
+        plt.savefig(savepath)
 
  
 
@@ -3575,10 +3596,10 @@ if __name__ == '__main__':
 
     
     
-    filepath = os.path.abspath("..\\OSM_Interface\\Paderborn_inner_ring.osm")
+    filepath = os.path.abspath("..\\Data\\paderborn_big.osm")
     sceneryObj = Scenery.from_Osm(filepath)    
-    sceneryObj.export2opendrive("..\\OSM_Interface\\Paderborn_inner_ring.xodr")
-    sceneryObj.draw_scenery()
+    sceneryObj.export2opendrive("..\\Data\\paderborn_big.xodr")
+    sceneryObj.draw_scenery("..\\Data\\paderborn_big.png" , (50,50))
     
     # for road in sceneryObj.Roads:
     #
