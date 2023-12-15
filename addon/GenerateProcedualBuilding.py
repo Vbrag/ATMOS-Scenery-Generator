@@ -16,7 +16,7 @@ import inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.insert(0, currentdir) 
 
-import  osm_map as  osm_map
+import  scenery as  scenery
 
 
 
@@ -196,7 +196,7 @@ modular_assets_collection.children.link(unidentified_collection)
 # Import FBX
 dirname = os.path.dirname(__file__)
 filename = os.path.join(dirname, 'buildify_1.0_assets.fbx')
-Osmfilename = os.path.join(dirname, './Data/WesternTor_2.osm')
+Osmfilename = os.path.join(dirname, 'WesternTor_2.osm')
 
 
 bpy.ops.import_scene.fbx( filepath = filename )
@@ -365,11 +365,13 @@ cross_sections[0] = [(-20,-20),(-20,20), (40,20), (40,-20), (10,-20), (10,-10), 
 cross_sections[1] = [(-40,-20), (-30,-20),(-30,10), (-40,10)]
  
  
+#filepath = os.path.abspath(".\WesternTor_2.osm")
+sceneryObj = scenery.Scenery.from_Osm(Osmfilename)  
 
-for building_counter in range(len(cross_sections)):
+for building_counter in range(len(sceneryObj.Buildings)):
  
-    cross_section_co = cross_sections[building_counter]
-    number_of_floors = number_of_floorsdict[building_counter]
+    cross_section_co = sceneryObj.Buildings[building_counter].Floor_plan
+    number_of_floors = 3#number_of_floorsdict[building_counter]
 
     doBuilding(cross_section_co, number_of_floors)
 
