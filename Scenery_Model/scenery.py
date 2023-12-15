@@ -5,7 +5,7 @@ Created on 03.11.2023
 '''
 
 from OSM_Interface import  osm_map as  osm_map
-from scipy.special import fresnel
+
 from OpenDRIVE_1_7_0 import  opendrive_17 as  opendrive
 import os #, math
 import ctypes, sys
@@ -1715,8 +1715,8 @@ class Road():
         
         if len(self.points ) > 0: 
             xs, ys = zip(*self.points) #create lists of x and y values
-            ax.plot(xs,ys)
-    
+            #ax.plot(xs,ys)
+            plt.scatter(xs,ys)
     
             # for space in  self.Spaces:
             #     space.draw(  fig , ax)
@@ -1731,8 +1731,8 @@ class Road():
             
             #print(self.points)
             
-            for key in self.tags:
-                print(key , " ---> " )
+            # for key in self.tags:
+            #     print(key , " ---> " )
             
         return False
         # facecolor = 'k'
@@ -3479,11 +3479,11 @@ class Scenery():
             
         #plt.show() 
         if savepath is NONE:
-            savepath = f"..\\Data\\scenery.png"
+            savepath = f"..\\Data\\scenery"
             
         
-        plt.savefig(savepath)
-
+        plt.savefig(savepath + ".png")
+        plt.savefig(savepath + ".svg" )
  
 
 
@@ -3596,10 +3596,10 @@ if __name__ == '__main__':
 
     
     
-    filepath = os.path.abspath("..\\Data\\paderborn_big.osm")
+    filepath = os.path.abspath("..\\Data\\WesternTor_2.osm")
     sceneryObj = Scenery.from_Osm(filepath)    
-    sceneryObj.export2opendrive("..\\Data\\paderborn_big.xodr")
-    sceneryObj.draw_scenery("..\\Data\\paderborn_big.png" , (50,50))
+    sceneryObj.export2opendrive("..\\Data\\WesternTor_2.xodr")
+    sceneryObj.draw_scenery("..\\Data\\WesternTor_2" , (50,50))
     
     # for road in sceneryObj.Roads:
     #
