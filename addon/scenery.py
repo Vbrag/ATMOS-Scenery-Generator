@@ -4,9 +4,9 @@ Created on 03.11.2023
 @author: abdel
 '''
 
-from OSM_Interface import  osm_map as  osm_map
+import  osm_map as  osm_map
 
-from OpenDRIVE_1_7_0 import  opendrive_17 as  opendrive
+import  opendrive_17 as  opendrive
 import os #, math
 import ctypes, sys
 #from pyproj import CRS, Transformer

@@ -196,7 +196,7 @@ modular_assets_collection.children.link(unidentified_collection)
 # Import FBX
 dirname = os.path.dirname(__file__)
 filename = os.path.join(dirname, 'buildify_1.0_assets.fbx')
-Osmfilename = os.path.join(dirname, 'WesternTor_2.osm')
+
 
 
 bpy.ops.import_scene.fbx( filepath = filename )
@@ -353,18 +353,9 @@ def doBuilding(cross_section_co ,number_of_floors ):
 
 
 
-number_of_floorsdict = {}
-number_of_floorsdict[0] = 7
-number_of_floorsdict[1] = 3
- 
-
-
-# add dummy cross section (to be changed with cross section form osm data)
-cross_sections = {}
-cross_sections[0] = [(-20,-20),(-20,20), (40,20), (40,-20), (10,-20), (10,-10), (-10,-10),(-10,-20), (-20,-20)]
-cross_sections[1] = [(-40,-20), (-30,-20),(-30,10), (-40,10)]
  
  
+Osmfilename = os.path.join(dirname, 'WesternTor_2.osm') 
 #filepath = os.path.abspath(".\WesternTor_2.osm")
 sceneryObj = scenery.Scenery.from_Osm(Osmfilename)  
 
