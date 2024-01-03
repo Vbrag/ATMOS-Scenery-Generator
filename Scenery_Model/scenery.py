@@ -3443,12 +3443,7 @@ class Scenery():
             outfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             opendrive_object.export(outfile = outfile ,  level = 0 ,  pretty_print  =True)
  
-             
-        
-            
-    
-    
-    
+ 
     def draw_scenery(self, savepath = None , size = (25,25)):
         
 
