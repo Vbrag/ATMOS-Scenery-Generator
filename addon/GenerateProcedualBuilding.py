@@ -365,6 +365,7 @@ for building_counter in range(len(sceneryObj.Buildings)):
     number_of_floors = 3#number_of_floorsdict[building_counter]
 
     doBuilding(cross_section_co, number_of_floors)
+ 
 
 
  

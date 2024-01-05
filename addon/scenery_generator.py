@@ -1,6 +1,6 @@
 
 bl_info = {
-    "name": "ATMOS Scenery_Model Generator",
+    "name": "Scenery Generator new",
     "author": "Abdelmawla Saeed Rizk abdelmawla.rizk@uni-paderborn.de",
     "version": (1, 0, 0),
     "blender": (3, 6, 0),
@@ -147,11 +147,11 @@ register_List.append(ImportBuildingsOperator)
     
 class LayoutPanel(bpy.types.Panel):
     """Creates a Panel in the scene context of the properties editor"""
-    bl_label = "ATMOS Scenery_Model Generator"
+    bl_label = " Scenery  Generator new"
     bl_idname = __name__#"PT_UniPaderpornRtm"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = "Scenery_Model Generator"
+    bl_category = "Scenery Generator new"
 
     def draw(self, context):
         layout = self.layout
@@ -234,3 +234,4 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+    
