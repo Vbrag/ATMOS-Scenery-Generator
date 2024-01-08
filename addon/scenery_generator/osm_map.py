@@ -36,10 +36,8 @@ from lxml import etree as etree_
 Validate_simpletypes_ = True
 SaveElementTreeNode = True
 TagNamePrefix = ""
-if sys.version_info.major == 2:
-    BaseStrType_ = basestring
-else:
-    BaseStrType_ = str
+
+BaseStrType_ = str
 
 
 def parsexml_(infile, parser=None, **kwargs):

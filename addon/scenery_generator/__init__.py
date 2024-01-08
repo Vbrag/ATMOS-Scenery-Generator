@@ -17,7 +17,10 @@ from bpy.props import StringProperty, IntProperty, BoolProperty
  
 
 
+from . import scenery 
 
+
+print("all ok")
 register_List= []
 
 
@@ -25,15 +28,20 @@ class OpenBrowserOSM(bpy.types.Operator):
     bl_idname = "open.browser_osm"
     bl_label = "get OSM file"
 
-    filepath = bpy.props.StringProperty(subtype="FILE_PATH") 
+    filepath : bpy.props.StringProperty(subtype="FILE_PATH") 
     #somewhere to remember the address of the file
-
+    
+    
+    # @classmethod
+    # def poll(cls, context):
+    #     return context.object is not None
+    #
 
     def execute(self, context):
-        display = "filepath= "+ str(self.filepath  )
-        print(display) #Prints to console  
-        #Window>>>Toggle systen console
-
+        file = open(self.filepath, 'w')
+        file.write("Hello World "   )
+        print(self.filepath)
+        
         return {'FINISHED'}
 
     def invoke(self, context, event): # See comments at end  [1]
@@ -46,6 +54,8 @@ class OpenBrowserOSM(bpy.types.Operator):
         return {'RUNNING_MODAL'}  
         # Tells Blender to hang on for the slow user input
 
+
+ 
 
  
 register_List.append(OpenBrowserOSM)
